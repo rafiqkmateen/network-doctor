@@ -1,0 +1,36 @@
+name: release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Test
+        run: go test ./...
+      - name: Build every system
+        run: |
+          mkdir -p dist/release
+          for t in windows/amd64 linux/amd64 linux/arm64 darwin/amd64 darwin/arm64; do
+            os=${t%/*}; arch=${t#*/}; ext=""; [ "$os" = windows ] && ext=".exe"
+            out="netdoctor-${os}-${arch}${ext}"
+            GOOS=$os GOARCH=$arch CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o "dist/release/$out" ./cmd/netdoctor
+          done
+          cp docs/GUIDE.md dist/release/GUIDE.md
+          (cd dist/release && sha256sum netdoctor-* GUIDE.md > SHA256SUMS.txt)
+      - name: Sign the builds
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "dist/release/netdoctor-*"
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/release/*

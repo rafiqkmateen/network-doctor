@@ -1,0 +1,63 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Network Doctor</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#16181d;--mute:#5a6270;--line:#dfe3ea;--ok:#13795b;--bad:#b42318;--accent:#1d5fd1}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#171a21;--ink:#eceef2;--mute:#9aa3b2;--line:#2a2f3a;--ok:#4cc9a0;--bad:#ff8a80;--accent:#7aa7ff}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,Segoe UI,sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:1.5rem;margin:0 0 4px}p.sub{color:var(--mute);margin:0 0 18px}
+button{background:var(--accent);color:#fff;border:0;border-radius:10px;padding:12px 20px;font-size:1rem;cursor:pointer}
+button:disabled{opacity:.6}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-top:14px}
+h2{font-size:1rem;margin:0 0 8px}ul{margin:6px 0 0;padding-left:20px}
+.big{font-size:1.15rem;font-weight:600}.ok{color:var(--ok)}.bad{color:var(--bad)}.mute{color:var(--mute)}
+table{width:100%;border-collapse:collapse;font-size:.92rem}td,th{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line);word-break:break-word}
+</style>
+</head>
+<body>
+<main>
+<h1>Network Doctor</h1>
+<p class="sub">Looks at your connection and explains what it finds. It never changes anything.</p>
+<button id="go">Run a full check</button> <span id="state" class="mute"></span>
+<div id="out"></div>
+</main>
+<script>
+const out=document.getElementById('out'),btn=document.getElementById('go'),state=document.getElementById('state');
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function card(title){const s=el('section');s.appendChild(el('h2','',title));out.appendChild(s);return s}
+function list(s,items){if(!items||!items.length)return;const u=el('ul');items.forEach(i=>u.appendChild(el('li','',i)));s.appendChild(u)}
+function mins(ns){const m=Math.round(ns/6e10);return m<1?'under a minute':m+' min'}
+function render(r){
+  out.replaceChildren();
+  const f=r.finding,rd=r.reading,ok=f.cause==='none';
+  let s=card('Answer');s.appendChild(el('div','big '+(ok?'ok':'bad'),f.summary));
+  if(!ok)s.appendChild(el('p','','Check first: '+f.check_first));
+  s=card('Numbers');
+  list(s,['Connection: '+rd.kind+(rd.link_mbps?' at '+rd.link_mbps+' Mbps':''),
+   'To the router: '+rd.router_ms+' ms, '+rd.router_loss_pct+'% lost',
+   'To the internet: '+rd.internet_ms+' ms, '+rd.internet_loss_pct+'% lost',
+   'Speed: '+rd.down_mbps.toFixed(0)+' down, '+rd.up_mbps.toFixed(0)+' up (Mbps)'+(rd.plan_mbps?' of '+rd.plan_mbps+' planned':'')]);
+  if(r.link_advice&&r.link_advice.length){s=card('Link');list(s,r.link_advice)}
+  s=card('Drops in the last 7 days');
+  s.appendChild(el('p','',r.drops.count+' drop'+(r.drops.count===1?'':'s')+', plus '+r.drops.brief_blips+' blips under 5 seconds'));
+  list(s,(r.drops.drops||[]).map(d=>new Date(d.start).toLocaleString()+' for '+mins(d.length)));
+  if(r.drops.pattern)s.appendChild(el('p','',r.drops.pattern));
+  s=card('Line use right now');list(s,r.bandwidth_advice);
+  if(r.devices&&r.devices.length){s=card('Devices on the network');
+    const t=el('table');const h=el('tr');['Name','Maker','Address','Status'].forEach(x=>h.appendChild(el('th','',x)));t.appendChild(h);
+    r.devices.forEach(d=>{const tr=el('tr');[d.name||'-',d.maker,d.ip+' / '+d.mac,d.known?'known':'not marked known'].forEach(x=>tr.appendChild(el('td','',x)));t.appendChild(tr)});s.appendChild(t)}
+  s=card('Settings review');
+  (r.settings||[]).forEach(a=>{const p=el('p');p.appendChild(el('strong','',a.area+': '));p.appendChild(document.createTextNode(a.finding+' '+a.effect));s.appendChild(p)});
+  if(r.notes&&r.notes.length){s=card('Notes');list(s,r.notes)}
+}
+btn.onclick=async()=>{btn.disabled=true;state.textContent='Checking. This takes about 30 seconds.';
+  try{const res=await fetch('/api/check');if(!res.ok)throw new Error(res.status);render(await res.json());state.textContent='Done.'}
+  catch(e){state.textContent='The check did not finish.'}
+  btn.disabled=false};
+</script>
+</body>
+</html>
