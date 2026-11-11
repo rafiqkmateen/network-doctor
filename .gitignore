@@ -1,0 +1,5 @@
+*.exe
+dist/
+*.log
+.env
+history/
