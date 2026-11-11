@@ -36,6 +36,6 @@ Key: PASS = tested and met. PARTIAL = met in part; the gap is named. NOT BUILT =
 | ND-81 web page | PARTIAL | Page ran in the built-in browser on this laptop and gave the answer. Blocked and allowed addresses are tested. Not tried from a phone. |
 | ND-90 to ND-96 | NOT BUILT | Stage 2 comes after stage 1 is accepted. |
 | ND-100 checksums, signature | PARTIAL | Checksum file produced. The signature step is written into the release workflow and runs on the first release. |
-| ND-101 tests on three systems | PENDING | The workflow is written; it runs after the first push. |
+| ND-101 tests on three systems | PASS | 2026-11-11 2338: the automated tests, vet and build passed on GitHub's Windows, Mac and Linux machines. Two earlier runs failed in the format check itself (a shell difference on Mac, line endings on Windows), not in the tool; both were fixed. These runs use the pretend-machine tests; the Mac and Linux readers of adapter, log, devices and settings are not built yet. |
 
 Also found: Windows Application Control blocked an unsigned test program in a temporary folder. `netdoctor.exe` itself ran. On a laptop with strict app control the tool will need a code-signing certificate (change list).
