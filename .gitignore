@@ -3,3 +3,6 @@ dist/
 *.log
 .env
 history/
+
+# Local run folder (an installed copy, may hold third-party tools)
+run/

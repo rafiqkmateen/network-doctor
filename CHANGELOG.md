@@ -3,6 +3,11 @@
 Purpose: every change to Network Doctor, newest first, in Keep a Changelog form.
 Owner: Rafiq. Version 0.2.0.
 
+## [Unreleased]
+
+### Changed
+- The front page and the guide no longer say the tool "never changes a setting". They say checks only look, and describe the optional `fix` commands, the private phone page (https) and its one-time warning.
+
 ## [0.2.0] - 2026-11-12
 
 ### Added

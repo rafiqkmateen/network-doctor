@@ -1,11 +1,11 @@
 # Network Doctor: one-page guide
 
 Purpose: how to use Network Doctor, in plain words, for anyone.
-Owner: Rafiq. Version 0.3.2 (0.3.2: the Start it section points to the installer; 0.3.1: check time; 0.3.0: setup helper, share command, alerts file, Mac and Linux; 0.2.0: install section; 0.1.0: first guide).
+Owner: Rafiq. Version 0.4.0 (0.4.0: fixes, private phone page; 0.3.2: the Start it section points to the installer; 0.3.1: check time; 0.3.0: setup helper, share command, alerts file, Mac and Linux; 0.2.0: install section; 0.1.0: first guide).
 
 ## What it does
 
-Network Doctor looks at your internet connection, wired or Wi-Fi. It tells you in plain words what is wrong and what to check first. It only looks. It never changes a setting, a driver or a program.
+Network Doctor looks at your internet connection, wired or Wi-Fi. It tells you in plain words what is wrong and what to check first. A check only looks. It never changes a setting, a driver or a program. The separate `fix` commands (see "Fix a problem" below) can change one small setting, but only when you type the command and say yes.
 
 ## Start it
 
@@ -33,7 +33,7 @@ The first time you type just `netdoctor` in a window, a short helper asks a few 
 netdoctor serve
 ```
 
-Open `http://127.0.0.1:8765/` on the same computer.
+Open `http://127.0.0.1:8765/` on the same computer. To use https there too, type `netdoctor serve --https`.
 
 To open it on your phone, type this instead:
 
@@ -41,9 +41,27 @@ To open it on your phone, type this instead:
 netdoctor share
 ```
 
-It finds this computer's address and starts the page for your own network only. It prints the address and a code. Point the phone camera at the code, or type the address. The phone must be on the same Wi-Fi as the computer. When the phone opens the page, the window says so. If nothing happens after a minute, it lists what to try: press Allow if Windows asks, avoid a guest network, and turn off a VPN. On a light screen, type `netdoctor share --light` so the code is drawn dark on light.
+It finds this computer's address and starts the page for your own network only. It prints the address and a code. The address starts with `https`, because the page is private. Point the phone camera at the code, or type the address. The phone must be on the same Wi-Fi as the computer. The first time, the phone says the page is not secure, because the lock was made on your computer and the phone has not seen it before. That is expected. Press Advanced, then Continue. It asks only once. For the plain address, type `netdoctor share --http`. When the phone opens the page, the window says so. If nothing happens after a minute, it lists what to try: press Allow if Windows asks, avoid a guest network, and turn off a VPN. On a light screen, type `netdoctor share --light` so the code is drawn dark on light.
 
 Network Doctor never changes your firewall. Windows may ask once whether to allow it. That choice is yours.
+
+## Fix a problem (optional)
+
+A check tells you what is wrong. If you want help fixing one of three small things, use `fix`. Nothing runs by itself, and nothing is in the weekly check or alerts.
+
+```
+netdoctor fix list
+netdoctor fix apply proxy
+netdoctor fix apply proxy --yes
+netdoctor fix undo proxy
+```
+
+- `fix list` shows each fix and its setting right now.
+- `fix apply NAME` shows the setting now and what it would become, and changes nothing.
+- Add `--yes` to make that one fix. It saves the old value and writes a line to `fix-log.txt`.
+- `fix undo NAME` puts the old value back.
+
+The fixes are `name-cache` (clears the saved list of website addresses), `proxy` (turns off a web proxy) and `power-saving`. Network Doctor never changes power saving itself. It gives you the steps for Device Manager, because some drivers will not let Windows read that setting. It never changes drivers or security, and it never does anything that could cut off your connection. On a server nobody sits at, fixes are off until you type `netdoctor fix enable-here` on that machine.
 
 ## Check every week
 
