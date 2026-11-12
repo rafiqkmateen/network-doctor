@@ -131,6 +131,9 @@ func TestUninstallUndoesTheInstallAndKeepsResultsByDefault(t *testing.T) {
 	if !strings.Contains(run, "/Delete") || strings.Count(run, "schtasks") < 2 {
 		t.Error("both tasks must be deleted on uninstall")
 	}
+	if !strings.Contains(s, "UninstallSilent") {
+		t.Error("a silent uninstall must not show the question (found on GitHub: it hung waiting)")
+	}
 	if !strings.Contains(s, "Keep your saved results") {
 		t.Error("the uninstaller must ask: Keep your saved results")
 	}

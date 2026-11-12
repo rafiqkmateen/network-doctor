@@ -69,6 +69,8 @@ function InitializeUninstall(): Boolean;
 begin
   if ExpandConstant('{param:DELETERESULTS|0}') = '1' then
     DeleteResults := True
+  else if UninstallSilent then
+    DeleteResults := False  // silent means nobody can answer: keep the results
   else
     DeleteResults := MsgBox('Keep your saved results?' + #13#10#13#10 +
       'Yes keeps the weekly spreadsheet, the alert log and your list of known devices.' + #13#10 +
