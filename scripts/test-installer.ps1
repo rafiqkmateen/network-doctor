@@ -42,8 +42,9 @@ foreach ($c in $cases) {
   Write-Host "== $($c.Name)"
   $args1 = @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART')
   if ($c.Parts) { $args1 += "/COMPONENTS=$($c.Parts)" }
-  $p = Start-Process -FilePath $Setup -ArgumentList $args1 -Wait -PassThru
-  Check ($p.ExitCode -eq 0) 'install finished'
+  $args1 += "/LOG=$env:TEMP\ndsetup-$($c.Name).log"
+  $code = RunWait $Setup $args1 "install ($($c.Name))"
+  Check ($code -eq 0) 'install finished'
   Check (Test-Path "$app\netdoctor.exe") 'on-demand check is installed (always)'
   Check ((Test-Path "$app\netdoctorw.exe") -and (Test-Path "$app\GUIDE.md")) 'quiet program and guide are installed'
   Check (Test-Path "$app\installed.marker") 'installed marker is present'
@@ -57,9 +58,11 @@ foreach ($c in $cases) {
   Check (Test-Path "$data\known-devices.txt") 'results are saved in ProgramData'
   $un = @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART')
   if ($c.Delete) { $un += '/DELETERESULTS=1' }
-  $p = Start-Process -FilePath "$app\unins000.exe" -ArgumentList $un -Wait -PassThru
-  Check ($p.ExitCode -eq 0) 'uninstall finished'
-  Start-Sleep -Seconds 2
+  $un += "/LOG=$env:TEMP\ndunins-$($c.Name).log"
+  $code = RunWait "$app\unins000.exe" $un "uninstall ($($c.Name))"
+  Check ($code -eq 0) 'uninstall finished'
+  # The first-stage uninstaller can hand over to a temporary copy; give it a moment to finish.
+  for ($i = 0; $i -lt 30 -and (Test-Path "$app\unins000.exe"); $i++) { Start-Sleep -Seconds 2 }
   Check (-not (Test-Path "$app\netdoctor.exe")) 'program is gone'
   Check ((-not (TaskExists $weekly)) -and (-not (TaskExists $alerts))) 'both tasks are gone'
   Check (-not (Entry)) 'Apps and features entry is gone'
