@@ -6,7 +6,9 @@ Owner: Rafiq. Version 0.1.0.
 ## [Unreleased]
 
 ### Added
-- Requirements, test cases and a change list entry for the Windows installer (change list 11).
+- Windows installer (`installer/netdoctor.iss`, Inno Setup): the on-demand check always installs; the weekly check and alerts are optional tick boxes; silent switches for IT; an uninstaller that undoes exactly what the install did and keeps saved results by default. Installed copies save in ProgramData. Tested on GitHub's clean Windows machine for all four choices (change list 11).
+- `netdoctorw.exe`, a build with no console window, used by the weekly and alerts tasks.
+- Install and removal section in the guide.
 
 ## [0.1.0] - 2026-11-11
 

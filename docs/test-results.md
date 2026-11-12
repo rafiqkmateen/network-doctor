@@ -37,5 +37,16 @@ Key: PASS = tested and met. PARTIAL = met in part; the gap is named. NOT BUILT =
 | ND-90 to ND-96 | NOT BUILT | Stage 2 comes after stage 1 is accepted. |
 | ND-100 checksums, signature | PARTIAL | Checksum file produced. The signature step is written into the release workflow and runs on the first release. |
 | ND-101 tests on three systems | PASS | 2026-11-11 2338: the automated tests, vet and build passed on GitHub's Windows, Mac and Linux machines. Two earlier runs failed in the format check itself (a shell difference on Mac, line endings on Windows), not in the tool; both were fixed. These runs use the pretend-machine tests; the Mac and Linux readers of adapter, log, devices and settings are not built yet. |
+| ND-110 | PASS | 2026-11-11: on GitHub's clean Windows machine, `setup.exe` installed with nothing else set up and `netdoctor version` ran (Network Doctor 0.1.0). |
+| ND-111 | PASS | A script check finds the check-on-demand part marked fixed. The silent install with no parts chosen installed it and nothing else. |
+| ND-112 | PARTIAL | A script check finds each optional part with its own sentence and off by default. The window itself was not opened, because the clean-machine run is silent. Nobody has seen the tick-box window yet. |
+| ND-113 | PASS | All four choices (neither, scheduled, proactive, both) installed exactly the right files and tasks. |
+| ND-114 | PASS | The four runs used the silent switches with `/COMPONENTS`; no window opened. |
+| ND-115 | PASS | Program in Program Files, entry in Apps and features, uninstaller in the program folder, install ran with administrator rights. |
+| ND-116 | PASS | Installed copy saved `known-devices.txt` in ProgramData. A test shows the unzipped copy keeps its per-person folder. |
+| ND-117 | PASS | The weekly task existed only with scheduled; the log-on task only with proactive. |
+| ND-118 | PASS | Uninstall removed the program, both tasks and the Apps and features entry. Results were kept by default and deleted with the delete switch. Found on the way: the question box made a silent uninstall hang; a silent uninstall now keeps results without asking. |
+| ND-119 | PASS | A test scans the script for web, mail and download words and finds none. |
+| ND-120 | PASS | All four choices, install then uninstall, passed on GitHub's clean Windows machine on 2026-11-11 (run 43131744806). The Mac and Linux readers are still not built. |
 
 Also found: Windows Application Control blocked an unsigned test program in a temporary folder. `netdoctor.exe` itself ran. On a laptop with strict app control the tool will need a code-signing certificate (change list).

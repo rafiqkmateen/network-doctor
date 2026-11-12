@@ -1,7 +1,7 @@
 # Network Doctor: one-page guide
 
 Purpose: how to use Network Doctor, in plain words, for anyone.
-Owner: Rafiq. Version 0.1.0.
+Owner: Rafiq. Version 0.2.0 (0.2.0: install section; 0.1.0: first guide).
 
 ## What it does
 
@@ -57,6 +57,20 @@ netdoctor watch
 
 It tells you when the link drops, when speed stays low, and when a new device appears. Messages show in the window by default. `netdoctor config sinks console,file,screen` adds a log file and a Windows pop-up. `netdoctor config quiet 22 6` keeps it quiet from 2200 to 0600.
 
+## Install it (Windows)
+
+If you were given `NetworkDoctor-Setup-0.1.0.exe`, double-click it. Windows asks for permission once. Then pick the parts you want:
+
+- **Check on demand.** Always included. You run a check any time you want one.
+- **Weekly check.** Once a week, Monday at 0900, it saves your speed to a file. Nothing leaves your computer.
+- **Alerts.** A small helper starts when you log on and runs all the time. It tells you on screen when your connection drops, stays slow, or a new device appears. Nothing leaves your computer.
+
+The program goes in `C:\Program Files\Network Doctor`. Your results go in `C:\ProgramData\NetworkDoctor`.
+
+**For IT, with no window.** Run the setup file with `/VERYSILENT /SUPPRESSMSGBOXES`. Add `/COMPONENTS="scheduled,proactive"` for both extras, or just one of the two names. Leave `/COMPONENTS` out to install only the check on demand.
+
+**To remove it.** Open Windows Settings, then Apps, then Installed apps, find Network Doctor and press Uninstall. It asks if you want to keep your saved results. It removes the weekly task and the alerts helper too. IT can run `"C:\Program Files\Network Doctor\unins000.exe" /VERYSILENT /SUPPRESSMSGBOXES`. That keeps your results. Add `/DELETERESULTS=1` to delete them.
+
 ## If something goes wrong
 
 - **It says "not available on this system yet"**: that check is built for Windows first. Speed, delay and drops of the line itself still work on Mac and Linux.
@@ -65,4 +79,4 @@ It tells you when the link drops, when speed stays low, and when a new device ap
 
 ## Builder box
 
-Files live in `%AppData%\NetworkDoctor`, or in the folder named by the `NETDOCTOR_DIR` setting. Source: Go, `go build ./cmd/netdoctor`. Tests: `go test ./...`. No data leaves the machine except the speed test (Cloudflare's test server) and a ping to 1.1.1.1.
+Files live in `C:\ProgramData\NetworkDoctor` for a copy installed by setup, in `%AppData%\NetworkDoctor` for the plain unzipped file, or in the folder named by the `NETDOCTOR_DIR` setting. Source: Go, `go build ./cmd/netdoctor`. Tests: `go test ./...`. No data leaves the machine except the speed test (Cloudflare's test server) and a ping to 1.1.1.1.
