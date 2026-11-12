@@ -1,7 +1,7 @@
 # Handover
 
 Purpose: the one job for the next session, and nothing else.
-Owner: Rafiq. Version 0.3.0 (0.3.0: wrap of 2026-11-12, speed test fixed, share, setup helper, alerts file, Linux and Mac readers built and passing on GitHub; 0.2.1: code signing made its own row and rows put in dependency order; 0.2.0: wrap of 2026-11-11, pruned; installer seen and installed on his laptop, Khadijah now uses the installed copy, Khadijah-side rows moved to her Handover; 0.1.x: installer and stage 1). Date: 2026-11-11. Finished work is in `CHANGELOG.md`, not here. Keep this page under 1,500 words; prune it at every wrap.
+Owner: Rafiq. Version 0.3.1 (0.3.1: new setup installed 2026-11-12, blocked by Windows Application Control, matrix row 1 is the fault; 0.3.0: wrap of 2026-11-12, speed test fixed, share, setup helper, alerts file, Linux and Mac readers built and passing on GitHub; 0.2.1: code signing made its own row and rows put in dependency order; 0.2.0: wrap of 2026-11-11, pruned; installer seen and installed on his laptop, Khadijah now uses the installed copy, Khadijah-side rows moved to her Handover; 0.1.x: installer and stage 1). Date: 2026-11-11. Finished work is in `CHANGELOG.md`, not here. Keep this page under 1,500 words; prune it at every wrap.
 
 ## Do this first
 
@@ -23,13 +23,12 @@ Owner: Rafiq. Version 0.3.0 (0.3.0: wrap of 2026-11-12, speed test fixed, share,
 
 | # | What | Industry standard | State |
 |---|------|-------------------|-------|
-| 1 | Put the new setup on his laptop. It carries the faster speed test, the phone page command, the first-run helper, the alerts file switch and the Mac and Linux readers. I fetch it from GitHub's finished build and open the folder; the install is his press on the Windows box. | Test the shipped file, not the build folder. | Waits for his "go". |
-| 2 | Scan the phone code: run `netdoctor share` and point his phone at the code. The page and code are built and tested, but no real phone has opened the page yet. | Test on the real device. | Waits for row 1, then his press. |
+| 1 | FAULT: Windows Application Control blocks the new installed `netdoctor.exe` (not signed, so Windows does not trust it). Khadijah's card cannot run it until this is fixed. The fix is code signing: a paid certificate that proves the file comes from you. Or you allow the file yourself in Windows Security. I will not work around the block. | Sign what you ship. | Waits for your answer. Row 2 waits on it. |
+| 2 | Scan the phone code: run `netdoctor share` and point your phone at the code. The new setup is installed; the page and code are tested but no real phone has opened the page yet. | Test on the real device. | Waits for row 1, then your press. |
 | 3 | Mac connection history (drops over seven days). The Mac log is slow and changes between versions, so the Mac reader says "not available" for drops today. Build it or leave it. | Test on the real system. | Waits for his answer. |
-| 4 | Code signing: a paid certificate that proves the Windows file really comes from you. Without it, a strict Windows computer can block the file. Your choice and a purchase. | Sign what you ship. | Waits for his answer. Comes before going public. |
-| 5 | Pick a license: the rule that says what other people may do with the code. | Public code needs a license. | Waits for his answer. Comes before going public. |
-| 6 | Make the repository public: a no-reply email, a front page, a first release. | Public code needs no personal data. | Waits for his "go", after rows 4 and 5. |
-| 7 | Stage 2: let the tool fix a problem itself, only with his yes on each fix, a before and after view, one-press undo and a change log. | Least privilege, undo, audit log. | After stage 1 is accepted. |
+| 4 | Pick a license: the rule that says what other people may do with the code. | Public code needs a license. | Waits for his answer. Comes before going public. |
+| 5 | Make the repository public: a no-reply email, a front page, a first release. | Public code needs no personal data. | Waits for his "go", after rows 1 and 4. |
+| 6 | Stage 2: let the tool fix a problem itself, only with his yes on each fix, a before and after view, one-press undo and a change log. | Least privilege, undo, audit log. | After stage 1 is accepted. |
 
 ## State (2026-11-11)
 
