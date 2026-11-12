@@ -1,7 +1,7 @@
 # Change list
 
 Purpose: ideas and changes waiting for Rafiq's decision. Nothing here is in the build.
-Owner: Rafiq. Version 0.1.0.
+Owner: Rafiq. Version 0.2.0 (0.2.0: row 11 added and agreed; 0.1.0: first rows).
 
 | # | Change | Why | State |
 |---|---|---|---|
@@ -15,3 +15,4 @@ Owner: Rafiq. Version 0.1.0.
 | 8 | Native phone app | Agreed as later. | Later. |
 | 9 | Phone sharing built into the tool: one command (`share`) that finds this computer's address, picks the allowed network range by itself, starts the page, and shows the exact address and a scannable code on screen. It also tests that the page can be reached and says what to click if the firewall or a guest network or VPN is in the way. | The phone steps lived only in the guide. People should not need the guide. Raised by Rafiq 2026-11-11. | Waits for Rafiq's go. |
 | 10 | First-run helper: on first start the tool asks for the plan speed and a name, offers the weekly check and the phone page, and explains each in plain words. Same idea everywhere: the tool tells you what to do next, not the guide. | Same reason as 9. | Waits for Rafiq's go. |
+| 11 | Windows installer: one `setup.exe` in a zip. Reactive (on-demand check) always installs; the person picks weekly check (scheduled) and alerts (proactive). Window for one person, silent switches for IT, uninstaller in Apps and features. Built with Inno Setup, installed in Program Files, results shared in ProgramData, alerts as a log-on task. | Customers install it on their own computers and get only the parts they pick. Raised by Rafiq 2026-11-11; plan agreed the same day. | Agreed, in build (Rafiq's go 2026-11-11). Windows only; Mac and Linux wait for their readers. |

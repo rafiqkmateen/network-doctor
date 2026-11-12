@@ -3,6 +3,11 @@
 Purpose: every change to Network Doctor, newest first, in Keep a Changelog form.
 Owner: Rafiq. Version 0.1.0.
 
+## [Unreleased]
+
+### Added
+- Requirements, test cases and a change list entry for the Windows installer (change list 11).
+
 ## [0.1.0] - 2026-11-11
 
 ### Added

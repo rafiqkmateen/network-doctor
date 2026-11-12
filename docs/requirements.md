@@ -1,7 +1,7 @@
 # Requirements
 
 Purpose: the fixed list of what Network Doctor must do. Each requirement has one test in `test-cases.md`.
-Owner: Rafiq. Version 0.1.0 (draft, awaiting Rafiq's agreement). Date: 2026-11-11.
+Owner: Rafiq. Version 0.2.0 (0.2.0: ND-110 to ND-120 added by change list 11, agreed by Rafiq 2026-11-11; 0.1.0: draft). Date: 2026-11-11.
 
 Form: each requirement is one "shall" sentence that can be tested. A new idea goes on the change list, not here.
 
@@ -51,6 +51,20 @@ Form: each requirement is one "shall" sentence that can be tested. A new idea go
 - ND-94 The tool shall request administrator rights only at the moment of approval.
 - ND-95 The tool shall never apply driver changes, security-protection changes, or any change that could cut off the connection in use.
 - ND-96 On an unattended server, apply shall be off by default and switchable only per machine by the user.
+
+## Installer (Windows, change list 11)
+
+- ND-110 A Windows installer (`setup.exe`, offered in a zip with the guide) shall install Network Doctor without relying on any program, setting or file already on the computer.
+- ND-111 The installer shall always install the on-demand check (reactive), and the person shall not be able to clear it.
+- ND-112 The installer shall ask whether to add the weekly check (scheduled) and the alerts (proactive), each with a plain sentence saying what it does, and shall install only what is chosen.
+- ND-113 Choosing neither, either one or both shall install exactly the on-demand check plus the chosen parts and nothing else.
+- ND-114 The installer shall also run with no window, with switches that carry the same choices, for IT.
+- ND-115 The installer shall put the program in Program Files, add an entry to Apps and features, and ask for administrator rights once.
+- ND-116 An installed copy shall save its results, known devices and alerts in ProgramData; an unzipped copy shall keep saving per person.
+- ND-117 The weekly check shall be a weekly task, and the alerts a task that starts when someone logs on and shows alerts on their screen; neither shall exist unless chosen.
+- ND-118 The uninstaller (in Apps and features, in the program folder, and with a silent switch) shall undo exactly what the install did, and shall ask whether to keep the saved results, with keep as the default.
+- ND-119 The installer and uninstaller shall send nothing off the computer.
+- ND-120 The installer shall be tested for all four choices, install then uninstall, on a Windows computer that has none of the developer's setup.
 
 ## Release
 

@@ -1,7 +1,7 @@
 # Test cases
 
 Purpose: one test per requirement, written before the build. Each says what is done and what counts as a pass.
-Owner: Rafiq. Version 0.1.0 (draft). Date: 2026-11-11.
+Owner: Rafiq. Version 0.2.0 (0.2.0: ND-110 to ND-120 added; 0.1.0: draft). Date: 2026-11-11.
 
 Method: A = automated Go test. M = measured on this laptop, result shown to Rafiq. G = checked by the GitHub test run on Windows, Mac and Linux.
 Status of every test today: not run (nothing built yet).
@@ -42,3 +42,14 @@ Status of every test today: not run (nothing built yet).
 | ND-96 | A | Run in server mode with defaults, then switch apply on for that machine. | Apply refused by default; works only after the per-machine switch. |
 | ND-100 | G | Make a release. | Checksum file and signature present and verify. |
 | ND-101 | G | Push a change. | Test runs complete on Windows, Mac and Linux. |
+| ND-110 | G | On GitHub's clean Windows machine, install with no other setup. | Install finishes and `netdoctor check` runs. |
+| ND-111 | G | Run the silent install with no parts chosen, and look at the window's list in a script check. | The on-demand check is installed and cannot be cleared in the component list. |
+| ND-112 | A | Read the installer script. | Each optional part has a plain sentence and its own tick box, off until chosen. |
+| ND-113 | G | Install each of the four choices. | Files and tasks match the choice exactly, with nothing extra. |
+| ND-114 | G | Install silently with each switch combination. | Same result as the window, and no window opens. |
+| ND-115 | G | Install, then read the folders and the Apps and features list. | Program in Program Files, entry present; the install ran with administrator rights. |
+| ND-116 | A | Run the storage code once as installed and once unzipped. | Installed uses ProgramData; unzipped uses the person's own folder. |
+| ND-117 | G | Install each choice and list the tasks. | A weekly task only with scheduled; a log-on task only with proactive. |
+| ND-118 | G | Uninstall after each choice, keeping and then not keeping results. | Program, tasks and entry gone; results kept by default and gone when asked. |
+| ND-119 | A | Scan the installer script and the setup code. | No upload, mail or web call. |
+| ND-120 | G | Run the whole install and uninstall set in the GitHub run. | All four choices pass on a fresh machine. |
