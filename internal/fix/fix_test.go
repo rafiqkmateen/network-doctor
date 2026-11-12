@@ -15,7 +15,8 @@ type pretend struct {
 	proxyWrites int
 	power       string // "on" or "off"
 	powerWrites int
-	powerDrops  bool // true if turning it off would drop the link in use
+	powerDrops  bool  // true if turning it off would drop the link in use
+	powerErr    error // the driver will not tell us the setting
 	elevations  int
 }
 
@@ -26,7 +27,7 @@ func newPretend() *pretend {
 func (p *pretend) FlushDNS() error              { p.flushes++; return nil }
 func (p *pretend) Proxy() (ProxyState, error)   { return p.proxy, nil }
 func (p *pretend) SetProxy(s ProxyState) error  { p.proxyWrites++; p.proxy = s; return nil }
-func (p *pretend) PowerSaving() (string, error) { return p.power, nil }
+func (p *pretend) PowerSaving() (string, error) { return p.power, p.powerErr }
 func (p *pretend) SetPowerSaving(v string) error {
 	p.powerWrites++
 	p.power = v
@@ -257,6 +258,40 @@ func TestAttendedComputerNeedsNoSwitch(t *testing.T) {
 	m, _ := newManager(t, p, Options{})
 	if _, err := m.Apply("name-cache", true); err != nil {
 		t.Errorf("%v", err)
+	}
+}
+
+// Found live 2026-11-12: a Realtek wired adapter has the setting, but its driver will not
+// let Windows read it. The tool must say so and give the steps, not claim there is no setting.
+func TestUnreadablePowerSettingGivesSteps(t *testing.T) {
+	p := newPretend()
+	p.powerErr = errors.New("a device attached to the system is not functioning")
+	m, _ := newManager(t, p, Options{})
+	pl, err := m.Preview("power-saving")
+	if err != nil {
+		t.Fatalf("an unreadable setting is not an error to show a person: %v", err)
+	}
+	all := pl.Before + " " + pl.After
+	for _, want := range []string{"cannot read", "Device Manager", "Power Management", "turn off this device to save power"} {
+		if !strings.Contains(all, want) {
+			t.Errorf("missing %q in %q", want, all)
+		}
+	}
+	if strings.Contains(strings.ToLower(all), "does not report") || strings.Contains(strings.ToLower(all), "no such setting") {
+		t.Errorf("must not claim the adapter has no setting: %q", all)
+	}
+	_, err = m.Apply("power-saving", true)
+	var r *RefusedError
+	if !errors.As(err, &r) || !strings.Contains(r.Reason, "Device Manager") {
+		t.Errorf("apply must refuse with the steps, got %v", err)
+	}
+	if p.powerWrites != 0 || p.elevations != 0 {
+		t.Errorf("nothing may change or ask for rights: %+v", p)
+	}
+	for _, in := range m.List() {
+		if in.Name == "power-saving" && !strings.Contains(in.Now, "cannot read") {
+			t.Errorf("the list should say it cannot read the setting: %q", in.Now)
+		}
 	}
 }
 

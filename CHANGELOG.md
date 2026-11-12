@@ -12,6 +12,9 @@ Owner: Rafiq. Version 0.1.0.
 
 - The speed test is lighter on the public server: four connections for three seconds (was six for four), and a speed measured less than ten minutes ago is reused, with a note of how old it is (`speed_age_seconds` in the JSON, `speed-last.json` in the results folder) (change list 15, ND-183 and ND-184).
 
+### Fixed
+- The power saving fix no longer says "this adapter does not report a power saving setting" when a driver will not let Windows read it. It says it cannot read the setting and gives the Device Manager steps (found live: the Realtek wired adapter on the maintainer's laptop has the setting on, but its driver refuses the read).
+
 ### Added
 - Stage 2: `netdoctor fix list | apply NAME [--yes] | undo NAME | enable-here`. Three fixes (clear the name cache, turn off a proxy, turn off adapter power saving), each only after a yes to that one fix, with the setting shown before and after, the old value saved, one-press undo and a log (`fix-log.txt`). Power saving only says what to change by hand until a test shows it never drops the link. Off on an unattended server (`NETDOCTOR_UNATTENDED`) until `fix enable-here` (change list 5, ND-90 to ND-96).
 - HTTPS for the phone page: `share` is private by default (`--http` for plain) with a certificate made on this computer, and `serve --https` (change list 16, ND-190 to ND-192).

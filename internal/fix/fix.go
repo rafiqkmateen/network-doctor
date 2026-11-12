@@ -116,6 +116,9 @@ func (m *Manager) allowed() bool {
 	return err == nil
 }
 
+// powerByHand is what to do when the tool must not, or cannot, change the setting.
+const powerByHand = "Change it by hand: right-click Start, open Device Manager, open Network adapters, double-click your adapter, open the Power Management tab, clear the box \"Allow the computer to turn off this device to save power\", and press OK."
+
 func proxyText(s ProxyState) string {
 	if !s.Enabled {
 		return "off"
@@ -170,7 +173,8 @@ func (m *Manager) Preview(name string) (Plan, error) {
 	case power:
 		v, err := m.sys.PowerSaving()
 		if err != nil {
-			return Plan{}, err
+			// Some drivers have the setting but will not let Windows read it.
+			return Plan{Before: "I cannot read this adapter's power saving setting (its driver will not tell me)", After: powerByHand}, nil
 		}
 		return Plan{Before: powerText(v), After: powerText("off")}, nil
 	}
@@ -202,8 +206,13 @@ func (m *Manager) Apply(name string, approved bool) (Result, error) {
 	if err != nil {
 		return Result{}, err
 	}
-	if name == power && m.sys.PowerSavingDropsLink() {
-		return Result{}, &RefusedError{Name: name, Reason: "Turning this off could drop the connection you are using. Change it by hand: open Device Manager, open the adapter, and on the Power Management tab clear the box that lets the computer turn it off."}
+	if name == power {
+		if _, rerr := m.sys.PowerSaving(); rerr != nil {
+			return Result{}, &RefusedError{Name: name, Reason: "I cannot read this adapter's setting, so I will not change it. " + powerByHand}
+		}
+		if m.sys.PowerSavingDropsLink() {
+			return Result{}, &RefusedError{Name: name, Reason: "Turning this off could drop the connection you are using. " + powerByHand}
+		}
 	}
 	if name == power {
 		if err := m.sys.Elevate(); err != nil {
