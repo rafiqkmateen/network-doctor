@@ -24,9 +24,8 @@ Owner: Rafiq. Version 0.6.0 (0.6.0: wrap of 2026-11-12 0200, repository public, 
 
 | # | What | State |
 |---|------|-------|
-| 1 | Push the local commits so GitHub runs the tests (Windows blocks some test programs here). | Waits for his word |
-| 2 | Publish the release `v0.1.0`: push the tag, so GitHub builds the files and the setup. The tag is made here only. | Waits for his word |
-| 3 | Try the fixes on this laptop (proxy, name cache) and a phone scan of the https code. | Waits for his "go" |
+| 1 | Phone scan of the https code from `netdoctor share` (press Advanced, then Continue). | Waits for his phone |
+| 2 | Run `fix apply name-cache --yes` once the rebuilt copy is allowed by Windows (it was blocked at 0210). | Waits for his "go" |
 
 ## State (2026-11-12, laptop clock)
 
@@ -34,7 +33,7 @@ Owner: Rafiq. Version 0.6.0 (0.6.0: wrap of 2026-11-12 0200, repository public, 
 - **Update the run copy** by building into `run\netdoctor-new.exe` with `go build -trimpath -ldflags '-s -w' -o run\netdoctor-new.exe .\cmd\netdoctor`, running `version` and one check, then moving it over `netdoctor.exe`. If Windows blocks it, put the backup back and tell him.
 - **Windows Application Control.** Smart App Control is on and enforcing. It refused the staged `netdoctor.exe` that setup installed (a specific file; the same code built fresh runs, in Program Files style folders and in his user folder). He chose no signing and no turning Smart App Control off. Do not raise it again. Some Go test programs on this laptop are blocked at random: GitHub runs them.
 - **Speed server.** Cloudflare's speed server answered 429 "too many requests" for about an hour on 2026-11-12 after repeated tests. The tool now says "not measured" and the wait, holds off between runs (`speed-hold.txt`), reuses a speed under ten minutes old (`speed-last.json`), uses four connections for three seconds, and the weekly check saves no row without a measured speed. Never run repeated live speed tests. Live proof: after the wait, 874 down and 776 up; a second check within a minute reused the speed.
-- **GitHub.** PUBLIC since 2026-11-12 about 0200, MIT. History rewritten to the no-reply address and pushed; all four jobs passed. Local commits after the push (docs only) are not pushed. This repo's git email is the no-reply one: never his AOL address. Mac history: he said leave it ("not available").
+- **GitHub.** Release v0.1.0 published 2026-11-12 about 0212 (plain files for Windows, Mac, Linux and a checksum list; no setup file in the release). PUBLIC since 2026-11-12 about 0200, MIT. History rewritten to the no-reply address and pushed; all four jobs passed. Local commits after the push (docs only) are not pushed. This repo's git email is the no-reply one: never his AOL address. Mac history: he said leave it ("not available").
 - **Tasks.** Weekly check (Monday 0900) and alerts (at log-on) run from `run
 etdoctorw.exe`.
 - **Not proven:** the camera scan of the code itself (the phone did open the page), Wi-Fi live, Linux and Mac facts beyond the adapter, exact per-program bytes (change list 1), the installer on a computer with a strict app rule.
