@@ -33,9 +33,9 @@ Key: PASS = tested and met. PARTIAL = met in part; the gap is named. NOT BUILT =
 | ND-74 switches, quiet, once | PASS | Tested. |
 | ND-75 default sink | PASS | The default is the console only. |
 | ND-80 command line | PASS | Valid JSON and the documented exit codes, in test and live. |
-| ND-81 web page | PARTIAL | Page ran in the built-in browser on this laptop and gave the answer. Blocked and allowed addresses are tested. Not tried from a phone. |
+| ND-81 web page | PARTIAL | Page ran in the built-in browser on this laptop and gave the answer. Blocked and allowed addresses are tested. Phone: on 2026-11-12 the page opened on Rafiq's phone from `netdoctor share` (see ND-131). |
 | ND-130 | PASS (test) | 2026-11-11: with a pretend adapter the page opens on the adapter's own address only; a pretend VPN adapter is skipped for the real network. Not tried with a real phone. |
-| ND-131 | PARTIAL | A code is drawn with a clear border (light squares on a dark screen; `--light` for a light screen). The test checks its shape. No phone has scanned it yet. |
+| ND-131 | PARTIAL | A code is drawn with a clear border (light squares on a dark screen; `--light` for a light screen). The test checks its shape. 2026-11-12 about 0155 laptop clock: Rafiq's phone opened the page by the address and the tool said "Your phone reached the page"; the screenshot he sent shows the answer, numbers and drops. Whether the camera scan itself read the code is not stated, so ND-131 stays PARTIAL for the scan. |
 | ND-132 | PARTIAL | With a pretend page, the first other device is announced and, with none, the advice appears after the wait; a VPN is named when one is on. The test of the page's own announcement (`internal\web`) was blocked on this laptop by Application Control, and passed on GitHub's Windows, Mac and Linux machines (2026-11-11 2210). No real phone yet. |
 | ND-133 | PASS (test) | Allowed range is the adapter's own network only, and the address is the adapter's, not all addresses. A scan finds no firewall or setting command. |
 | ND-134 | PASS (test) | With no usable address it says so in plain words and the page is not started. |
