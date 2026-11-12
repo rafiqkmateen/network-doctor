@@ -27,7 +27,7 @@ Commands:
   watch [--interval SECONDS]               watch for drops, slow speed, new devices
   serve [--listen ADDR] [--allow CIDRS]    open the local web page (default 127.0.0.1:8765)
   known add MAC [NAME] | known list        mark devices you recognize
-  config show | plan N | name TEXT | quiet FROM TO | sinks LIST | alerts-off LIST
+  config show | plan N | name TEXT | quiet FROM TO | sinks LIST | alerts-file on|off | alerts-off LIST
   schedule enable | disable | status       turn the weekly check on or off
   version
 
@@ -216,10 +216,21 @@ func configCmd(args []string, path string, cfg store.Config, out io.Writer) int 
 		cfg.QuietFrom, cfg.QuietTo = a, b
 	case args[0] == "sinks" && len(args) == 2:
 		cfg.Sinks = strings.Split(args[1], ",")
+	case args[0] == "alerts-file" && len(args) == 2 && (args[1] == "on" || args[1] == "off"):
+		var keep []string
+		for _, k := range cfg.Sinks {
+			if strings.TrimSpace(k) != string(core.SinkFile) {
+				keep = append(keep, k)
+			}
+		}
+		if args[1] == "on" {
+			keep = append(keep, string(core.SinkFile))
+		}
+		cfg.Sinks = keep
 	case args[0] == "alerts-off" && len(args) == 2:
 		cfg.AlertsOff = strings.Split(args[1], ",")
 	default:
-		fmt.Fprintln(out, "Use: config show | plan N | name TEXT | quiet FROM TO | sinks console,file,screen | alerts-off drop,slow,new_device")
+		fmt.Fprintln(out, "Use: config show | plan N | name TEXT | quiet FROM TO | sinks console,file,screen | alerts-file on|off | alerts-off drop,slow,new_device")
 		return 2
 	}
 	if err := store.SaveConfig(path, cfg); err != nil {

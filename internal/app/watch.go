@@ -94,7 +94,7 @@ func Emit(a Alert, sinks []core.Sink, dir string, console io.Writer) []string {
 		case core.SinkFile:
 			if err := os.MkdirAll(dir, 0o755); err == nil {
 				if fh, err := os.OpenFile(filepath.Join(dir, "alerts.log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644); err == nil {
-					fmt.Fprintf(fh, "%s\t%s\t%s\n", a.Time.Format(time.RFC3339), a.Kind, a.Message)
+					fmt.Fprintf(fh, "%s\t%s\t%s\n", a.Time.Format(time.RFC3339), a.Kind, oneLine(a.Message))
 					fh.Close()
 				}
 			}
@@ -107,6 +107,11 @@ func Emit(a Alert, sinks []core.Sink, dir string, console io.Writer) []string {
 		}
 	}
 	return problems
+}
+
+// oneLine keeps a message on one line with no tabs, so each alert is one line in the file.
+func oneLine(s string) string {
+	return strings.Join(strings.Fields(s), " ")
 }
 
 func parseSinks(list []string) []core.Sink {
