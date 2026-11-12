@@ -1,7 +1,7 @@
 # Handover
 
 Purpose: the one job for the next session, and nothing else.
-Owner: Rafiq. Version 0.2.0 (0.2.0: wrap of 2026-11-11, pruned; installer seen and installed on his laptop, Khadijah now uses the installed copy, Khadijah-side rows moved to her Handover; 0.1.x: installer and stage 1). Date: 2026-11-11. Finished work is in `CHANGELOG.md`, not here. Keep this page under 1,500 words; prune it at every wrap.
+Owner: Rafiq. Version 0.2.1 (0.2.1: code signing made its own row and rows put in dependency order; 0.2.0: wrap of 2026-11-11, pruned; installer seen and installed on his laptop, Khadijah now uses the installed copy, Khadijah-side rows moved to her Handover; 0.1.x: installer and stage 1). Date: 2026-11-11. Finished work is in `CHANGELOG.md`, not here. Keep this page under 1,500 words; prune it at every wrap.
 
 ## Do this first
 
@@ -26,9 +26,10 @@ Owner: Rafiq. Version 0.2.0 (0.2.0: wrap of 2026-11-11, pruned; installer seen a
 | 1 | Phone sharing built into the tool: one command finds the address, starts the page, shows a code to scan, and tests that the phone can reach it. Plus a first-run helper that asks "are these your devices?" and offers the parts. | Tools guide the user themselves. | Waits for his "go". Starts rows 1 to 3 in one pass. |
 | 2 | Network Doctor writes alerts to a file, only when switched on. | Alerts reach the user without the user asking. | Part of the same "go" as row 1. |
 | 3 | Real Linux readers, then real Mac readers, tested on GitHub's real Linux and Mac machines. | Test on the real system. | Part of the same "go" as row 1. |
-| 4 | Pick a license for the repository. | Public code needs a license. | Waits for his answer. |
-| 5 | Make the repository public: no-reply email, front page, first release. Code-signing for the Windows files comes first. | Public code needs no personal data. | Waits for his "go", after row 4. |
-| 6 | Stage 2: apply a fix with approval. | Least privilege, undo, audit log. | After stage 1 is accepted. |
+| 4 | Code signing: a paid certificate that proves the Windows file really comes from you. Without it, a strict Windows computer can block the file. Your choice and a purchase. | Sign what you ship. | Waits for his answer. Comes before going public. |
+| 5 | Pick a license: the rule that says what other people may do with the code. | Public code needs a license. | Waits for his answer. Comes before going public. |
+| 6 | Make the repository public: a no-reply email, a front page, a first release. | Public code needs no personal data. | Waits for his "go", after rows 4 and 5. |
+| 7 | Stage 2: let the tool fix a problem itself, only with his yes on each fix, a before and after view, one-press undo and a change log. | Least privilege, undo, audit log. | After stage 1 is accepted. |
 
 ## State (2026-11-11)
 
