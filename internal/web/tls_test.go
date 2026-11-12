@@ -1,15 +1,18 @@
 package web
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 )
@@ -114,6 +117,43 @@ func TestServeTLSAnswersOverHTTPS(t *testing.T) {
 	}
 	if resp.TLS == nil || resp.TLS.Version < tls.VersionTLS12 {
 		t.Error("must be TLS 1.2 or newer")
+	}
+}
+
+// Change list 17: a phone that does not trust the lock yet must not make raw error lines appear in the window.
+func TestServeTLSPrintsNoRawHandshakeErrors(t *testing.T) {
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	defer log.SetOutput(os.Stderr)
+	cert, err := EnsureCert(t.TempDir(), ips("127.0.0.1"), time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Skip("no local port")
+	}
+	addr := ln.Addr().String()
+	ln.Close()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go ServeTLSWith(ctx, addr, nil, func() ([]byte, error) { return nil, nil }, nil, cert)
+	var conn net.Conn
+	for i := 0; i < 40; i++ {
+		if conn, err = net.Dial("tcp", addr); err == nil {
+			break
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
+	conn.Write([]byte("GET / HTTP/1.1\r\n\r\n")) // plain text to a secure port: a handshake error
+	time.Sleep(300 * time.Millisecond)
+	conn.Close()
+	time.Sleep(100 * time.Millisecond)
+	if strings.Contains(buf.String(), "handshake") {
+		t.Errorf("raw handshake errors must not be printed: %q", buf.String())
 	}
 }
 

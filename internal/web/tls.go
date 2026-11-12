@@ -10,6 +10,8 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"errors"
+	"io"
+	"log"
 	"math/big"
 	"net"
 	"net/http"
@@ -98,7 +100,10 @@ func ServeTLSWith(ctx context.Context, addr string, allow []string, run func() (
 		Addr:              addr,
 		Handler:           HandlerWith(run, allow, onRemote),
 		ReadHeaderTimeout: 5 * time.Second,
-		TLSConfig:         &tls.Config{Certificates: []tls.Certificate{cert}, MinVersion: tls.VersionTLS12},
+		// A phone that does not trust the lock yet makes Go print raw handshake
+		// errors. People should not see those, so nothing is printed.
+		ErrorLog:  log.New(io.Discard, "", 0),
+		TLSConfig: &tls.Config{Certificates: []tls.Certificate{cert}, MinVersion: tls.VersionTLS12},
 	}
 	go func() { <-ctx.Done(); srv.Close() }()
 	err := srv.ListenAndServeTLS("", "")
