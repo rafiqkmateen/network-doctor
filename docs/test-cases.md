@@ -1,7 +1,7 @@
 # Test cases
 
 Purpose: one test per requirement, written before the build. Each says what is done and what counts as a pass.
-Owner: Rafiq. Version 0.2.1 (0.2.1: speed case added; 0.2.0: ND-110 to ND-120 added; 0.1.0: draft). Date: 2026-11-11.
+Owner: Rafiq. Version 0.3.0 (0.3.0: ND-130 to ND-172 added; 0.2.1: speed case added; 0.2.0: ND-110 to ND-120 added; 0.1.0: draft). Date: 2026-11-11.
 
 Method: A = automated Go test. M = measured on this laptop, result shown to Rafiq. G = checked by the GitHub test run on Windows, Mac and Linux.
 Status of every test today: not run (nothing built yet).
@@ -54,3 +54,23 @@ Status of every test today: not run (nothing built yet).
 | ND-118 | G | Uninstall after each choice, keeping and then not keeping results. | Program, tasks and entry gone; results kept by default and gone when asked. |
 | ND-119 | A | Scan the installer script and the setup code. | No upload, mail or web call. |
 | ND-120 | G | Run the whole install and uninstall set in the GitHub run. | All four choices pass on a fresh machine. |
+| ND-130 | A | Start `share` with a pretend adapter and a pretend VPN. | The address printed is the real adapter's; the page answers on it. |
+| ND-131 | A | Make the code for a known address. | A square code with a clear border; reading it back gives the same address. |
+| ND-132 | A | Start `share`; send a request from a pretend other device, then send none. | The first request is announced; with none, the advice appears after the wait. |
+| ND-133 | A | Ask the page from an address outside the network; scan the code for firewall or setting commands. | Refused from outside; no change command anywhere. |
+| ND-134 | A | Start `share` with no usable address. | A plain message and no page. |
+| ND-140 | A | Run `setup` with typed answers. | Plan, name and chosen known devices saved; each offer asked once. |
+| ND-141 | A | Run `check --json`, `weekly`, plain `netdoctor` with and without a keyboard and with and without a settings file. | A question is asked only for a keyboard, no command and no settings file. |
+| ND-142 | A | Read every helper sentence; press Enter on each question. | Each sentence grade 8 or lower; Enter means no. |
+| ND-143 | A | Answer no to everything. | Nothing saved except what was typed (plan, name). |
+| ND-150 | A | Run `config alerts-file on` then `off` with other places set. | The file place comes and goes; the others stay. |
+| ND-151 | A | Send an alert with the file on and with it off. | One line of time, kind and message when on; no file when off. |
+| ND-152 | A | Send an alert with the file on. | The file sits beside `weekly.csv`. |
+| ND-160 | A | Read sample text from the Linux commands and files. | Adapter, Wi-Fi, line use, programs, history, devices and settings come out right. |
+| ND-161 | A | Feed sample text with the admin-only parts missing. | The tool says it could not read them. |
+| ND-162 | A | Run the sample-text tests on Windows, Mac and Linux. | They pass on all three. |
+| ND-163 | A | Scan every Linux and Mac command. | Only read verbs. |
+| ND-164 | G | On GitHub's Mac and Linux machines run `check --json --quick`. | The adapter kind is wired or Wi-Fi and its fields are filled. |
+| ND-170 | A | Read sample text from the Mac commands. | Same as ND-160. |
+| ND-171 | A | Feed sample text with admin-only parts missing. | The tool says it could not read them. |
+| ND-172 | A | Run the Mac sample-text tests on all three systems. | They pass on all three. |
