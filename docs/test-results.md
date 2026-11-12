@@ -1,7 +1,7 @@
 # Test results
 
 Purpose: the result of each test case against its requirement, with what was seen. Never claims more than was run.
-Owner: Rafiq. Version 0.1.0. Date: 2026-11-11. Machine: Windows 11 laptop, wired Ethernet (1 Gbps), Wi-Fi card present and disconnected.
+Owner: Rafiq. Version 0.1.1 (0.1.1: ND-112 seen on Rafiq's laptop; 0.1.0: first results). Date: 2026-11-11. Machine: Windows 11 laptop, wired Ethernet (1 Gbps), Wi-Fi card present and disconnected.
 
 Run: `go test ./...` passes on this laptop (core, collect, app, store, web). Builds for Windows, Linux (x64, ARM) and Mac (Intel, Apple) all compile.
 
@@ -39,7 +39,7 @@ Key: PASS = tested and met. PARTIAL = met in part; the gap is named. NOT BUILT =
 | ND-101 tests on three systems | PASS | 2026-11-11 2338: the automated tests, vet and build passed on GitHub's Windows, Mac and Linux machines. Two earlier runs failed in the format check itself (a shell difference on Mac, line endings on Windows), not in the tool; both were fixed. These runs use the pretend-machine tests; the Mac and Linux readers of adapter, log, devices and settings are not built yet. |
 | ND-110 | PASS | 2026-11-11: on GitHub's clean Windows machine, `setup.exe` installed with nothing else set up and `netdoctor version` ran (Network Doctor 0.1.0). |
 | ND-111 | PASS | A script check finds the check-on-demand part marked fixed. The silent install with no parts chosen installed it and nothing else. |
-| ND-112 | PARTIAL | A script check finds each optional part with its own sentence and off by default. The window itself was not opened, because the clean-machine run is silent. Nobody has seen the tick-box window yet. |
+| ND-112 | PASS | A script check finds each optional part with its own sentence and off by default. 2026-11-11: Rafiq opened the setup window on his laptop, ticked the boxes and installed it. Both tasks (weekly check and alerts) then existed on his laptop. |
 | ND-113 | PASS | All four choices (neither, scheduled, proactive, both) installed exactly the right files and tasks. |
 | ND-114 | PASS | The four runs used the silent switches with `/COMPONENTS`; no window opened. |
 | ND-115 | PASS | Program in Program Files, entry in Apps and features, uninstaller in the program folder, install ran with administrator rights. |
