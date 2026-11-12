@@ -103,3 +103,6 @@ Form: each requirement is one "shall" sentence that can be tested. A new idea go
 
 - A Khadijah node that calls the tool and reads its results.
 - A smaller native phone app.
+- ND-190 `share` shall serve the page over HTTPS by default, print and draw the code for the https address, and keep the same allowed-network rule; `share --http` and a failed certificate fall back to the plain address with a plain sentence. `serve --https` does the same for the local page (change list 16).
+- ND-191 The certificate shall be made on this computer, kept only in the results folder (the key readable only by its owner), cover the address given, last about a year, and be reused until it is within 30 days of ending, a new address needs it, or the file is damaged.
+- ND-192 Before the phone sees a warning, `share` shall say in plain words that the phone will warn once and what to press.

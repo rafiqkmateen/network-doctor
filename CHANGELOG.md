@@ -3,7 +3,7 @@
 Purpose: every change to Network Doctor, newest first, in Keep a Changelog form.
 Owner: Rafiq. Version 0.1.0.
 
-## [Unreleased]
+## [0.1.0] - 2026-11-12
 
 ### Changed
 - The speed test now opens six connections at once and counts bytes over four seconds after a one-second warm-up, instead of one half-second file on one connection. On a line the website measured at 918 down, the old test read 339; the new one reads about 780 to 800 (change list 12).
@@ -13,6 +13,8 @@ Owner: Rafiq. Version 0.1.0.
 - The speed test is lighter on the public server: four connections for three seconds (was six for four), and a speed measured less than ten minutes ago is reused, with a note of how old it is (`speed_age_seconds` in the JSON, `speed-last.json` in the results folder) (change list 15, ND-183 and ND-184).
 
 ### Added
+- Stage 2: `netdoctor fix list | apply NAME [--yes] | undo NAME | enable-here`. Three fixes (clear the name cache, turn off a proxy, turn off adapter power saving), each only after a yes to that one fix, with the setting shown before and after, the old value saved, one-press undo and a log (`fix-log.txt`). Power saving only says what to change by hand until a test shows it never drops the link. Off on an unattended server (`NETDOCTOR_UNATTENDED`) until `fix enable-here` (change list 5, ND-90 to ND-96).
+- HTTPS for the phone page: `share` is private by default (`--http` for plain) with a certificate made on this computer, and `serve --https` (change list 16, ND-190 to ND-192).
 - MIT License (`LICENSE`) and the notice for the one outside library, `rsc.io/qr` (`THIRD-PARTY-NOTICES.txt`) (matrix row 4).
 - `netdoctor share`: finds this computer's address, serves the page for that network only, draws a code for a phone to scan, and says when a phone reaches the page (change list 9).
 - `netdoctor setup`, the first-run helper: asks a few plain questions and starts by itself only for a person at a keyboard (change list 10).
@@ -22,9 +24,7 @@ Owner: Rafiq. Version 0.1.0.
 - `netdoctorw.exe`, a build with no console window, used by the weekly and alerts tasks.
 - Install and removal section in the guide.
 
-## [0.1.0] - 2026-11-11
-
-### Added
+### Also in this release (first built 2026-11-11)
 - Project instructions, requirements, test cases and test results.
 - Stage 1 of Network Doctor: full check (wired and Wi-Fi), cause finder, drops from the system log, link health, program use, device list, settings review.
 - Command line with JSON output and exit codes, a local web page that can be opened from a phone on allowed addresses, weekly record to a spreadsheet file with a draft complaint (never sent), and watch mode with alerts.

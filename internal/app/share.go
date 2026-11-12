@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -87,7 +88,10 @@ type ShareOptions struct {
 	Wait       time.Duration
 	LightTerm  bool // draw the code for a light screen
 	Serve      func(ctx context.Context, addr string, allow []string, run func() ([]byte, error), onRemote func(string)) error
+	ServeTLS   func(ctx context.Context, addr string, allow []string, run func() ([]byte, error), onRemote func(string), cert tls.Certificate) error
 	Interfaces []ifaceInfo
+	CertDir    string // where the certificate is kept; empty means plain http
+	Plain      bool   // the person asked for plain http
 }
 
 const (
@@ -101,11 +105,14 @@ const (
 	shareAdviceNet = "Make sure the phone is on the same Wi-Fi as this computer. A guest network often keeps devices apart."
 	shareAdviceVPN = "A VPN is on in this computer. Turn it off for a moment, then try again."
 	shareAdviceOff = "Turn off a VPN on the phone too, then scan the code again."
+	shareWarn      = "The page is private. Your phone will say it is not secure, because the lock was made on this computer and the phone has not seen it before."
+	shareWarnPress = "That is expected. Press Advanced, then Continue. It asks only once."
+	shareNoCert    = "I could not make the lock for a private page, so I am using the plain address."
 )
 
 // shareTexts lists every sentence the command can print, for the reading test.
 func shareTexts() []string {
-	return []string{shareNoAddress, shareHow, shareScan, shareWaiting, shareReached, shareNoPhone, shareAdviceWin, shareAdviceNet, shareAdviceVPN, shareAdviceOff}
+	return []string{shareNoAddress, shareHow, shareScan, shareWaiting, shareReached, shareNoPhone, shareAdviceWin, shareAdviceNet, shareAdviceVPN, shareAdviceOff, shareWarn, shareWarnPress, shareNoCert}
 }
 
 // Share starts the page for phones on this network and shows how to open it.
@@ -129,10 +136,24 @@ func Share(ctx context.Context, src collect.Source, opt ShareOptions, copt Optio
 		fmt.Fprintln(out, shareNoAddress)
 		return 2
 	}
-	url := fmt.Sprintf("http://%s:%d/", ip, opt.Port)
+	scheme := "http"
+	var cert tls.Certificate
+	if opt.CertDir != "" && !opt.Plain {
+		c, err := web.EnsureCert(opt.CertDir, []net.IP{ip}, time.Now())
+		if err != nil {
+			fmt.Fprintln(out, shareNoCert)
+		} else {
+			cert, scheme = c, "https"
+		}
+	}
+	url := fmt.Sprintf("%s://%s:%d/", scheme, ip, opt.Port)
 	addr := fmt.Sprintf("%s:%d", ip, opt.Port)
 	fmt.Fprintln(out, shareHow)
 	fmt.Fprintln(out, "  "+url)
+	if scheme == "https" {
+		fmt.Fprintln(out, shareWarn)
+		fmt.Fprintln(out, shareWarnPress)
+	}
 	fmt.Fprintln(out)
 	fmt.Fprintln(out, shareScan)
 	for _, l := range qrDraw(url, opt.LightTerm) {
@@ -149,9 +170,17 @@ func Share(ctx context.Context, src collect.Source, opt ShareOptions, copt Optio
 	defer stop()
 	done := make(chan error, 1)
 	go func() {
-		done <- opt.Serve(sctx, addr, []string{network.String()}, func() ([]byte, error) {
-			return json.Marshal(Check(sctx, src, copt))
-		}, onRemote)
+		run := func() ([]byte, error) { return json.Marshal(Check(sctx, src, copt)) }
+		allow := []string{network.String()}
+		if scheme == "https" {
+			serveTLS := opt.ServeTLS
+			if serveTLS == nil {
+				serveTLS = web.ServeTLSWith
+			}
+			done <- serveTLS(sctx, addr, allow, run, onRemote, cert)
+			return
+		}
+		done <- opt.Serve(sctx, addr, allow, run, onRemote)
 	}()
 
 	timer := time.NewTimer(opt.Wait)

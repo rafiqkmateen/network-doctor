@@ -80,3 +80,7 @@ Status of every test today: not run (nothing built yet).
 | ND-183 | A | Read the default speed plan. | Four connections or fewer, three seconds or less. |
 | ND-184 | A | Check with a speed from three minutes ago, then with one from eleven minutes ago; run two checks in a row. | The first reuses it with a note of its age; the second measures again; two checks in a row measure once. A refused test saves nothing. |
 | ND-184 | L | On the real server, run two checks in a row, then compare the speed with the earlier 857 down. | One real test only; the speed is close to the earlier reading. |
+| ND-190 | A | Run `share` with a pretend server and a certificate folder; run it again with `--http`; ask a real TLS server for its health page. | https address printed and served with a certificate on the adapter address and its own network only; `--http` stays plain; the real server answers over TLS 1.2 or newer and keeps the listen guard. |
+| ND-191 | A | Make a certificate; ask for it again; ask for a new address; ask 350 days later; damage the file. | Covers the address, lasts about a year, key private; reused while good; replaced for a new address, near the end, or when damaged. |
+| ND-192 | A | Read the `share` output with https and with `--http`; make the certificate fail. | The warning and what to press are said with https only; a failed certificate says so and uses the plain address. |
+| ND-190 | L | Scan the code on a phone, press Advanced then Continue. | The page opens over https and shows a check. |

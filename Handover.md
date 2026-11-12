@@ -24,9 +24,9 @@ Owner: Rafiq. Version 0.6.0 (0.6.0: wrap of 2026-11-12 0200, repository public, 
 
 | # | What | State |
 |---|------|-------|
-| 1 | Stage 2 plan (`docs\stage2-plan.md`): which of three fixes (clear the name cache, turn off a proxy, turn off adapter power saving). Tests first, then code. | Waits for his yes and his pick |
-| 2 | HTTPS for the phone page (change list 16). | Waits for his answer |
-| 3 | First release (a version number and a tag). The repository is public with no file to download yet. Setup stays unsigned. | Waits for his "go" |
+| 1 | Push the local commits so GitHub runs the tests (Windows blocks some test programs here). | Waits for his word |
+| 2 | Publish the release `v0.1.0`: push the tag, so GitHub builds the files and the setup. The tag is made here only. | Waits for his word |
+| 3 | Try the fixes on this laptop (proxy, name cache) and a phone scan of the https code. | Waits for his "go" |
 
 ## State (2026-11-12, laptop clock)
 

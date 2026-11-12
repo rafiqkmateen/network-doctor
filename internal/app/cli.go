@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -19,18 +20,20 @@ import (
 )
 
 const help = `Network Doctor %s - looks at your connection and explains what it finds.
-It only reads. It never changes a setting, driver, device or program.
+Checks only read. The only commands that change a setting are under "fix", and
+each one needs your yes to that one fix. It never changes drivers or security.
 
 Commands:
   check [--json] [--quick] [--plan MBPS]   run a full check now
   weekly [--plan MBPS]                     run one weekly check and record it
   watch [--interval SECONDS]               watch for drops, slow speed, new devices
-  serve [--listen ADDR] [--allow CIDRS]    open the local web page (default 127.0.0.1:8765)
+  serve [--listen ADDR] [--allow CIDRS] [--https]   open the local web page (default 127.0.0.1:8765)
   setup                                    answer a few questions to set things up
-  share [--light]                          show how to open the page on your phone
+  share [--light] [--http]                 show how to open the page on your phone (private by default)
   known add MAC [NAME] | known list       mark devices you recognize
   config show | plan N | name TEXT | quiet FROM TO | sinks LIST | alerts-file on|off | alerts-off LIST
   schedule enable | disable | status       turn the weekly check on or off
+  fix list | apply NAME [--yes] | undo NAME   small fixes, one yes each, always undoable
   version
 
 Exit codes for check and weekly: 0 healthy, 10 this computer, 11 cable or signal,
@@ -68,6 +71,8 @@ func RunWith(ctx context.Context, args []string, src collect.Source, dir string,
 	interval := fs.Int("interval", 60, "seconds between watch checks")
 	listen := fs.String("listen", "127.0.0.1:8765", "address for the web page")
 	light := fs.Bool("light", false, "draw the phone code for a light screen")
+	plainHTTP := fs.Bool("http", false, "share: use a plain http address, not https")
+	useHTTPS := fs.Bool("https", false, "serve: open the page over https")
 	allow := fs.String("allow", strings.Join(cfg.Allow, ","), "addresses allowed to open the web page")
 
 	switch cmd {
@@ -109,10 +114,28 @@ func RunWith(ctx context.Context, args []string, src collect.Source, dir string,
 				al = append(al, a)
 			}
 		}
-		fmt.Fprintf(out, "Network Doctor page: http://%s/  (Ctrl+C to stop)\n", *listen)
-		err := web.Serve(ctx, *listen, al, func() ([]byte, error) {
+		run := func() ([]byte, error) {
 			return json.Marshal(runCheck(ctx, src, dir, Options{PlanMbps: *plan, Known: known}))
-		})
+		}
+		var err error
+		if *useHTTPS {
+			ips := []net.IP{net.ParseIP("127.0.0.1"), net.ParseIP("::1")}
+			if h, _, e := net.SplitHostPort(*listen); e == nil {
+				if ip := net.ParseIP(h); ip != nil && !ip.IsLoopback() && !ip.IsUnspecified() {
+					ips = append(ips, ip)
+				}
+			}
+			cert, cerr := web.EnsureCert(dir, ips, time.Now())
+			if cerr != nil {
+				fmt.Fprintln(out, shareNoCert, cerr)
+				return 2
+			}
+			fmt.Fprintf(out, "Network Doctor page: https://%s/  (Ctrl+C to stop)\n", *listen)
+			err = web.ServeTLSWith(ctx, *listen, al, run, nil, cert)
+		} else {
+			fmt.Fprintf(out, "Network Doctor page: http://%s/  (Ctrl+C to stop)\n", *listen)
+			err = web.Serve(ctx, *listen, al, run)
+		}
 		if err != nil {
 			fmt.Fprintln(out, "Could not serve:", err)
 			return 2
@@ -128,7 +151,9 @@ func RunWith(ctx context.Context, args []string, src collect.Source, dir string,
 		if fs.Parse(rest) != nil {
 			return 2
 		}
-		return Share(ctx, src, ShareOptions{LightTerm: *light}, Options{PlanMbps: *plan, Known: known}, out)
+		return Share(ctx, src, ShareOptions{LightTerm: *light, CertDir: dir, Plain: *plainHTTP}, Options{PlanMbps: *plan, Known: known}, out)
+	case "fix":
+		return fixCmd(rest, dir, out)
 	case "known":
 		return knownCmd(rest, dir, known, out)
 	case "config":
