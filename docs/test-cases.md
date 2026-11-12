@@ -1,7 +1,7 @@
 # Test cases
 
 Purpose: one test per requirement, written before the build. Each says what is done and what counts as a pass.
-Owner: Rafiq. Version 0.5.0 (0.5.0: ND-183 and ND-184 added; 0.4.0: ND-180 to ND-182 added; 0.3.0: ND-130 to ND-172 added; 0.2.1: speed case added; 0.2.0: ND-110 to ND-120 added; 0.1.0: draft). Date: 2026-11-11.
+Owner: Rafiq. Version 0.6.0 (0.6.0: ND-200 to ND-211 added; 0.5.0: ND-183 and ND-184 added; 0.4.0: ND-180 to ND-182 added; 0.3.0: ND-130 to ND-172 added; 0.2.1: speed case added; 0.2.0: ND-110 to ND-120 added; 0.1.0: draft). Date: 2026-11-11.
 
 Method: A = automated Go test. M = measured on this laptop, result shown to Rafiq. G = checked by the GitHub test run on Windows, Mac and Linux.
 Status of every test today: not run (nothing built yet).
@@ -52,7 +52,7 @@ Status of every test today: not run (nothing built yet).
 | ND-116 | A | Run the storage code once as installed and once unzipped. | Installed uses ProgramData; unzipped uses the person's own folder. |
 | ND-117 | G | Install each choice and list the tasks. | A weekly task only with scheduled; a log-on task only with proactive. |
 | ND-118 | G | Uninstall after each choice, keeping and then not keeping results. | Program, tasks and entry gone; results kept by default and gone when asked. |
-| ND-119 | A | Scan the installer script and the setup code. | No upload, mail or web call. |
+| ND-119 | A | Scan the installer script and the setup code. | No upload, mail or web call, except Ookla's own addresses over https (ND-210). |
 | ND-120 | G | Run the whole install and uninstall set in the GitHub run. | All four choices pass on a fresh machine. |
 | ND-130 | A | Start `share` with a pretend adapter and a pretend VPN. | The address printed is the real adapter's; the page answers on it. |
 | ND-131 | A | Make the code for a known address. | A square code with a clear border; reading it back gives the same address. |
@@ -84,3 +84,17 @@ Status of every test today: not run (nothing built yet).
 | ND-191 | A | Make a certificate; ask for it again; ask for a new address; ask 350 days later; damage the file. | Covers the address, lasts about a year, key private; reused while good; replaced for a new address, near the end, or when damaged. |
 | ND-192 | A | Read the `share` output with https and with `--http`; make the certificate fail. | The warning and what to press are said with https only; a failed certificate says so and uses the plain address. |
 | ND-190 | L | Scan the code on a phone, press Advanced then Continue. | The page opens over https and shows a check. |
+| ND-200 | A | Parse a result line with 110000000 and 100000000 bytes a second among other lines; parse empty, junk and zero results. | 880 and 800 megabits; the others are errors. |
+| ND-201 | A | Name a tool by setting, by a folder beside the program, by a missing setting path, and with nothing anywhere. | Found by setting, then folder; a setting that points nowhere finds nothing; nothing means none. |
+| ND-202 | A | Measure with a working fake Ookla, a failing one, and none, next to a pretend Cloudflare server. | Ookla's numbers and name; Cloudflare's numbers and name when it fails or is missing. |
+| ND-203 | A | Read the arguments Ookla's tool is run with. | They never carry a license switch. |
+| ND-204 | A | Check with an Ookla speed 1 and 3 minutes old, a Cloudflare speed 3 and 11 minutes old, and one with no tool name 5 minutes old. | Held, free, held, free, held. |
+| ND-205 | A | Check inside the hold. | Nothing measured; the note has too soon, the age, come back and a time; the wait is about a minute. |
+| ND-206 | A | Save a sample with a tool name and read it back. | The name survives. |
+| ND-207 | A | Read the exact text the installer writes; read a missing and a damaged file. | The four choices read back; the others say nothing. |
+| ND-208 | A | Turn the weekly choice off in a folder with and without a choices file. | Only the weekly choice changes, and nothing is written without a file. |
+| ND-209 | A | Read the installer script. | It writes the file from the selected parts, deletes the task of a part not chosen, and the uninstaller removes the file and the `ookla` folder. |
+| ND-210 | A | Read the installer script. | Unchecked by default, skipped when silent, a separate license tick, Ookla's addresses only, a fixed SHA-256, the license switch once and only after the tick. |
+| ND-209 | L | On a clean Windows machine, install each of the four choices, run the installer again with a different choice, then uninstall. | The file matches each choice, the tasks match it, repair removes a part not chosen, and uninstall removes the file. |
+| ND-210 | L | On a laptop, tick the Ookla boxes in the window and finish. | The tool is fetched, unpacked beside the program, runs, and `choices.json` says `ookla` is true. |
+| ND-211 | A | Run `netdoctor version` and look at the installer file name. | 0.2.0 in both. |

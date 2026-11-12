@@ -142,12 +142,84 @@ func TestUninstallUndoesTheInstallAndKeepsResultsByDefault(t *testing.T) {
 	}
 }
 
-// ND-119: nothing goes off the computer.
-func TestNothingLeavesTheComputer(t *testing.T) {
-	low := strings.ToLower(script(t))
-	for _, bad := range []string{"http://", "https://", "downloadtemporaryfile", "idp", "smtp", "curl", "invoke-webrequest"} {
+// ND-119 and ND-210: nothing goes off the computer, except Ookla's own tool when the person asks for it.
+func TestNothingLeavesTheComputerExceptOoklaOnRequest(t *testing.T) {
+	s := script(t)
+	low := strings.ToLower(s)
+	for _, bad := range []string{"idp", "smtp", "curl", "invoke-webrequest", "downloadtemporaryfile"} {
 		if strings.Contains(low, bad) {
 			t.Errorf("the installer script must not contain %q", bad)
 		}
+	}
+	for _, m := range regexp.MustCompile(`(?i)https?://[^/\s"']+`).FindAllString(s, -1) {
+		host := strings.ToLower(strings.SplitN(strings.SplitN(m, "://", 2)[1], "/", 2)[0])
+		if m[:5] != "https" || (host != "www.speedtest.net" && host != "install.speedtest.net") {
+			t.Errorf("the only addresses allowed are Ookla's own, over https: %s", m)
+		}
+	}
+}
+
+// ND-209: the installer writes the choices file from the parts selected, and the uninstaller removes it.
+func TestWritesTheChoicesFileAndRemovesItOnUninstall(t *testing.T) {
+	s := script(t)
+	if !strings.Contains(s, "choices.json") {
+		t.Fatal("the installer must write choices.json beside the program")
+	}
+	for _, key := range []string{`"core"`, `"scheduled"`, `"proactive"`, `"ookla"`} {
+		if !strings.Contains(s, key) {
+			t.Errorf("choices.json must carry the key %s", key)
+		}
+	}
+	for _, comp := range []string{"scheduled", "proactive"} {
+		if !strings.Contains(s, "WizardIsComponentSelected('"+comp+"')") {
+			t.Errorf("the file must follow what the person selected for %s", comp)
+		}
+	}
+	del := strings.Join(section(t, s, "UninstallDelete"), " ")
+	if !strings.Contains(del, "choices.json") || !strings.Contains(del, `{app}\ookla`) {
+		t.Errorf("the uninstaller must remove choices.json and the ookla folder: %s", del)
+	}
+}
+
+// ND-209: a part that was not chosen has its task removed, so running the installer again repairs the machine to match the choices.
+func TestUnchosenPartsHaveTheirTasksRemoved(t *testing.T) {
+	var weekly, logon bool
+	for _, l := range section(t, script(t), "Run") {
+		if strings.Contains(l, "/Delete") && strings.Contains(l, "Network Doctor weekly check") {
+			weekly = strings.Contains(l, "Components: not scheduled")
+		}
+		if strings.Contains(l, "/Delete") && strings.Contains(l, "Network Doctor alerts") {
+			logon = strings.Contains(l, "Components: not proactive")
+		}
+	}
+	if !weekly || !logon {
+		t.Errorf("each task must be deleted when its part is not chosen (weekly=%v alerts=%v)", weekly, logon)
+	}
+}
+
+// ND-210: Ookla's tool is offered, never forced: unchecked by default, never in a silent install, the person's own agreement is a
+// separate tick, and the file comes only from Ookla, checked against a fixed hash.
+func TestOoklaOfferNeedsTheirOwnYesAndNeverRunsSilently(t *testing.T) {
+	s := script(t)
+	for _, want := range []string{
+		"WizardSilent",
+		"I have read the Ookla license",
+		"https://www.speedtest.net/about/eula",
+		"https://install.speedtest.net/app/cli/ookla-speedtest-1.2.0-win64.zip",
+		"Checked := False",
+	} {
+		if !strings.Contains(s, want) {
+			t.Errorf("the Ookla offer must contain %q", want)
+		}
+	}
+	if !regexp.MustCompile(`(?i)[0-9a-f]{64}`).MatchString(s) {
+		t.Error("the download must be checked against a fixed SHA-256")
+	}
+	// The license switches may appear only in the step that runs after the person's tick.
+	if strings.Count(s, "--accept-license") != 1 {
+		t.Errorf("--accept-license must appear exactly once, in the step after the person's tick, found %d", strings.Count(s, "--accept-license"))
+	}
+	if !strings.Contains(s, "OoklaAgreed") {
+		t.Error("the step that accepts the license must depend on the person's tick (OoklaAgreed)")
 	}
 }

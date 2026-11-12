@@ -1,7 +1,19 @@
 # Changelog
 
 Purpose: every change to Network Doctor, newest first, in Keep a Changelog form.
-Owner: Rafiq. Version 0.1.0.
+Owner: Rafiq. Version 0.2.0.
+
+## [0.2.0] - 2026-11-12
+
+### Added
+- Ookla's own Speedtest tool is used for the speed number when the person has put it where we look (the `NETDOCTOR_OOKLA` setting, an `ookla` folder beside the program, or the path); otherwise the Cloudflare test runs as before. The answer names the tool (`speed_tool`). Network Doctor never ships Ookla's tool and never accepts Ookla's license for anyone (change list 20, ND-200 to ND-203).
+- The installer can offer Ookla's tool on its own page: unchecked, never in a silent install, with the person's own license tick, fetched only from Ookla and checked against a fixed hash (ND-210).
+- A choices file, `choices.json`, written beside the program by the installer: which parts the person chose. Running the installer again repairs the machine to match: a part not chosen has its task removed; the uninstaller removes the file (change list 19, ND-207 to ND-209).
+
+### Changed
+- A speed is reused for 2 minutes when Ookla's tool measured it and for 10 minutes when Cloudflare measured it. A check inside the hold measures nothing and says "Too soon to test again", how old the reading is, and when to come back (`speed_wait_seconds`) (change list 18, ND-204 to ND-206).
+- The repeating alerts helper uses only the light Cloudflare test, never Ookla's, which moves gigabytes a test.
+- The program version is 0.2.0.
 
 ## [0.1.0] - 2026-11-12
 

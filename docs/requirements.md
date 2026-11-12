@@ -1,7 +1,7 @@
 # Requirements
 
 Purpose: the fixed list of what Network Doctor must do. Each requirement has one test in `test-cases.md`.
-Owner: Rafiq. Version 0.5.0 (0.5.0: ND-183 and ND-184 added by change list 15, "go" 2026-11-11; 0.4.0: ND-180 to ND-182 added by change list 14 and 15, "go" 2026-11-11; 0.3.0: ND-130 to ND-172 added by change list 3, 9 and 10; 0.2.0: ND-110 to ND-120 added by change list 11, agreed by Rafiq 2026-11-11; 0.1.0: draft). Date: 2026-11-11.
+Owner: Rafiq. Version 0.6.0 (0.6.0: ND-200 to ND-211 added by change list 18, 19 and 20, "go" 2026-11-12; ND-119 amended; 0.5.0: ND-183 and ND-184 added by change list 15, "go" 2026-11-11; 0.4.0: ND-180 to ND-182 added by change list 14 and 15, "go" 2026-11-11; 0.3.0: ND-130 to ND-172 added by change list 3, 9 and 10; 0.2.0: ND-110 to ND-120 added by change list 11, agreed by Rafiq 2026-11-11; 0.1.0: draft). Date: 2026-11-11.
 
 Form: each requirement is one "shall" sentence that can be tested. A new idea goes on the change list, not here.
 
@@ -63,7 +63,7 @@ Form: each requirement is one "shall" sentence that can be tested. A new idea go
 - ND-116 An installed copy shall save its results, known devices and alerts in ProgramData; an unzipped copy shall keep saving per person.
 - ND-117 The weekly check shall be a weekly task, and the alerts a task that starts when someone logs on and shows alerts on their screen; neither shall exist unless chosen.
 - ND-118 The uninstaller (in Apps and features, in the program folder, and with a silent switch) shall undo exactly what the install did, and shall ask whether to keep the saved results, with keep as the default.
-- ND-119 The installer and uninstaller shall send nothing off the computer.
+- ND-119 The installer and uninstaller shall send nothing off the computer, except that the installer may fetch Ookla's own Speedtest tool from Ookla when the person asks for it (ND-210).
 - ND-120 The installer shall be tested for all four choices, install then uninstall, on a Windows computer that has none of the developer's setup.
 
 ## Phone sharing, first-run helper, alerts file, Mac and Linux (change list 3, 9, 10; agreed by Rafiq 2026-11-11)
@@ -106,3 +106,15 @@ Form: each requirement is one "shall" sentence that can be tested. A new idea go
 - ND-190 `share` shall serve the page over HTTPS by default, print and draw the code for the https address, and keep the same allowed-network rule; `share --http` and a failed certificate fall back to the plain address with a plain sentence. `serve --https` does the same for the local page (change list 16).
 - ND-191 The certificate shall be made on this computer, kept only in the results folder (the key readable only by its owner), cover the address given, last about a year, and be reused until it is within 30 days of ending, a new address needs it, or the file is damaged.
 - ND-192 Before the phone sees a warning, `share` shall say in plain words that the phone will warn once and what to press.
+- ND-200 Ookla's result shall be read from the result line of its JSON output and turned from bytes per second into megabits per second; output with no usable result is an error (change list 20).
+- ND-201 Ookla's tool shall be found only where the person put it: the NETDOCTOR_OOKLA setting, an `ookla` folder beside the program, then the program path. It shall never be shipped with Network Doctor.
+- ND-202 The speed shall be measured with Ookla's tool when it is found and works, and with the Cloudflare test otherwise; the tool that measured shall be named in the answer (`speed_tool`).
+- ND-203 Network Doctor shall never tell Ookla's tool that the license was accepted when it measures; without the person's own stored acceptance the tool fails and the Cloudflare test is used.
+- ND-204 A measured speed shall be reused for 2 minutes when Ookla's tool measured it and for 10 minutes when Cloudflare measured it (an earlier reading with no tool name counts as Cloudflare). The repeating alerts helper shall use only the light Cloudflare test.
+- ND-205 A check inside the hold shall measure nothing and say: "Too soon to test again. This is the reading from N minutes ago. Come back in about N minutes (at HH:MM).", with the wait in seconds (`speed_wait_seconds`) and the time in military form.
+- ND-206 The saved last speed shall remember which tool measured it.
+- ND-207 The installer's choices file (`choices.json`, beside the program) shall say which parts the person chose (`core`, `scheduled`, `proactive`, `ookla`); a missing or damaged file says nothing.
+- ND-208 Turning the weekly check on or off by hand shall keep the choices file in step, only when the installer wrote one.
+- ND-209 The installer shall write the choices file from the parts selected, remove the task of any part not chosen (so running it again repairs the machine to match the choices), and the uninstaller shall remove the file and the `ookla` folder.
+- ND-210 The installer shall offer Ookla's tool on its own page: unchecked by default, never in a silent install, the person's own license tick required, the file fetched only from Ookla over https and checked against a fixed SHA-256, and the license switches given to the tool only after that tick.
+- ND-211 The program version shall be 0.2.0 in the program and in the installer file name.

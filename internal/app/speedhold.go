@@ -61,17 +61,32 @@ func SaveSpeedHold(dir string, until time.Time) {
 	_ = os.WriteFile(filepath.Join(dir, speedHoldFile), []byte(until.Format(time.RFC3339)+"\n"), 0o644)
 }
 
-// minSpeedGap is how long a measured speed is reused before the test runs again.
-// Checks that run back to back then go easy on the public speed server.
-const minSpeedGap = 10 * time.Minute
+// How long a measured speed is reused before a new test may run. Cloudflare's
+// public server refuses repeated tests, so it gets the long hold; Ookla's tool has
+// no known refusal, and its short hold only stops double presses and the gigabytes
+// each test moves.
+const (
+	holdCloudflare = 10 * time.Minute
+	holdOokla      = 2 * time.Minute
+)
+
+// holdFor is the hold that follows a reading made by the named tool. A reading with
+// no tool name (saved by an earlier version) counts as Cloudflare.
+func holdFor(tool string) time.Duration {
+	if tool == collect.ToolOokla {
+		return holdOokla
+	}
+	return holdCloudflare
+}
 
 const lastSpeedFile = "speed-last.json"
 
-// SpeedSample is one measured speed and when it was measured.
+// SpeedSample is one measured speed, when it was measured and by which tool.
 type SpeedSample struct {
 	At   time.Time `json:"at"`
 	Down float64   `json:"down_mbps"`
 	Up   float64   `json:"up_mbps"`
+	Tool string    `json:"tool,omitempty"`
 }
 
 // LoadLastSpeed gives the last measured speed, or nil when there is none or the file is damaged.
@@ -105,7 +120,7 @@ func runCheck(ctx context.Context, src collect.Source, dir string, opt Options) 
 		SaveSpeedHold(dir, rep.Time.Add(time.Duration(rep.SpeedRetryAfterSeconds)*time.Second))
 	}
 	if rep.Reading.SpeedMeasured && rep.SpeedAgeSeconds == 0 {
-		SaveLastSpeed(dir, SpeedSample{At: rep.Time, Down: rep.Reading.DownMbps, Up: rep.Reading.UpMbps})
+		SaveLastSpeed(dir, SpeedSample{At: rep.Time, Down: rep.Reading.DownMbps, Up: rep.Reading.UpMbps, Tool: rep.SpeedTool})
 	}
 	return rep
 }

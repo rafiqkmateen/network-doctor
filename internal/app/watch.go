@@ -54,7 +54,7 @@ func (w *Watcher) Tick(ctx context.Context, now time.Time, full bool) []Alert {
 	if !full {
 		return out
 	}
-	if down, _, err := w.src.Speed(ctx); err == nil && w.opt.PlanMbps > 0 {
+	if down, _, err := w.src.Speed(collect.LightSpeed(ctx)); err == nil && w.opt.PlanMbps > 0 {
 		if down < 0.5*w.opt.PlanMbps {
 			w.slowRun++
 		} else {

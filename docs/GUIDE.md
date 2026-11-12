@@ -69,13 +69,17 @@ The file is `alerts.log`, in the same folder as `weekly.csv`. Each alert is one 
 
 ## Install it (Windows)
 
-If you were given `NetworkDoctor-Setup-0.1.0.exe`, double-click it. Windows asks for permission once. Then pick the parts you want:
+If you were given `NetworkDoctor-Setup-0.2.0.exe`, double-click it. Windows asks for permission once. Then pick the parts you want:
 
 - **Check on demand.** Always included. You run a check any time you want one.
 - **Weekly check.** Once a week, Monday at 0900, it saves your speed to a file. Nothing leaves your computer.
 - **Alerts.** A small helper starts when you log on and runs all the time. It tells you on screen when your connection drops, stays slow, or a new device appears. Nothing leaves your computer.
 
 The program goes in `C:\Program Files\Network Doctor`. Your results go in `C:\ProgramData\NetworkDoctor`.
+
+**Run the setup again to repair.** It puts back the parts you chose and removes the ones you did not. A small file, `choices.json`, in the program folder records your choices.
+
+**Better speed numbers (optional).** The setup can offer Ookla's own Speedtest tool, the one behind speedtest.net. It is not part of Network Doctor. Ookla allows it for your own personal use on a computer you own. The setup asks first, shows links to Ookla's license, and only downloads it if you tick that you accept it. You can also install it yourself from Ookla's page and put `speedtest.exe` in an `ookla` folder inside the program folder. Without it, Network Doctor uses its own lighter test. A new speed test waits 2 minutes after an Ookla test and 10 minutes after the other one; press too soon and the card tells you when to come back.
 
 **For IT, with no window.** Run the setup file with `/VERYSILENT /SUPPRESSMSGBOXES`. Add `/COMPONENTS="scheduled,proactive"` for both extras, or just one of the two names. Leave `/COMPONENTS` out to install only the check on demand.
 

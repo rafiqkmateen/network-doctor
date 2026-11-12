@@ -43,12 +43,14 @@ func scheduleCmd(args []string, cfg store.Config, out io.Writer) int {
 			fmt.Fprintln(out, "Could not turn it on:", o)
 			return 2
 		}
+		syncScheduled(true)
 		fmt.Fprintf(out, "Weekly check is on: %s at %02d00.\n", days[int(cfg.WeeklyDay)], cfg.WeeklyHour)
 	case "disable":
 		if o, err := run("/Delete", "/TN", taskName, "/F"); err != nil {
 			fmt.Fprintln(out, "Could not turn it off:", o)
 			return 2
 		}
+		syncScheduled(false)
 		fmt.Fprintln(out, "Weekly check is off.")
 	case "status":
 		if o, err := run("/Query", "/TN", taskName); err != nil {

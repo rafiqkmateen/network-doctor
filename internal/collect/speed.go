@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -50,9 +51,20 @@ func speedStatus(resp *http.Response) error {
 	return fmt.Errorf("speed server answered %s", resp.Status)
 }
 
-// doSpeed measures download and upload in Mbps against the public test server.
+// doSpeed measures download and upload in Mbps: with Ookla's tool when the person
+// has put it where we look, otherwise against the public Cloudflare test server.
 func doSpeed(ctx context.Context) (down, up float64, err error) {
-	return runSpeed(ctx, speedBase, defaultSpeedPlan)
+	lastTool.Store("")
+	exe := ""
+	if !isLight(ctx) {
+		self, _ := os.Executable()
+		exe = findOokla(self)
+	}
+	down, up, tool, err := measureSpeed(ctx, exe, runOokla, speedBase, defaultSpeedPlan)
+	if err == nil {
+		lastTool.Store(tool)
+	}
+	return down, up, err
 }
 
 func runSpeed(ctx context.Context, base string, p speedPlan) (down, up float64, err error) {

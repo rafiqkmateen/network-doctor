@@ -12,7 +12,7 @@ import (
 )
 
 // Version of the tool.
-const Version = "0.1.0"
+const Version = "0.2.0"
 
 // Options control one check.
 type Options struct {
@@ -46,6 +46,10 @@ type Report struct {
 	SpeedRetryAfterSeconds int `json:"speed_retry_after_seconds,omitempty"`
 	// SpeedAgeSeconds is set only when the speed is an earlier reading, not a new one.
 	SpeedAgeSeconds int `json:"speed_age_seconds,omitempty"`
+	// SpeedWaitSeconds is set only with an earlier reading: how long until a new test is allowed.
+	SpeedWaitSeconds int `json:"speed_wait_seconds,omitempty"`
+	// SpeedTool names the tool that measured the speed shown (Ookla Speedtest or Cloudflare).
+	SpeedTool string `json:"speed_tool,omitempty"`
 }
 
 const internetHost = "1.1.1.1"
@@ -108,16 +112,19 @@ func Check(ctx context.Context, src collect.Source, opt Options) Report {
 	} else {
 		rd.DNSFails = !dnsOK
 		if !opt.Quick {
-			if opt.LastSpeed != nil && now.Sub(opt.LastSpeed.At) >= 0 && now.Sub(opt.LastSpeed.At) < minSpeedGap {
-				// A speed measured a few minutes ago stands in, so the server is not asked again.
+			if opt.LastSpeed != nil && now.Sub(opt.LastSpeed.At) >= 0 && now.Sub(opt.LastSpeed.At) < holdFor(opt.LastSpeed.Tool) {
+				// A speed measured a few minutes ago stands in: nothing is measured inside the hold.
 				rd.DownMbps, rd.UpMbps = opt.LastSpeed.Down, opt.LastSpeed.Up
 				rd.SpeedMeasured = true
 				age := now.Sub(opt.LastSpeed.At)
+				wait := holdFor(opt.LastSpeed.Tool) - age
 				rep.SpeedAgeSeconds = int(age.Seconds())
 				if rep.SpeedAgeSeconds < 1 {
 					rep.SpeedAgeSeconds = 1
 				}
-				note("The speed is from " + ageWords(age) + ". This keeps the test server from refusing you.")
+				rep.SpeedWaitSeconds = int(wait.Seconds())
+				rep.SpeedTool = opt.LastSpeed.Tool
+				note("Too soon to test again. This is the reading from " + ageWords(age) + ". Come back " + waitWords(wait) + " (at " + now.Add(wait).Format("15:04") + ").")
 			} else if opt.SpeedHoldUntil.After(now) {
 				note("The speed test is paused. The test server asked us to wait. It can run again " + waitWords(opt.SpeedHoldUntil.Sub(now)) + ".")
 			} else {
@@ -136,6 +143,7 @@ func Check(ctx context.Context, src collect.Source, opt Options) Report {
 					note("The speed test could not finish.")
 				default:
 					rd.SpeedMeasured = true
+					rep.SpeedTool = collect.SpeedToolUsed()
 				}
 			}
 		}
