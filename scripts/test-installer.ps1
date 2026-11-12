@@ -71,3 +71,4 @@ foreach ($c in $cases) {
 }
 if ($script:fails -gt 0) { Write-Host "$script:fails check(s) failed"; exit 1 }
 Write-Host 'All installer checks passed.'
+exit 0   # a task lookup that was expected to fail leaves a non-zero code behind; the checks above already decided
