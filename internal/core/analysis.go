@@ -295,7 +295,7 @@ func ReviewSettings(s Settings) []Advice {
 		a = append(a, Advice{"DNS", "DNS servers in use: " + strings.Join(s.DNS, ", ") + ".", "Slow name lookups can make pages feel slow on a fast line."})
 	}
 	if !s.PowerKnown {
-		a = append(a, Advice{"Power saving", "The tool could not read the adapter power-saving setting.", "Look for it in Device Manager, on the power tab of the adapter."})
+		a = append(a, Advice{"Power saving", "The tool could not read the adapter power-saving setting.", "Look for it in the adapter's power options in your network settings."})
 	} else if s.PowerSaving {
 		a = append(a, Advice{"Power saving", "The adapter may turn itself off to save power.", "Turning this off often stops random drops. It uses a little more power."})
 	} else {
@@ -317,7 +317,7 @@ func ReviewSettings(s Settings) []Advice {
 		a = append(a, Advice{"Driver", "The adapter driver looks recent. Version " + s.DriverVersion + ".", "Nothing to change."})
 	}
 	if len(s.ConfigErrors) > 0 {
-		a = append(a, Advice{"Errors", "Windows reports a problem with the adapter: " + strings.Join(s.ConfigErrors, ", ") + ".", "A problem here can cause drops. Fixing it may need a driver or a restart."})
+		a = append(a, Advice{"Errors", "The system reports a problem with the adapter: " + strings.Join(s.ConfigErrors, ", ") + ".", "A problem here can cause drops. Fixing it may need a driver or a restart."})
 	} else {
 		a = append(a, Advice{"Errors", "No adapter errors were found.", "Nothing to change."})
 	}

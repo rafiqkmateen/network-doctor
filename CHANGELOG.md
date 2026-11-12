@@ -9,6 +9,10 @@ Owner: Rafiq. Version 0.1.0.
 - The speed test now opens six connections at once and counts bytes over four seconds after a one-second warm-up, instead of one half-second file on one connection. On a line the website measured at 918 down, the old test read 339; the new one reads about 780 to 800 (change list 12).
 
 ### Added
+- `netdoctor share`: finds this computer's address, serves the page for that network only, draws a code for a phone to scan, and says when a phone reaches the page (change list 9).
+- `netdoctor setup`, the first-run helper: asks a few plain questions and starts by itself only for a person at a keyboard (change list 10).
+- `netdoctor config alerts-file on|off`, and one tab-split line per alert in `alerts.log` (row 2 of the matrix).
+- Linux and Mac readers for adapter, Wi-Fi, line use, programs, devices and settings. Linux also reads connection history; Mac does not yet (change list 3 and 13).
 - Windows installer (`installer/netdoctor.iss`, Inno Setup): the on-demand check always installs; the weekly check and alerts are optional tick boxes; silent switches for IT; an uninstaller that undoes exactly what the install did and keeps saved results by default. Installed copies save in ProgramData. Tested on GitHub's clean Windows machine for all four choices (change list 11).
 - `netdoctorw.exe`, a build with no console window, used by the weekly and alerts tasks.
 - Install and removal section in the guide.

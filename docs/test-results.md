@@ -1,7 +1,7 @@
 # Test results
 
 Purpose: the result of each test case against its requirement, with what was seen. Never claims more than was run.
-Owner: Rafiq. Version 0.1.2 (0.1.2: ND-11 speed test made multi-connection; 0.1.1: ND-112 seen on Rafiq's laptop; 0.1.0: first results). Date: 2026-11-11. Machine: Windows 11 laptop, wired Ethernet (1 Gbps), Wi-Fi card present and disconnected.
+Owner: Rafiq. Version 0.2.0 (0.2.0: ND-130 to ND-172 results; 0.1.2: ND-11 speed test made multi-connection; 0.1.1: ND-112 seen on Rafiq's laptop; 0.1.0: first results). Date: 2026-11-11. Machine: Windows 11 laptop, wired Ethernet (1 Gbps), Wi-Fi card present and disconnected.
 
 Run: `go test ./...` passes on this laptop (core, collect, app, store, web). Builds for Windows, Linux (x64, ARM) and Mac (Intel, Apple) all compile.
 
@@ -34,6 +34,26 @@ Key: PASS = tested and met. PARTIAL = met in part; the gap is named. NOT BUILT =
 | ND-75 default sink | PASS | The default is the console only. |
 | ND-80 command line | PASS | Valid JSON and the documented exit codes, in test and live. |
 | ND-81 web page | PARTIAL | Page ran in the built-in browser on this laptop and gave the answer. Blocked and allowed addresses are tested. Not tried from a phone. |
+| ND-130 | PASS (test) | 2026-11-11: with a pretend adapter the page opens on the adapter's own address only; a pretend VPN adapter is skipped for the real network. Not tried with a real phone. |
+| ND-131 | PARTIAL | A code is drawn with a clear border (light squares on a dark screen; `--light` for a light screen). The test checks its shape. No phone has scanned it yet. |
+| ND-132 | PARTIAL | With a pretend page, the first other device is announced and, with none, the advice appears after the wait; a VPN is named when one is on. The test of the page's own announcement (`internal\web`) was written, but this laptop's Application Control blocked that one test program; GitHub runs it. No real phone yet. |
+| ND-133 | PASS (test) | Allowed range is the adapter's own network only, and the address is the adapter's, not all addresses. A scan finds no firewall or setting command. |
+| ND-134 | PASS (test) | With no usable address it says so in plain words and the page is not started. |
+| ND-140 | PASS (test) | Typed answers saved: plan, name, chosen devices, weekly check, alerts file; this computer is never listed; the weekly check is not offered when already on. |
+| ND-141 | PASS (test) | Starts only for a keyboard, no command and no settings file; `check --json` stays pure JSON; `setup` with nowhere to type says so. |
+| ND-142 | PASS (test) | Enter on every question means no. Every sentence is grade 8 or lower. |
+| ND-143 | PASS (test) | Answering no to all changes nothing but the tool's own settings file, which is saved so the helper is not offered again. |
+| ND-150 | PASS (test) | `config alerts-file on` and `off` add and remove only the file place; twice is the same as once. |
+| ND-151 | PASS (test) | One line of time, kind and message; line breaks and tabs inside a message are flattened; nothing written when off. The format is in the guide. |
+| ND-152 | PASS (test) | The file is written in the results folder, beside `weekly.csv`. |
+| ND-160 | PARTIAL | Linux reader written: adapter, Wi-Fi, line use, programs, history, devices, settings, tested on sample text. Samples came from memory of real output; nothing run on a real Linux machine yet. |
+| ND-161 | PASS (test) | Missing facts (power saving on wired, driver age, unreadable journal) come back as unknown or an error, not a guess. |
+| ND-162 | PASS (test) | 23 sample-text tests run on this Windows laptop; GitHub runs them on Mac and Linux too. |
+| ND-163 | PASS (test) | Tests scan the Linux and Mac command lists for change words, and show an unlisted command is refused. |
+| ND-164 | PENDING | Needs the push to GitHub. |
+| ND-170 | PARTIAL | Mac reader written for adapter, Wi-Fi, line use, programs, devices and settings. Connection history is "not available" on Mac (change list 13). Sample text from memory; nothing run on a real Mac yet. |
+| ND-171 | PASS (test) | Power saving, driver version and age, and other admin-only facts are unknown, not guessed. |
+| ND-172 | PASS (test) | 14 sample-text tests run here; GitHub runs them on Mac and Linux. |
 | ND-90 to ND-96 | NOT BUILT | Stage 2 comes after stage 1 is accepted. |
 | ND-100 checksums, signature | PARTIAL | Checksum file produced. The signature step is written into the release workflow and runs on the first release. |
 | ND-101 tests on three systems | PASS | 2026-11-11 2338: the automated tests, vet and build passed on GitHub's Windows, Mac and Linux machines. Two earlier runs failed in the format check itself (a shell difference on Mac, line endings on Windows), not in the tool; both were fixed. These runs use the pretend-machine tests; the Mac and Linux readers of adapter, log, devices and settings are not built yet. |

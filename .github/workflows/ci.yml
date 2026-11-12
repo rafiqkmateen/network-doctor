@@ -22,6 +22,20 @@ jobs:
       - run: go vet ./...
       - run: go test ./...
       - run: go build ./cmd/netdoctor
+      - name: Run the built program for real and read the adapter
+        shell: bash
+        run: |
+          # ND-164: on each real system the adapter must be read, not "unknown".
+          ./netdoctor check --json --quick > check.json || true
+          cat check.json
+          if ! grep -Eq '"kind": "(wired|wifi)"' check.json; then
+            echo "The adapter was not read on this system."
+            exit 1
+          fi
+          if grep -q "not available on this system yet" check.json; then
+            echo "A reader said it is not available on this system."
+            exit 1
+          fi
   installer:
     runs-on: windows-latest
     timeout-minutes: 20
