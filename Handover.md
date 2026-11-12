@@ -1,7 +1,7 @@
 # Handover
 
 Purpose: the one job for the next session, and nothing else.
-Owner: Rafiq. Version 0.5.0 (0.5.0: wrap of 2026-11-12; runs from `run\`, speed server refusal handled, GitHub green, matrix holds only rows that need him; 0.4.0: wrap of 2026-11-11 night). Date: 2026-11-12. Finished work is in `CHANGELOG.md`, not here. Keep this page under 1,500 words; prune it at every wrap.
+Owner: Rafiq. Version 0.6.0 (0.6.0: wrap of 2026-11-12 0200, repository public, MIT, tasks back, phone proven; 0.5.0: wrap of 2026-11-12; runs from `run\`, speed server refusal handled, GitHub green, matrix holds only rows that need him; 0.4.0: wrap of 2026-11-11 night). Date: 2026-11-12. Finished work is in `CHANGELOG.md`, not here. Keep this page under 1,500 words; prune it at every wrap.
 
 ## Do this first
 
@@ -24,12 +24,9 @@ Owner: Rafiq. Version 0.5.0 (0.5.0: wrap of 2026-11-12; runs from `run\`, speed 
 
 | # | What | State |
 |---|------|-------|
-| 1 | Put the weekly check and alerts tasks back, pointing at `run\`. Setup made them and the uninstall removed them. The alerts task needs the no-window build `netdoctorw.exe` beside `netdoctor.exe`. | Waits for his yes |
-| 2 | Scan the phone code: run `netdoctor share` from `run\` and point his phone at it. The page and code are tested; no real phone has opened it. | Waits for his press |
-| 3 | Mac connection history (drops over seven days). The Mac reader says "not available" today. Build it or leave it. | Waits for his answer |
-| 4 | Pick a license. `rsc.io/qr` (BSD) is a dependency; note it. | Waits for his answer |
-| 5 | Make the repository public: a no-reply email, a front page, a first release. Setup needs code signing before people with strict computers can install it. | Waits for his "go", after row 4 |
-| 6 | Stage 2: let the tool fix a problem itself, only with his yes on each fix, a before and after view, one-press undo and a change log. | After stage 1 is accepted |
+| 1 | Stage 2 plan (`docs\stage2-plan.md`): which of three fixes (clear the name cache, turn off a proxy, turn off adapter power saving). Tests first, then code. | Waits for his yes and his pick |
+| 2 | HTTPS for the phone page (change list 16). | Waits for his answer |
+| 3 | First release (a version number and a tag). The repository is public with no file to download yet. Setup stays unsigned. | Waits for his "go" |
 
 ## State (2026-11-12, laptop clock)
 
@@ -37,7 +34,9 @@ Owner: Rafiq. Version 0.5.0 (0.5.0: wrap of 2026-11-12; runs from `run\`, speed 
 - **Update the run copy** by building into `run\netdoctor-new.exe` with `go build -trimpath -ldflags '-s -w' -o run\netdoctor-new.exe .\cmd\netdoctor`, running `version` and one check, then moving it over `netdoctor.exe`. If Windows blocks it, put the backup back and tell him.
 - **Windows Application Control.** Smart App Control is on and enforcing. It refused the staged `netdoctor.exe` that setup installed (a specific file; the same code built fresh runs, in Program Files style folders and in his user folder). He chose no signing and no turning Smart App Control off. Do not raise it again. Some Go test programs on this laptop are blocked at random: GitHub runs them.
 - **Speed server.** Cloudflare's speed server answered 429 "too many requests" for about an hour on 2026-11-12 after repeated tests. The tool now says "not measured" and the wait, holds off between runs (`speed-hold.txt`), reuses a speed under ten minutes old (`speed-last.json`), uses four connections for three seconds, and the weekly check saves no row without a measured speed. Never run repeated live speed tests. Live proof: after the wait, 874 down and 776 up; a second check within a minute reused the speed.
-- **GitHub.** Pushed up to `4a7133e`; run 43162644405 passed on Windows, Mac, Linux and the installer. The repo `rafiqkmateen/network-doctor` is private.
-- **Not proven:** a phone scanning the code, Wi-Fi live, Linux and Mac facts beyond the adapter, exact per-program bytes (change list 1), the installer on a computer with a strict app rule.
+- **GitHub.** PUBLIC since 2026-11-12 about 0200, MIT. History rewritten to the no-reply address and pushed; all four jobs passed. Local commits after the push (docs only) are not pushed. This repo's git email is the no-reply one: never his AOL address. Mac history: he said leave it ("not available").
+- **Tasks.** Weekly check (Monday 0900) and alerts (at log-on) run from `run
+etdoctorw.exe`.
+- **Not proven:** the camera scan of the code itself (the phone did open the page), Wi-Fi live, Linux and Mac facts beyond the adapter, exact per-program bytes (change list 1), the installer on a computer with a strict app rule.
 - **Files:** `internal\core`, `internal\collect`, `internal\app`, `internal\web`, `internal\store`, `installer`, `scripts`. Plain zips: `powershell -File scripts\package.ps1` into `dist\release`. Setup is built only by GitHub's installer job.
 - **Khadijah's card** for this tool is her job (her Handover): "not measured", the verdict and the rename are committed and pushed; weekly history and alerts are unfinished.
