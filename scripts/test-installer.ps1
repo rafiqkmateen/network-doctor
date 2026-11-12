@@ -15,6 +15,21 @@ function Check($ok, $what) {
 function TaskExists($name) { schtasks.exe /Query /TN $name *> $null; return ($LASTEXITCODE -eq 0) }
 function Entry() { return [bool](Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall' -ErrorAction SilentlyContinue | Where-Object { ($_ | Get-ItemProperty).DisplayName -eq 'Network Doctor' }) }
 
+# Start a program and wait up to two minutes. On a hang, show what was running and the log, then stop it.
+function RunWait($file, $argList, $label) {
+  $proc = Start-Process -FilePath $file -ArgumentList $argList -PassThru
+  if (-not $proc.WaitForExit(120000)) {
+    Write-Host "  HANG  $label did not finish in two minutes"
+    Get-Process | Where-Object { $_.Name -match 'unins|_iu|_un|netdoctor|Setup' } | Format-Table Name, Id, Responding | Out-String | Write-Host
+    $log = $argList | Where-Object { $_ -like '/LOG=*' } | ForEach-Object { $_.Substring(5).Trim('"') }
+    if ($log -and (Test-Path $log)) { Get-Content $log -Tail 40 | Write-Host }
+    $proc | Stop-Process -Force -ErrorAction SilentlyContinue
+    $script:fails++
+    return -1
+  }
+  return $proc.ExitCode
+}
+
 if ((Test-Path $app) -or (TaskExists $weekly) -or (TaskExists $alerts)) { throw 'This computer already has Network Doctor. Use a clean test machine.' }
 
 $cases = @(
