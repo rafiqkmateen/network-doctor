@@ -13,6 +13,7 @@ Owner: Rafiq. Version 0.1.0.
 - The speed test is lighter on the public server: four connections for three seconds (was six for four), and a speed measured less than ten minutes ago is reused, with a note of how old it is (`speed_age_seconds` in the JSON, `speed-last.json` in the results folder) (change list 15, ND-183 and ND-184).
 
 ### Added
+- MIT License (`LICENSE`) and the notice for the one outside library, `rsc.io/qr` (`THIRD-PARTY-NOTICES.txt`) (matrix row 4).
 - `netdoctor share`: finds this computer's address, serves the page for that network only, draws a code for a phone to scan, and says when a phone reaches the page (change list 9).
 - `netdoctor setup`, the first-run helper: asks a few plain questions and starts by itself only for a person at a keyboard (change list 10).
 - `netdoctor config alerts-file on|off`, and one tab-split line per alert in `alerts.log` (row 2 of the matrix).
