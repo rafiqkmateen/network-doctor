@@ -1,7 +1,7 @@
 # Stage 2 plan: apply a fix with approval
 
 Purpose: the plan for Stage 2, for Rafiq to agree before anything is built. It adds no requirements: ND-90 to ND-96 and their tests already exist.
-Owner: Rafiq. Version 0.1.0 (draft). Date: 2026-11-12. Change list row 5.
+Owner: Rafiq. Version 0.2.0 (0.2.0: built and agreed 2026-11-12, kept for the record; 0.1.0: draft). Date: 2026-11-12. Change list row 5.
 
 ## What Stage 2 is
 

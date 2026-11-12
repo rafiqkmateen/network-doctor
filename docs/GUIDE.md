@@ -1,7 +1,7 @@
 # Network Doctor: one-page guide
 
 Purpose: how to use Network Doctor, in plain words, for anyone.
-Owner: Rafiq. Version 0.3.1 (0.3.1: check time; 0.3.0: setup helper, share command, alerts file, Mac and Linux; 0.2.0: install section; 0.1.0: first guide).
+Owner: Rafiq. Version 0.3.2 (0.3.2: the Start it section points to the installer; 0.3.1: check time; 0.3.0: setup helper, share command, alerts file, Mac and Linux; 0.2.0: install section; 0.1.0: first guide).
 
 ## What it does
 
@@ -9,7 +9,7 @@ Network Doctor looks at your internet connection, wired or Wi-Fi. It tells you i
 
 ## Start it
 
-There is nothing to install. Open a terminal in the folder with `netdoctor.exe` and type:
+The plain file needs no install (to install it with the weekly check and alerts, see "Install it (Windows)" below). Open a terminal in the folder with `netdoctor.exe` and type:
 
 ```
 netdoctor check
