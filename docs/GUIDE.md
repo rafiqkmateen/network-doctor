@@ -1,7 +1,7 @@
 # Network Doctor: one-page guide
 
 Purpose: how to use Network Doctor, in plain words, for anyone.
-Owner: Rafiq. Version 0.3.0 (0.3.0: setup helper, share command, alerts file, Mac and Linux; 0.2.0: install section; 0.1.0: first guide).
+Owner: Rafiq. Version 0.3.1 (0.3.1: check time; 0.3.0: setup helper, share command, alerts file, Mac and Linux; 0.2.0: install section; 0.1.0: first guide).
 
 ## What it does
 
@@ -15,7 +15,7 @@ There is nothing to install. Open a terminal in the folder with `netdoctor.exe` 
 netdoctor check
 ```
 
-It takes about 30 seconds. It prints the answer first, then the numbers.
+It takes under a minute. It prints the answer first, then the numbers.
 
 The first time you type just `netdoctor` in a window, a short helper asks a few questions: your plan speed, your name, which devices on your network are yours, and whether to turn on the weekly check, the alerts file and the phone page. Press Enter to skip any question. Enter always means no. You can run it again any time with `netdoctor setup`.
 
