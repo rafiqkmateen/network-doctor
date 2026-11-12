@@ -15,13 +15,32 @@ import (
 	"github.com/rafiqkmateen/network-doctor/internal/core"
 )
 
-// DefaultDir is the folder for the tool's files.
+// InstalledMarker is the small file the installer writes beside the program.
+// Its presence means "installed by setup", so results go to the shared folder.
+const InstalledMarker = "installed.marker"
+
+// DefaultDir is the folder for the tool's files. An installed copy saves in
+// ProgramData for the whole computer; a plain unzipped copy saves per person.
 func DefaultDir() string {
-	base, err := os.UserConfigDir()
-	if err != nil {
-		base = "."
+	exeDir := "."
+	if exe, err := os.Executable(); err == nil {
+		exeDir = filepath.Dir(exe)
 	}
-	return filepath.Join(base, "NetworkDoctor")
+	userBase, _ := os.UserConfigDir()
+	return dirFor(exeDir, os.Getenv("ProgramData"), userBase)
+}
+
+// dirFor picks the folder from where the program sits and the two base folders.
+func dirFor(exeDir, programData, userBase string) string {
+	if programData != "" {
+		if _, err := os.Stat(filepath.Join(exeDir, InstalledMarker)); err == nil {
+			return filepath.Join(programData, "NetworkDoctor")
+		}
+	}
+	if userBase == "" {
+		userBase = "."
+	}
+	return filepath.Join(userBase, "NetworkDoctor")
 }
 
 // Row is one weekly speed record.

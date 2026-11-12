@@ -22,3 +22,20 @@ jobs:
       - run: go vet ./...
       - run: go test ./...
       - run: go build ./cmd/netdoctor
+  installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Build the installer
+        shell: pwsh
+        run: scripts/build-installer.ps1
+      - name: Install and uninstall every choice on a clean machine
+        shell: pwsh
+        run: scripts/test-installer.ps1 -Setup "$PWD\dist\release\NetworkDoctor-Setup-0.1.0.exe"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer
+          path: dist/release/NetworkDoctor-Setup-0.1.0.zip
