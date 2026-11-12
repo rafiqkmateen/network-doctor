@@ -1,7 +1,7 @@
 # Handover
 
 Purpose: the one job for the next session, and nothing else.
-Owner: Rafiq. Version 0.1.2 (0.1.2: Windows installer built and passing on GitHub; Khadijah node built, uncommitted; 0.1.1: stage 1 handover). Date: 2026-11-11. Finished work is in `CHANGELOG.md`, not here. Keep this page under 1,500 words; prune it at every wrap.
+Owner: Rafiq. Version 0.1.3 (0.1.3: matrix reordered so the pictures and the demo video come after the card changes; 0.1.2: Windows installer built and passing on GitHub; Khadijah node built, uncommitted; 0.1.1: stage 1 handover). Date: 2026-11-11. Finished work is in `CHANGELOG.md`, not here. Keep this page under 1,500 words; prune it at every wrap.
 
 ## Do this first
 
@@ -22,11 +22,11 @@ Owner: Rafiq. Version 0.1.2 (0.1.2: Windows installer built and passing on GitHu
 | # | What | Industry standard | State |
 |---|------|-------------------|-------|
 | 1 | See the installer window on his laptop (the GitHub run was silent, so nobody has seen the tick boxes). Installs into Program Files, so only on his word. | Look at what the customer sees. | Waits for his "go". |
-| 2 | Finish the Khadijah node: commit it, retake the guide picture (it shows the old "7 unknown"). Local commit only. | Tests first, then build, then check against the requirement. | Waits for his "go", after rows 3 to 5 if he wants them in the picture. |
-| 3 | Remove the NET UP and NET DOWN readout from Khadijah's top strip, with tests, requirements and guide updated. | Record the change, then change the tests and documents with the code. | Waits for his "go". |
-| 4 | Add a Good, Watch or Bad verdict and one plain sentence to each line of the Network Doctor card; rename "Delay to the internet" to "Reply time to the internet"; keep the card up 3 minutes. | Tools say what a reading means, not only the number. | Waits for his "go". |
+| 2 | Remove the NET UP and NET DOWN readout from Khadijah's top strip, with tests, requirements and guide updated. | Record the change, then change the tests and documents with the code. | Waits for his "go". |
+| 3 | Add a Good, Watch or Bad verdict and one plain sentence to each line of the Network Doctor card; rename "Delay to the internet" to "Reply time to the internet"; keep the card up 3 minutes. | Tools say what a reading means, not only the number. | Waits for his "go". |
+| 4 | Phone sharing built into the tool, and a first-run helper that asks "are these your devices?" and offers the parts (change list 9 and 10). Comes before the weekly history row. | Tools guide the user themselves. | Waits for his "go". |
 | 5 | Weekly history and alerts in the Khadijah card, and Network Doctor writing alerts to a file only when switched on. | Alerts reach the user without the user asking. | Waits for his "go". |
-| 6 | Phone sharing built into the tool, and a first-run helper that asks "are these your devices?" and offers the parts (change list 9 and 10). Should come before row 5. | Tools guide the user themselves. | Waits for his "go". |
+| 6 | Finish the Khadijah node: commit it, retake the guide picture (it shows the old "7 unknown"). Local commit only. | Tests first, then build, then check against the requirement. | Waits for his "go". Comes after rows 2 to 5, so the pictures show the finished cards. |
 | 7 | Real Linux readers, then real Mac readers. | Test on the real system. | Waits for his "go". |
 | 8 | Make the repository public: license (not yet chosen), no-reply email, front page, first release. Code-signing for the Windows files (change list 2) before customers get the installer. | Public code needs a license and no personal data. | Waits for his license answer. |
 | 9 | Stage 2: apply a fix with approval. | Least privilege, undo, audit log. | After stage 1 is accepted. |
