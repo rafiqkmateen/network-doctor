@@ -5,6 +5,9 @@ Owner: Rafiq. Version 0.1.0.
 
 ## [Unreleased]
 
+### Changed
+- The speed test now opens six connections at once and counts bytes over four seconds after a one-second warm-up, instead of one half-second file on one connection. On a line the website measured at 918 down, the old test read 339; the new one reads about 780 to 800 (change list 12).
+
 ### Added
 - Windows installer (`installer/netdoctor.iss`, Inno Setup): the on-demand check always installs; the weekly check and alerts are optional tick boxes; silent switches for IT; an uninstaller that undoes exactly what the install did and keeps saved results by default. Installed copies save in ProgramData. Tested on GitHub's clean Windows machine for all four choices (change list 11).
 - `netdoctorw.exe`, a build with no console window, used by the weekly and alerts tasks.

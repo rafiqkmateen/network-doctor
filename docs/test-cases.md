@@ -1,7 +1,7 @@
 # Test cases
 
 Purpose: one test per requirement, written before the build. Each says what is done and what counts as a pass.
-Owner: Rafiq. Version 0.2.0 (0.2.0: ND-110 to ND-120 added; 0.1.0: draft). Date: 2026-11-11.
+Owner: Rafiq. Version 0.2.1 (0.2.1: speed case added; 0.2.0: ND-110 to ND-120 added; 0.1.0: draft). Date: 2026-11-11.
 
 Method: A = automated Go test. M = measured on this laptop, result shown to Rafiq. G = checked by the GitHub test run on Windows, Mac and Linux.
 Status of every test today: not run (nothing built yet).
@@ -15,6 +15,7 @@ Status of every test today: not run (nothing built yet).
 | ND-05 | A | Run a readability score on every message and explanation. | Grade 8 or lower. |
 | ND-10 | A, M | Run with the cable plugged and Wi-Fi off, then Wi-Fi only. | Reports "wired" then "Wi-Fi" correctly. |
 | ND-11 | M | Run on this laptop; compare to a known router ping. | Router and internet speed, delay and loss reported within 10 percent of a manual check. |
+| ND-11 (speed) | G | Run the speed test against a pretend server; then run it live beside a speed website. | At least four connections at once, a short run; live result close to the website's, allowing for a different server. |
 | ND-12 | A | Feed recorded readings for four fault cases (computer, cable or signal, router, provider). | Each case names the right cause and a first thing to check. |
 | ND-20 | M | Start a large download; run the check. | That program ranks first with upload and download shown. |
 | ND-21 | A | Run with a download active. | Advice names it; the download is still running afterward. |

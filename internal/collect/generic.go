@@ -5,9 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net"
-	"net/http"
 	"os/exec"
 	"regexp"
 	"runtime"
@@ -72,37 +70,6 @@ func doDNSWorks(ctx context.Context) bool {
 	defer cancel()
 	_, err := r.LookupHost(c, "example.com")
 	return err == nil
-}
-
-// doSpeed measures download and upload against a public test server.
-// This is one of the two things that go online; the other is the internet ping.
-func doSpeed(ctx context.Context) (down, up float64, err error) {
-	client := &http.Client{Timeout: 25 * time.Second}
-	start := time.Now()
-	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "https://speed.cloudflare.com/__down?bytes=25000000", nil)
-	resp, err := client.Do(req)
-	if err != nil {
-		return 0, 0, err
-	}
-	n, _ := io.Copy(io.Discard, resp.Body)
-	resp.Body.Close()
-	if secs := time.Since(start).Seconds(); secs > 0 {
-		down = float64(n) * 8 / secs / 1e6
-	}
-	body := bytes.NewReader(make([]byte, 8_000_000))
-	start = time.Now()
-	req, _ = http.NewRequestWithContext(ctx, http.MethodPost, "https://speed.cloudflare.com/__up", body)
-	req.Header.Set("Content-Type", "application/octet-stream")
-	resp, err = client.Do(req)
-	if err != nil {
-		return down, 0, err
-	}
-	io.Copy(io.Discard, resp.Body)
-	resp.Body.Close()
-	if secs := time.Since(start).Seconds(); secs > 0 {
-		up = 8_000_000 * 8 / secs / 1e6
-	}
-	return down, up, nil
 }
 
 var kvRe = regexp.MustCompile(`^\s*([A-Za-z][A-Za-z ]*?)\s*:\s*(.+?)\s*$`)
