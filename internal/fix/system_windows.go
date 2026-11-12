@@ -24,7 +24,8 @@ func run(name string, args ...string) (string, error) {
 }
 
 func (realSystem) FlushDNS() error {
-	_, err := run("ipconfig", "/flushdns")
+	// ipconfig /flushdns needs administrator rights; this cmdlet does not.
+	_, err := run("powershell", "-NoProfile", "-Command", "Clear-DnsClientCache -ErrorAction Stop")
 	return err
 }
 
