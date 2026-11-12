@@ -1,7 +1,7 @@
 # Test results
 
 Purpose: the result of each test case against its requirement, with what was seen. Never claims more than was run.
-Owner: Rafiq. Version 0.2.0 (0.2.0: ND-130 to ND-172 results; 0.1.2: ND-11 speed test made multi-connection; 0.1.1: ND-112 seen on Rafiq's laptop; 0.1.0: first results). Date: 2026-11-11. Machine: Windows 11 laptop, wired Ethernet (1 Gbps), Wi-Fi card present and disconnected.
+Owner: Rafiq. Version 0.2.1 (0.2.1: GitHub results for ND-132, ND-162, ND-164, ND-172; 0.2.0: ND-130 to ND-172 results; 0.1.2: ND-11 speed test made multi-connection; 0.1.1: ND-112 seen on Rafiq's laptop; 0.1.0: first results). Date: 2026-11-11. Machine: Windows 11 laptop, wired Ethernet (1 Gbps), Wi-Fi card present and disconnected.
 
 Run: `go test ./...` passes on this laptop (core, collect, app, store, web). Builds for Windows, Linux (x64, ARM) and Mac (Intel, Apple) all compile.
 
@@ -36,7 +36,7 @@ Key: PASS = tested and met. PARTIAL = met in part; the gap is named. NOT BUILT =
 | ND-81 web page | PARTIAL | Page ran in the built-in browser on this laptop and gave the answer. Blocked and allowed addresses are tested. Not tried from a phone. |
 | ND-130 | PASS (test) | 2026-11-11: with a pretend adapter the page opens on the adapter's own address only; a pretend VPN adapter is skipped for the real network. Not tried with a real phone. |
 | ND-131 | PARTIAL | A code is drawn with a clear border (light squares on a dark screen; `--light` for a light screen). The test checks its shape. No phone has scanned it yet. |
-| ND-132 | PARTIAL | With a pretend page, the first other device is announced and, with none, the advice appears after the wait; a VPN is named when one is on. The test of the page's own announcement (`internal\web`) was written, but this laptop's Application Control blocked that one test program; GitHub runs it. No real phone yet. |
+| ND-132 | PARTIAL | With a pretend page, the first other device is announced and, with none, the advice appears after the wait; a VPN is named when one is on. The test of the page's own announcement (`internal\web`) was blocked on this laptop by Application Control, and passed on GitHub's Windows, Mac and Linux machines (2026-11-12 0310). No real phone yet. |
 | ND-133 | PASS (test) | Allowed range is the adapter's own network only, and the address is the adapter's, not all addresses. A scan finds no firewall or setting command. |
 | ND-134 | PASS (test) | With no usable address it says so in plain words and the page is not started. |
 | ND-140 | PASS (test) | Typed answers saved: plan, name, chosen devices, weekly check, alerts file; this computer is never listed; the weekly check is not offered when already on. |
@@ -46,14 +46,14 @@ Key: PASS = tested and met. PARTIAL = met in part; the gap is named. NOT BUILT =
 | ND-150 | PASS (test) | `config alerts-file on` and `off` add and remove only the file place; twice is the same as once. |
 | ND-151 | PASS (test) | One line of time, kind and message; line breaks and tabs inside a message are flattened; nothing written when off. The format is in the guide. |
 | ND-152 | PASS (test) | The file is written in the results folder, beside `weekly.csv`. |
-| ND-160 | PARTIAL | Linux reader written: adapter, Wi-Fi, line use, programs, history, devices, settings, tested on sample text. Samples came from memory of real output; nothing run on a real Linux machine yet. |
+| ND-160 | PARTIAL | Linux reader written: adapter, Wi-Fi, line use, programs, history, devices, settings, tested on sample text from memory of real output. On GitHub's real Linux machine the adapter and driver were read right (ND-164). The other facts have not been seen on a real Linux computer. |
 | ND-161 | PASS (test) | Missing facts (power saving on wired, driver age, unreadable journal) come back as unknown or an error, not a guess. |
-| ND-162 | PASS (test) | 23 sample-text tests run on this Windows laptop; GitHub runs them on Mac and Linux too. |
+| ND-162 | PASS (test) | 23 sample-text tests pass on this laptop and on GitHub's Windows, Mac and Linux machines. |
 | ND-163 | PASS (test) | Tests scan the Linux and Mac command lists for change words, and show an unlisted command is refused. |
-| ND-164 | PENDING | Needs the push to GitHub. |
-| ND-170 | PARTIAL | Mac reader written for adapter, Wi-Fi, line use, programs, devices and settings. Connection history is "not available" on Mac (change list 13). Sample text from memory; nothing run on a real Mac yet. |
+| ND-164 | PASS (Linux, Mac) | 2026-11-12 0310, GitHub run 43146153462: the built program on a real Linux machine read the adapter as wired, 16000 Mbps, full duplex, driver 7.0.0-1017-azure. On a real Mac it read wired, full duplex, link speed 0 (not read). The Windows machine there has a virtual adapter with no wired or Wi-Fi label; that check is not asked of Windows, which was proven live on the laptop. |
+| ND-170 | PARTIAL | Mac reader written for adapter, Wi-Fi, line use, programs, devices and settings. Connection history is "not available" on Mac (change list 13). Sample text from memory. On GitHub's real Mac the adapter was read (ND-164) but its link speed came back 0. The other facts have not been seen on a real Mac. |
 | ND-171 | PASS (test) | Power saving, driver version and age, and other admin-only facts are unknown, not guessed. |
-| ND-172 | PASS (test) | 14 sample-text tests run here; GitHub runs them on Mac and Linux. |
+| ND-172 | PASS (test) | 14 sample-text tests pass on this laptop and on GitHub's Windows, Mac and Linux machines. |
 | ND-90 to ND-96 | NOT BUILT | Stage 2 comes after stage 1 is accepted. |
 | ND-100 checksums, signature | PARTIAL | Checksum file produced. The signature step is written into the release workflow and runs on the first release. |
 | ND-101 tests on three systems | PASS | 2026-11-11 2338: the automated tests, vet and build passed on GitHub's Windows, Mac and Linux machines. Two earlier runs failed in the format check itself (a shell difference on Mac, line endings on Windows), not in the tool; both were fixed. These runs use the pretend-machine tests; the Mac and Linux readers of adapter, log, devices and settings are not built yet. |
