@@ -24,8 +24,7 @@ Owner: Rafiq. Version 0.6.0 (0.6.0: wrap of 2026-11-12 0200, repository public, 
 
 | # | What | State |
 |---|------|-------|
-| 1 | Phone scan of the https code from `netdoctor share` (press Advanced, then Continue). | Waits for his phone |
-| 2 | (none: the name cache fix ran live at 0218) | Done |
+| - | Nothing needs his word right now. | Phone scan of https and the name cache fix both passed live 2026-11-12. |
 
 ## State (2026-11-12, laptop clock)
 
