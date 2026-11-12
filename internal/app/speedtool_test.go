@@ -53,7 +53,7 @@ func TestTooSoonMessageGivesTheWaitAndTheTime(t *testing.T) {
 			t.Errorf("the note should contain %q: %v", want, r.Notes)
 		}
 	}
-	if !strings.Contains(joined, time.Now().Add(time.Minute).Format("15:04")) && !strings.Contains(joined, time.Now().Add(time.Minute+time.Minute).Format("15:04")) {
+	if !strings.Contains(joined, time.Now().Add(time.Minute).Format("1504")) && !strings.Contains(joined, time.Now().Add(time.Minute+time.Minute).Format("1504")) {
 		t.Errorf("the note should name the time to come back (military time): %v", r.Notes)
 	}
 }

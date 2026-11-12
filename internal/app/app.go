@@ -124,7 +124,7 @@ func Check(ctx context.Context, src collect.Source, opt Options) Report {
 				}
 				rep.SpeedWaitSeconds = int(wait.Seconds())
 				rep.SpeedTool = opt.LastSpeed.Tool
-				note("Too soon to test again. This is the reading from " + ageWords(age) + ". Come back " + waitWords(wait) + " (at " + now.Add(wait).Format("15:04") + ").")
+				note("Too soon to test again. This is the reading from " + ageWords(age) + ". Come back " + waitWords(wait) + " (at " + now.Add(wait).Format("1504") + ").")
 			} else if opt.SpeedHoldUntil.After(now) {
 				note("The speed test is paused. The test server asked us to wait. It can run again " + waitWords(opt.SpeedHoldUntil.Sub(now)) + ".")
 			} else {

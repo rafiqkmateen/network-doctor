@@ -111,7 +111,7 @@ Form: each requirement is one "shall" sentence that can be tested. A new idea go
 - ND-202 The speed shall be measured with Ookla's tool when it is found and works, and with the Cloudflare test otherwise; the tool that measured shall be named in the answer (`speed_tool`).
 - ND-203 Network Doctor shall never tell Ookla's tool that the license was accepted when it measures; without the person's own stored acceptance the tool fails and the Cloudflare test is used.
 - ND-204 A measured speed shall be reused for 2 minutes when Ookla's tool measured it and for 10 minutes when Cloudflare measured it (an earlier reading with no tool name counts as Cloudflare). The repeating alerts helper shall use only the light Cloudflare test.
-- ND-205 A check inside the hold shall measure nothing and say: "Too soon to test again. This is the reading from N minutes ago. Come back in about N minutes (at HH:MM).", with the wait in seconds (`speed_wait_seconds`) and the time in military form.
+- ND-205 A check inside the hold shall measure nothing and say: "Too soon to test again. This is the reading from N minutes ago. Come back in about N minutes (at HHMM).", with the wait in seconds (`speed_wait_seconds`) and the time in military form.
 - ND-206 The saved last speed shall remember which tool measured it.
 - ND-207 The installer's choices file (`choices.json`, beside the program) shall say which parts the person chose (`core`, `scheduled`, `proactive`, `ookla`); a missing or damaged file says nothing.
 - ND-208 Turning the weekly check on or off by hand shall keep the choices file in step, only when the installer wrote one.
