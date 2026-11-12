@@ -1,7 +1,7 @@
 # Test results
 
 Purpose: the result of each test case against its requirement, with what was seen. Never claims more than was run.
-Owner: Rafiq. Version 0.2.2 (0.2.2: times fixed to the laptop's clock, installed copy blocked, check time; 0.2.1: GitHub results for ND-132, ND-162, ND-164, ND-172; 0.2.0: ND-130 to ND-172 results; 0.1.2: ND-11 speed test made multi-connection; 0.1.1: ND-112 seen on Rafiq's laptop; 0.1.0: first results). Date: 2026-11-11 (times are the laptop's clock, not UTC). Machine: Windows 11 laptop, wired Ethernet (1 Gbps), Wi-Fi card present and disconnected.
+Owner: Rafiq. Version 0.2.3 (0.2.3: ND-180 to ND-182, speed server refusal; 0.2.2: times fixed to the laptop's clock, installed copy blocked, check time; 0.2.1: GitHub results for ND-132, ND-162, ND-164, ND-172; 0.2.0: ND-130 to ND-172 results; 0.1.2: ND-11 speed test made multi-connection; 0.1.1: ND-112 seen on Rafiq's laptop; 0.1.0: first results). Date: 2026-11-11 (times are the laptop's clock, not UTC). Machine: Windows 11 laptop, wired Ethernet (1 Gbps), Wi-Fi card present and disconnected.
 
 Run: `go test ./...` passes on this laptop (core, collect, app, store, web). Builds for Windows, Linux (x64, ARM) and Mac (Intel, Apple) all compile.
 
@@ -54,6 +54,9 @@ Key: PASS = tested and met. PARTIAL = met in part; the gap is named. NOT BUILT =
 | ND-170 | PARTIAL | Mac reader written for adapter, Wi-Fi, line use, programs, devices and settings. Connection history is "not available" on Mac (change list 13). Sample text from memory. On GitHub's real Mac the adapter was read (ND-164) but its link speed came back 0. The other facts have not been seen on a real Mac. |
 | ND-171 | PASS (test) | Power saving, driver version and age, and other admin-only facts are unknown, not guessed. |
 | ND-172 | PASS (test) | 14 sample-text tests pass on this laptop and on GitHub's Windows, Mac and Linux machines. |
+| ND-180 | PARTIAL | 2026-11-11 about 2330: the real speed server answered "429 Too Many Requests" with a wait of 3,383 seconds after several checks, and the tool showed 0 Mbps. Now (tests): a refused test is not measured, the note says "Try again in about 56 minutes", and the JSON carries `speed_measured` false and the wait. The test that reads the server's wait header (`internal\collect`) is written and compiles, but Application Control blocked its test program on this laptop; it waits for GitHub. |
+| ND-181 | PASS (test) | After a refusal the second check does not call the speed test; a hold that has ended, a missing file and a damaged file all mean no hold. The hold is saved in `speed-hold.txt` in the results folder. |
+| ND-182 | PASS (test) | Three weekly runs with a refused speed test saved no row and drafted no complaint. A healthy run still saves its row. |
 | ND-90 to ND-96 | NOT BUILT | Stage 2 comes after stage 1 is accepted. |
 | ND-100 checksums, signature | PARTIAL | Checksum file produced. The signature step is written into the release workflow and runs on the first release. |
 | ND-101 tests on three systems | PASS | 2026-11-11 2338: the automated tests, vet and build passed on GitHub's Windows, Mac and Linux machines. Two earlier runs failed in the format check itself (a shell difference on Mac, line endings on Windows), not in the tool; both were fixed. These runs use the pretend-machine tests; the Mac and Linux readers of adapter, log, devices and settings are not built yet. |

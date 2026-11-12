@@ -3,6 +3,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"time"
 
@@ -18,6 +19,9 @@ type Options struct {
 	PlanMbps float64
 	Quick    bool
 	Known    map[string]bool
+	// SpeedHoldUntil: while this time is in the future the speed test is not run,
+	// because the test server asked for a wait.
+	SpeedHoldUntil time.Time
 }
 
 // Report is the full result of a check.
@@ -36,6 +40,8 @@ type Report struct {
 	Settings        []core.Advice   `json:"settings"`
 	Notes           []string        `json:"notes"`
 	Quick           bool            `json:"quick"`
+	// SpeedRetryAfterSeconds is set only when the speed server refused the test.
+	SpeedRetryAfterSeconds int `json:"speed_retry_after_seconds,omitempty"`
 }
 
 const internetHost = "1.1.1.1"
@@ -98,10 +104,25 @@ func Check(ctx context.Context, src collect.Source, opt Options) Report {
 	} else {
 		rd.DNSFails = !dnsOK
 		if !opt.Quick {
-			down, up, err := src.Speed(ctx)
-			rd.DownMbps, rd.UpMbps = down, up
-			if err != nil {
-				note("The speed test could not finish.")
+			if opt.SpeedHoldUntil.After(now) {
+				note("The speed test is paused. The test server asked us to wait. It can run again " + waitWords(opt.SpeedHoldUntil.Sub(now)) + ".")
+			} else {
+				down, up, err := src.Speed(ctx)
+				rd.DownMbps, rd.UpMbps = down, up
+				var refused *collect.SpeedRefusedError
+				switch {
+				case errors.As(err, &refused):
+					rd.DownMbps, rd.UpMbps = 0, 0
+					rep.SpeedRetryAfterSeconds = int(refused.RetryAfter.Seconds())
+					if rep.SpeedRetryAfterSeconds <= 0 {
+						rep.SpeedRetryAfterSeconds = defaultSpeedWaitSeconds
+					}
+					note("The speed test server has had enough tests for now. Try again " + waitWords(time.Duration(rep.SpeedRetryAfterSeconds)*time.Second) + ".")
+				case err != nil:
+					note("The speed test could not finish.")
+				default:
+					rd.SpeedMeasured = true
+				}
 			}
 		}
 	}

@@ -37,13 +37,16 @@ type Reading struct {
 	InternetLoss float64 `json:"internet_loss_pct"`
 	DownMbps     float64 `json:"down_mbps"`
 	UpMbps       float64 `json:"up_mbps"`
-	PlanMbps     float64 `json:"plan_mbps"`
-	LinkMbps     int     `json:"link_mbps"`
-	Duplex       string  `json:"duplex"`
-	ErrorCount   int64   `json:"error_count"`
-	SignalPct    int     `json:"signal_pct"`
-	LocalBusyPct int     `json:"local_busy_pct"`
-	DNSFails     bool    `json:"dns_fails"`
+	// SpeedMeasured is true only when the speed test finished. When false, the
+	// two speeds above are 0 because nothing was measured, not because the line is slow.
+	SpeedMeasured bool    `json:"speed_measured"`
+	PlanMbps      float64 `json:"plan_mbps"`
+	LinkMbps      int     `json:"link_mbps"`
+	Duplex        string  `json:"duplex"`
+	ErrorCount    int64   `json:"error_count"`
+	SignalPct     int     `json:"signal_pct"`
+	LocalBusyPct  int     `json:"local_busy_pct"`
+	DNSFails      bool    `json:"dns_fails"`
 }
 
 // Finding is the plain-words answer to a diagnosis.

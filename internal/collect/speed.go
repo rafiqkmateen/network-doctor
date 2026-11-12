@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -25,6 +26,27 @@ type speedPlan struct {
 }
 
 var defaultSpeedPlan = speedPlan{Streams: 6, Warmup: time.Second, Measure: 4 * time.Second}
+
+// SpeedRefusedError means the test server answered "too many requests". It asks
+// for a wait, and the number is how long. The speed is then not measured: a
+// caller must not show it as 0.
+type SpeedRefusedError struct {
+	RetryAfter time.Duration // zero when the server did not say
+}
+
+func (e *SpeedRefusedError) Error() string { return "the speed server asked for a wait" }
+
+// speedStatus turns a bad answer from the test server into an error.
+func speedStatus(resp *http.Response) error {
+	switch resp.StatusCode {
+	case http.StatusOK:
+		return nil
+	case http.StatusTooManyRequests:
+		secs, _ := strconv.Atoi(resp.Header.Get("Retry-After"))
+		return &SpeedRefusedError{RetryAfter: time.Duration(secs) * time.Second}
+	}
+	return fmt.Errorf("speed server answered %s", resp.Status)
+}
 
 // doSpeed measures download and upload in Mbps against the public test server.
 func doSpeed(ctx context.Context) (down, up float64, err error) {
@@ -116,8 +138,8 @@ func downloadOnce(ctx context.Context, client *http.Client, base string, add fun
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("speed server answered %s", resp.Status)
+	if err := speedStatus(resp); err != nil {
+		return err
 	}
 	buf := make([]byte, 64*1024)
 	for {
@@ -166,8 +188,5 @@ func uploadOnce(ctx context.Context, client *http.Client, base string, add func(
 	}
 	io.Copy(io.Discard, resp.Body)
 	resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("speed server answered %s", resp.Status)
-	}
-	return nil
+	return speedStatus(resp)
 }

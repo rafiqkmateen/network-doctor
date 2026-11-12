@@ -1,7 +1,7 @@
 # Requirements
 
 Purpose: the fixed list of what Network Doctor must do. Each requirement has one test in `test-cases.md`.
-Owner: Rafiq. Version 0.3.0 (0.3.0: ND-130 to ND-172 added by change list 3, 9 and 10; 0.2.0: ND-110 to ND-120 added by change list 11, agreed by Rafiq 2026-11-11; 0.1.0: draft). Date: 2026-11-11.
+Owner: Rafiq. Version 0.4.0 (0.4.0: ND-180 to ND-182 added by change list 14 and 15, "go" 2026-11-11; 0.3.0: ND-130 to ND-172 added by change list 3, 9 and 10; 0.2.0: ND-110 to ND-120 added by change list 11, agreed by Rafiq 2026-11-11; 0.1.0: draft). Date: 2026-11-11.
 
 Form: each requirement is one "shall" sentence that can be tested. A new idea goes on the change list, not here.
 
@@ -88,6 +88,9 @@ Form: each requirement is one "shall" sentence that can be tested. A new idea go
 - ND-170 On Mac the tool shall read the same facts as ND-160, without changing anything.
 - ND-171 Where Mac cannot give a fact without administrator rights, the tool shall say so and not guess.
 - ND-172 The reading of the system's own text on Mac shall be tested on sample text on every system the tests run on.
+- ND-180 When the speed server refuses a test ("too many requests"), the tool shall report the speed as not measured, never as 0, say so in plain words with how long to wait, and carry both facts in its JSON (change list 14).
+- ND-181 After a refusal the tool shall not ask the speed server again until the wait is over, and shall remember the wait between runs (change list 15).
+- ND-182 The weekly check shall not save a row, and so never start a complaint draft, when the speed was not measured (change list 14).
 
 ## Release
 

@@ -81,7 +81,7 @@ func RunWith(ctx context.Context, args []string, src collect.Source, dir string,
 		if fs.Parse(rest) != nil {
 			return 2
 		}
-		rep := Check(ctx, src, Options{PlanMbps: *plan, Quick: *quick, Known: known})
+		rep := runCheck(ctx, src, dir, Options{PlanMbps: *plan, Quick: *quick, Known: known})
 		if *asJSON {
 			b, _ := json.MarshalIndent(rep, "", "  ")
 			fmt.Fprintln(out, string(b))
@@ -111,7 +111,7 @@ func RunWith(ctx context.Context, args []string, src collect.Source, dir string,
 		}
 		fmt.Fprintf(out, "Network Doctor page: http://%s/  (Ctrl+C to stop)\n", *listen)
 		err := web.Serve(ctx, *listen, al, func() ([]byte, error) {
-			return json.Marshal(Check(ctx, src, Options{PlanMbps: *plan, Known: known}))
+			return json.Marshal(runCheck(ctx, src, dir, Options{PlanMbps: *plan, Known: known}))
 		})
 		if err != nil {
 			fmt.Fprintln(out, "Could not serve:", err)
@@ -142,7 +142,12 @@ func RunWith(ctx context.Context, args []string, src collect.Source, dir string,
 }
 
 func weekly(ctx context.Context, src collect.Source, dir string, cfg store.Config, plan float64, known map[string]bool, out io.Writer) int {
-	rep := Check(ctx, src, Options{PlanMbps: plan, Known: known})
+	rep := runCheck(ctx, src, dir, Options{PlanMbps: plan, Known: known})
+	if !rep.Reading.SpeedMeasured {
+		// A made-up zero would look like a slow week and could start a false complaint.
+		fmt.Fprintln(out, "Weekly check not saved: the speed was not measured, and a zero would look like a slow week. Run it again later.")
+		return 0
+	}
 	csvPath := filepath.Join(dir, "weekly.csv")
 	err := store.AppendWeekly(csvPath, store.Row{Time: rep.Time, Down: rep.Reading.DownMbps, Up: rep.Reading.UpMbps, PingMs: rep.Reading.InternetMs, Plan: plan})
 	if err != nil {

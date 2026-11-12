@@ -2,6 +2,7 @@ package collect
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -80,6 +81,26 @@ func TestDefaultSpeedPlan(t *testing.T) {
 	}
 	if p.Warmup <= 0 {
 		t.Error("want a warm-up before counting")
+	}
+}
+
+// ND-180: when the server answers "too many requests", the error says so and carries the wait.
+func TestSpeedServerRefusesWithAWait(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/__down", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Retry-After", "120")
+		w.WriteHeader(http.StatusTooManyRequests)
+	})
+	mux.HandleFunc("/__up", func(w http.ResponseWriter, r *http.Request) {})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	_, _, err := runSpeed(context.Background(), srv.URL, speedPlan{Streams: 4, Warmup: 50 * time.Millisecond, Measure: 200 * time.Millisecond})
+	var refused *SpeedRefusedError
+	if !errors.As(err, &refused) {
+		t.Fatalf("want a refusal error, got %v", err)
+	}
+	if refused.RetryAfter != 120*time.Second {
+		t.Errorf("wait %v, want 2m0s", refused.RetryAfter)
 	}
 }
 

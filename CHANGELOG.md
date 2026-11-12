@@ -8,6 +8,8 @@ Owner: Rafiq. Version 0.1.0.
 ### Changed
 - The speed test now opens six connections at once and counts bytes over four seconds after a one-second warm-up, instead of one half-second file on one connection. On a line the website measured at 918 down, the old test read 339; the new one reads about 780 to 800 (change list 12).
 
+- When the speed server refuses a test ("too many requests"), the tool now says the speed was not measured and when to try again, instead of showing 0 Mbps. The JSON has `speed_measured` and, after a refusal, `speed_retry_after_seconds`. The tool also waits out the refusal between runs (`speed-hold.txt`), and the weekly check no longer saves a row without a measured speed (change list 14 and 15, ND-180 to ND-182).
+
 ### Added
 - `netdoctor share`: finds this computer's address, serves the page for that network only, draws a code for a phone to scan, and says when a phone reaches the page (change list 9).
 - `netdoctor setup`, the first-run helper: asks a few plain questions and starts by itself only for a person at a keyboard (change list 10).
