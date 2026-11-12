@@ -26,7 +26,9 @@ Commands:
   weekly [--plan MBPS]                     run one weekly check and record it
   watch [--interval SECONDS]               watch for drops, slow speed, new devices
   serve [--listen ADDR] [--allow CIDRS]    open the local web page (default 127.0.0.1:8765)
-  known add MAC [NAME] | known list        mark devices you recognize
+  setup                                    answer a few questions to set things up
+  share [--light]                          show how to open the page on your phone
+  known add MAC [NAME] | known list       mark devices you recognize
   config show | plan N | name TEXT | quiet FROM TO | sinks LIST | alerts-file on|off | alerts-off LIST
   schedule enable | disable | status       turn the weekly check on or off
   version
@@ -35,12 +37,22 @@ Exit codes for check and weekly: 0 healthy, 10 this computer, 11 cable or signal
 12 router, 13 provider, 2 bad command.
 `
 
-// Run runs one command and returns the exit code.
+// Run runs one command and returns the exit code. Nobody can type to it.
 func Run(ctx context.Context, args []string, src collect.Source, dir string, out io.Writer) int {
+	return RunWith(ctx, args, src, dir, Terminal{}, out)
+}
+
+// RunWith is Run for a caller that may have a person at a keyboard. Only then,
+// with no command and no settings file, does the first-run helper start.
+func RunWith(ctx context.Context, args []string, src collect.Source, dir string, term Terminal, out io.Writer) int {
+	cfgPath := filepath.Join(dir, "config.json")
 	if len(args) == 0 {
+		if _, err := os.Stat(cfgPath); err != nil && term.Keyboard && term.In != nil {
+			Setup(ctx, src, dir, term.In, out, SetupOptions{})
+			fmt.Fprintln(out)
+		}
 		args = []string{"check"}
 	}
-	cfgPath := filepath.Join(dir, "config.json")
 	cfg, err := store.LoadConfig(cfgPath)
 	if err != nil {
 		fmt.Fprintln(out, "Could not read the settings file:", err)
@@ -55,6 +67,7 @@ func Run(ctx context.Context, args []string, src collect.Source, dir string, out
 	quick := fs.Bool("quick", false, "skip the speed test, history and device list")
 	interval := fs.Int("interval", 60, "seconds between watch checks")
 	listen := fs.String("listen", "127.0.0.1:8765", "address for the web page")
+	light := fs.Bool("light", false, "draw the phone code for a light screen")
 	allow := fs.String("allow", strings.Join(cfg.Allow, ","), "addresses allowed to open the web page")
 
 	switch cmd {
@@ -105,6 +118,17 @@ func Run(ctx context.Context, args []string, src collect.Source, dir string, out
 			return 2
 		}
 		return 0
+	case "setup":
+		if term.In == nil {
+			fmt.Fprintln(out, setupNoInput)
+			return 2
+		}
+		return Setup(ctx, src, dir, term.In, out, SetupOptions{})
+	case "share":
+		if fs.Parse(rest) != nil {
+			return 2
+		}
+		return Share(ctx, src, ShareOptions{LightTerm: *light}, Options{PlanMbps: *plan, Known: known}, out)
 	case "known":
 		return knownCmd(rest, dir, known, out)
 	case "config":

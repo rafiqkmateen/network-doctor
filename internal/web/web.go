@@ -55,6 +55,12 @@ func CheckListen(addr string, allow []string) error {
 
 // Handler serves the page and /api/check. run does one full check as JSON.
 func Handler(run func() ([]byte, error), allow []string) http.Handler {
+	return HandlerWith(run, allow, nil)
+}
+
+// HandlerWith is Handler that also calls onRemote with the address of any
+// allowed device other than this computer that opens the page.
+func HandlerWith(run func() ([]byte, error), allow []string, onRemote func(ip string)) http.Handler {
 	var mu sync.Mutex
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -90,16 +96,30 @@ func Handler(run func() ([]byte, error), allow []string) http.Handler {
 			http.Error(w, "not allowed", http.StatusForbidden)
 			return
 		}
+		if onRemote != nil && r.URL.Path == "/" {
+			host, _, err := net.SplitHostPort(r.RemoteAddr)
+			if err != nil {
+				host = r.RemoteAddr
+			}
+			if ip := net.ParseIP(host); ip != nil && !ip.IsLoopback() {
+				onRemote(host)
+			}
+		}
 		mux.ServeHTTP(w, r)
 	})
 }
 
 // Serve runs the page until the context ends.
 func Serve(ctx context.Context, addr string, allow []string, run func() ([]byte, error)) error {
+	return ServeWith(ctx, addr, allow, run, nil)
+}
+
+// ServeWith is Serve that reports other devices opening the page (see HandlerWith).
+func ServeWith(ctx context.Context, addr string, allow []string, run func() ([]byte, error), onRemote func(ip string)) error {
 	if err := CheckListen(addr, allow); err != nil {
 		return err
 	}
-	srv := &http.Server{Addr: addr, Handler: Handler(run, allow), ReadHeaderTimeout: 5 * time.Second}
+	srv := &http.Server{Addr: addr, Handler: HandlerWith(run, allow, onRemote), ReadHeaderTimeout: 5 * time.Second}
 	go func() { <-ctx.Done(); srv.Close() }()
 	err := srv.ListenAndServe()
 	if errors.Is(err, http.ErrServerClosed) {

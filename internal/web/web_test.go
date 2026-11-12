@@ -61,3 +61,22 @@ func TestListenGuard(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// ND-132: the page tells the caller when a device other than this one opens it.
+func TestHandlerReportsOtherDevices(t *testing.T) {
+	var seen []string
+	h := HandlerWith(func() ([]byte, error) { return []byte(`{}`), nil }, []string{"192.168.1.0/24"}, func(ip string) { seen = append(seen, ip) })
+	get := func(remote string) int {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.RemoteAddr = remote
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		return rec.Code
+	}
+	get("127.0.0.1:1") // this computer: not another device
+	get("10.9.9.9:1")  // refused: not announced
+	get("192.168.1.57:5000")
+	if len(seen) != 1 || seen[0] != "192.168.1.57" {
+		t.Fatalf("only the allowed other device should be reported once: %v", seen)
+	}
+}
