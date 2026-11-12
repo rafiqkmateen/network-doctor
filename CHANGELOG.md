@@ -10,6 +10,8 @@ Owner: Rafiq. Version 0.1.0.
 
 - When the speed server refuses a test ("too many requests"), the tool now says the speed was not measured and when to try again, instead of showing 0 Mbps. The JSON has `speed_measured` and, after a refusal, `speed_retry_after_seconds`. The tool also waits out the refusal between runs (`speed-hold.txt`), and the weekly check no longer saves a row without a measured speed (change list 14 and 15, ND-180 to ND-182).
 
+- The speed test is lighter on the public server: four connections for three seconds (was six for four), and a speed measured less than ten minutes ago is reused, with a note of how old it is (`speed_age_seconds` in the JSON, `speed-last.json` in the results folder) (change list 15, ND-183 and ND-184).
+
 ### Added
 - `netdoctor share`: finds this computer's address, serves the page for that network only, draws a code for a phone to scan, and says when a phone reaches the page (change list 9).
 - `netdoctor setup`, the first-run helper: asks a few plain questions and starts by itself only for a person at a keyboard (change list 10).

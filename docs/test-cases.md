@@ -1,7 +1,7 @@
 # Test cases
 
 Purpose: one test per requirement, written before the build. Each says what is done and what counts as a pass.
-Owner: Rafiq. Version 0.4.0 (0.4.0: ND-180 to ND-182 added; 0.3.0: ND-130 to ND-172 added; 0.2.1: speed case added; 0.2.0: ND-110 to ND-120 added; 0.1.0: draft). Date: 2026-11-11.
+Owner: Rafiq. Version 0.5.0 (0.5.0: ND-183 and ND-184 added; 0.4.0: ND-180 to ND-182 added; 0.3.0: ND-130 to ND-172 added; 0.2.1: speed case added; 0.2.0: ND-110 to ND-120 added; 0.1.0: draft). Date: 2026-11-11.
 
 Method: A = automated Go test. M = measured on this laptop, result shown to Rafiq. G = checked by the GitHub test run on Windows, Mac and Linux.
 Status of every test today: not run (nothing built yet).
@@ -77,3 +77,6 @@ Status of every test today: not run (nothing built yet).
 | ND-180 | A | A pretend speed server answers "too many requests" with a wait; a pretend machine refuses the speed test. | The wait is read; the check says not measured, says to try again in the right minutes, and carries the wait in its JSON. A finished test says measured. |
 | ND-181 | A | Run two checks in a row after a refusal; try a finished, missing and damaged hold file. | The second check never calls the speed test; a finished, missing or damaged hold means none. |
 | ND-182 | A | Run the weekly check three times with a refused speed test. | No row is saved and no complaint is drafted. |
+| ND-183 | A | Read the default speed plan. | Four connections or fewer, three seconds or less. |
+| ND-184 | A | Check with a speed from three minutes ago, then with one from eleven minutes ago; run two checks in a row. | The first reuses it with a note of its age; the second measures again; two checks in a row measure once. A refused test saves nothing. |
+| ND-184 | L | On the real server, run two checks in a row, then compare the speed with the earlier 857 down. | One real test only; the speed is close to the earlier reading. |

@@ -22,6 +22,8 @@ type Options struct {
 	// SpeedHoldUntil: while this time is in the future the speed test is not run,
 	// because the test server asked for a wait.
 	SpeedHoldUntil time.Time
+	// LastSpeed: a speed measured less than ten minutes ago stands in for a new test.
+	LastSpeed *SpeedSample
 }
 
 // Report is the full result of a check.
@@ -42,6 +44,8 @@ type Report struct {
 	Quick           bool            `json:"quick"`
 	// SpeedRetryAfterSeconds is set only when the speed server refused the test.
 	SpeedRetryAfterSeconds int `json:"speed_retry_after_seconds,omitempty"`
+	// SpeedAgeSeconds is set only when the speed is an earlier reading, not a new one.
+	SpeedAgeSeconds int `json:"speed_age_seconds,omitempty"`
 }
 
 const internetHost = "1.1.1.1"
@@ -104,7 +108,17 @@ func Check(ctx context.Context, src collect.Source, opt Options) Report {
 	} else {
 		rd.DNSFails = !dnsOK
 		if !opt.Quick {
-			if opt.SpeedHoldUntil.After(now) {
+			if opt.LastSpeed != nil && now.Sub(opt.LastSpeed.At) >= 0 && now.Sub(opt.LastSpeed.At) < minSpeedGap {
+				// A speed measured a few minutes ago stands in, so the server is not asked again.
+				rd.DownMbps, rd.UpMbps = opt.LastSpeed.Down, opt.LastSpeed.Up
+				rd.SpeedMeasured = true
+				age := now.Sub(opt.LastSpeed.At)
+				rep.SpeedAgeSeconds = int(age.Seconds())
+				if rep.SpeedAgeSeconds < 1 {
+					rep.SpeedAgeSeconds = 1
+				}
+				note("The speed is from " + ageWords(age) + ". This keeps the test server from refusing you.")
+			} else if opt.SpeedHoldUntil.After(now) {
 				note("The speed test is paused. The test server asked us to wait. It can run again " + waitWords(opt.SpeedHoldUntil.Sub(now)) + ".")
 			} else {
 				down, up, err := src.Speed(ctx)

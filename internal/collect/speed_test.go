@@ -104,6 +104,17 @@ func TestSpeedServerRefusesWithAWait(t *testing.T) {
 	}
 }
 
+// ND-183: the default test is light on the public server: few connections, a few seconds.
+func TestDefaultSpeedPlanIsLight(t *testing.T) {
+	p := defaultSpeedPlan
+	if p.Streams > 4 {
+		t.Errorf("streams %d, want 4 or fewer", p.Streams)
+	}
+	if p.Measure > 3*time.Second {
+		t.Errorf("measure time %v, want 3 seconds or less", p.Measure)
+	}
+}
+
 // ND-03: with no server, the test says so rather than reporting zeros as a result.
 func TestSpeedServerDown(t *testing.T) {
 	srv := httptest.NewServer(http.NotFoundHandler())

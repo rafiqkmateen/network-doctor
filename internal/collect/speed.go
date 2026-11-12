@@ -25,7 +25,9 @@ type speedPlan struct {
 	Measure time.Duration
 }
 
-var defaultSpeedPlan = speedPlan{Streams: 6, Warmup: time.Second, Measure: 4 * time.Second}
+// Four connections for three seconds: enough to fill a fast line, and light on a
+// public server that refuses a client that asks for too much (ND-183).
+var defaultSpeedPlan = speedPlan{Streams: 4, Warmup: time.Second, Measure: 3 * time.Second}
 
 // SpeedRefusedError means the test server answered "too many requests". It asks
 // for a wait, and the number is how long. The speed is then not measured: a
