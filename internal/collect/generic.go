@@ -47,6 +47,9 @@ func pingCommand(ctx context.Context, host string, count int) *exec.Cmd {
 	if runtime.GOOS == "windows" {
 		return exec.CommandContext(ctx, "ping", "-n", n, "-w", "1000", host)
 	}
+	if runtime.GOOS == "darwin" {
+		return exec.CommandContext(ctx, "ping", "-c", n, "-W", "1000", host) // Mac counts milliseconds
+	}
 	return exec.CommandContext(ctx, "ping", "-c", n, "-W", "1", host)
 }
 
