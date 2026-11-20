@@ -1,15 +1,17 @@
 # Network Doctor: one-page guide
 
-Showcase note: this copy is published without the code, which is private, and without downloads. Mentions of releases, source folders, the front page and the change list describe the private project. Purpose: how to use Network Doctor, in plain words, for anyone.
-Owner: Rafiq. Version 0.7.2 (0.7.2: the example pictures redone for the new page, with the devices list and the newer-page notice added, 2026-11-20; 0.7.1: the page follows the Windows clock setting, "This one is mine", "Your choices", 2026-11-19; 0.7.0: the icon opens the check as a page in the web browser, `open`, marking devices on the page and the new-device switch, 2026-11-19; 0.6.1: the check command is written with a leading dot and backslash so PowerShell runs it, 2026-11-19; 0.6.0: the latest release is v0.3.0, 2026-11-19; 0.5.0: Windows, Mac and Linux with the two add-ons, the new checks and fixes, what goes over the internet, example pictures, 2026-11-18; 0.4.0: fixes, private phone page; 0.3.2: the Start it section points to the installer; 0.3.1: check time; 0.3.0: setup helper, share command, alerts file, Mac and Linux; 0.2.0: install section; 0.1.0: first guide).
+Showcase note: this copy is published without the code, which is private, and without downloads. Mentions of releases, source folders, the front page and the change list describe the private project, and the setup steps describe what a person given a setup file or the plain file sees, because neither is offered here. The requirement rows about the front page and the guide wording describe the private copies. Purpose: how to use Network Doctor, in plain words, for anyone.
+Owner: Rafiq. Version 0.8.3 (0.8.3: the "Not yet tried" note names the pretend-command tests, one more "should", 2026-11-20; 0.8.2: a "Not yet tried on a real machine" note and two "should" softenings, 2026-11-20; 0.8.1: the release sentence, 2026-11-20; 0.8.0: setup on Mac and Linux, "Install it (Mac)" and "Install it (Linux)", the four fixes and the weekly schedule on all three systems, 2026-11-20; 0.7.2: the example pictures redone for the new page, with the devices list and the newer-page notice added, 2026-11-20; 0.7.1: the page follows the Windows clock setting, "This one is mine", "Your choices", 2026-11-19; 0.7.0: the icon opens the check as a page in the web browser, `open`, marking devices on the page and the new-device switch, 2026-11-19; 0.6.1: the check command is written with a leading dot and backslash so PowerShell runs it, 2026-11-19; 0.6.0: the latest release is v0.3.0, 2026-11-19; 0.5.0: Windows, Mac and Linux with the two add-ons, the new checks and fixes, what goes over the internet, example pictures, 2026-11-18; 0.4.0: fixes, private phone page; 0.3.2: the Start it section points to the installer; 0.3.1: check time; 0.3.0: setup helper, share command, alerts file, Mac and Linux; 0.2.0: install section; 0.1.0: first guide).
 
 ## What it does
 
-Network Doctor looks at your internet connection, wired or Wi-Fi. It tells you in plain words what is wrong and what to check first. A check only looks. Apart from its own settings and the weekly task you ask for, only the `fix` commands change anything (see "Fix a problem" below), and only when you type the command and say yes.
+Network Doctor looks at your internet connection, wired or Wi-Fi. It tells you in plain words what is wrong and what to check first. A check only looks. Apart from its own settings and the parts setup installs and you ask for, only the `fix` commands change anything (see "Fix a problem" below), and only when you run the command and say yes.
 
 ## Which version has what
 
-This guide describes the newest code. It is shown here as part of the showcase: the code is private and no download is offered, so read it to see what the tool does.
+This guide describes the newest code. The newest code adds setup on Mac and Linux. It is shown here as part of the showcase: the code is private and no download is offered, so read it to see what the tool does.
+
+**Not yet tried on a real machine.** The Mac and Linux setups were tried on clean test machines that have no screen and no person at them. So four things are not yet proven: the weekly check on Linux when the computer's own timer or your crontab runs it; the "Allow Launching" step on a real Linux desktop; whether a Mac asks once for permission to control Finder (setup uses Finder to put the icon on your Desktop, so press OK if it asks); and whether a Mac runs a missed weekly check when it wakes. The fixes on Mac and Linux, the box that shows the address when no browser opens, and the 12- or 24-hour clock setting were tested with pretend commands and sample answers, not on a real Mac or Linux computer.
 
 ## Windows, Mac and Linux
 
@@ -19,11 +21,9 @@ Network Doctor is one small file for Windows, Mac or Linux. It has one default p
 - **Weekly check.** An add-on that saves your speed once a week.
 - **Alerts.** An add-on that warns you when the connection drops, when the speed stays low (if you set your plan speed), or when a new device appears.
 
-On Windows, the setup file offers both add-ons (see "Install it (Windows)" below). There is no setup file for Mac or Linux. There you use the plain file and start the add-ons yourself (see "Check every week" and "Get warned").
+Windows, Mac and Linux each have a setup that offers both add-ons and makes a Network Doctor icon. On Windows, double-click the setup file. On a Mac, open Network Doctor Setup. On Linux, open Install Network Doctor. See "Install it (Windows)", "Install it (Mac)" and "Install it (Linux)" below. You can also use the plain file with no install and start the add-ons yourself (see "Check every week" and "Get warned").
 
-What works everywhere: the check, the web page, the phone page, the weekly record (`netdoctor weekly`), `watch` with alerts in the window or a file, and the `name-cache` fix.
-
-What works only on Windows: the setup file, the built-in weekly schedule, alerts as a pop-up on the screen, and the fixes `proxy`, `power-saving`, `public-dns`, `renew-address` and `reset-adapter`. On Mac and Linux those fixes are refused, and nothing changes.
+What works on all three: the setup, the icon, the check, the web page, the phone page, the weekly check and its schedule, `watch` with alerts in the window, in a file or on the screen, and the fixes `name-cache`, `proxy`, `public-dns`, `renew-address` and `reset-adapter`. On a Mac or Linux, a fix whose system tool is missing is refused, and nothing changes. The `power-saving` fix is always refused, on every system.
 
 ## Start it
 
@@ -37,9 +37,11 @@ On Mac and Linux, type `./netdoctor check`. The `.\` (or `./`) tells the termina
 
 It takes under a minute. It prints the answer first, then the numbers.
 
-If you installed it with the Windows setup file, there is nothing to type: press the Network Doctor icon on your desktop or in the Start menu. A page opens in your web browser, runs the check and shows the answer. Close the browser tab when you are done; Network Doctor quits by itself a few minutes later. If no browser can be opened, a small box shows the address to open; press OK when you are done. Times on the page follow your Windows clock setting (12- or 24-hour). `netdoctor open` does the same on any system.
+If you installed it with a setup, there is nothing to type: press the Network Doctor icon. On Windows it is on your desktop and in the Start menu, on a Mac on your Desktop and in your Applications folder, and on Linux on your Desktop and in your applications menu. A page opens in your web browser, runs the check and shows the answer. Close the browser tab when you are done; Network Doctor quits by itself a few minutes later. If no browser can be opened, a small box shows the address to open; press OK when you are done. Times on the page follow your computer's clock setting (12- or 24-hour).
 
-The first time you type just `netdoctor` in a window, a short helper starts. You can run it again any time with `netdoctor setup`. It asks for your plan speed, your name and which devices on your network are yours. It asks whether to turn on the weekly check, whether to save alerts in a file, and whether to show the page on your phone. Press Enter to skip any question. On a copy installed with the Alerts add-on, it asks instead whether to keep alerts on the screen and in a file, and there Enter means yes. Setup never starts `watch`. On Mac and Linux, a yes to the weekly question only prints a reminder to use cron or a systemd timer.
+`netdoctor open` opens the same page, on any system.
+
+The first time you type just `netdoctor` in a window, a short helper starts. You can run it again any time with `netdoctor setup`. It asks for your plan speed, your name and which devices on your network are yours. It asks whether to turn on the weekly check, whether to save alerts in a file, and whether to show the page on your phone. Press Enter to skip any question. On a copy installed with the Alerts add-on, it asks instead whether to keep alerts on the screen and in a file, and there Enter means yes. Setup never starts `watch`.
 
 ## What you see
 
@@ -74,7 +76,7 @@ netdoctor serve
 
 Open `http://127.0.0.1:8765/` on the same computer. The check starts by itself; press "Check again" for another. To use https there too, type `netdoctor serve --https`. `netdoctor open` (what the icon runs) picks a free address by itself, opens your browser to it and quits when the page is closed.
 
-The web page only looks at your connection and never changes your network; the only things it saves are which devices you say are yours and whether to warn you about new ones. It has no fix buttons. Fixes are typed in the terminal (see "Fix a problem" below).
+The web page only looks at your connection and never changes your network; the only things it saves are which devices you say are yours and whether to warn you about new ones. It has no fix buttons on any system. Fixes are run by command (see "Fix a problem" below), never from the icon or the page.
 
 **Your devices.** On the page on this computer, each device has three buttons: "This one is mine" (with an optional name, up to 40 characters), "Not mine" and "Ignore". "All of these are mine" marks every device you have not decided on yet. Your choices go in the same list as `netdoctor known add`; pressing again changes the choice, it never adds a device twice. Ignored devices are never reported as new; the page shows how many there are and a "Bring back" button. A device you mark "Not mine" stays at the top of the list. Network Doctor cannot remove it: changing the Wi-Fi password on your router takes off anyone who does not know the new password. If your router's address is a private one, the page offers "Open my router's page". Network Doctor never logs in to your router; you type its password yourself. The buttons show only on the page Network Doctor opens on its own computer, not on a phone.
 
@@ -131,13 +133,13 @@ netdoctor fix undo proxy
 The fixes:
 
 - `name-cache` clears the saved list of website addresses. It works on Windows, Mac and Linux. On a Mac it runs `dscacheutil -flushcache`. On Linux it runs `resolvectl flush-caches`, so it needs systemd-resolved.
-- `proxy` turns off a web proxy.
+- `proxy` turns off a web proxy. On a Mac it uses `networksetup -getwebproxy` and `-setwebproxystate` for the network service in use. On Linux it uses `gsettings` for `org.gnome.system.proxy`.
 - `power-saving`: Network Doctor never turns power saving off itself. Turning it off could drop the connection you are using, so this fix is always refused, and you get the steps for Device Manager instead. Some drivers also hide the setting.
-- `public-dns` changes who turns website names into addresses for the adapter in use. It switches to Cloudflare (1.1.1.1 and 1.0.0.1), a company that is not your provider. It is offered only when websites cannot be looked up but the internet answers. `fix undo public-dns` puts your old settings back.
-- `renew-address` asks the router for a new address. It is offered only when the adapter in use has no usable address. It has no undo.
-- `reset-adapter` turns the network adapter off and on. It is offered only when the connection is already dead. It has no undo.
+- `public-dns` changes who turns website names into addresses for the adapter in use. It switches to Cloudflare (1.1.1.1 and 1.0.0.1), a company that is not your provider. It is offered only when websites cannot be looked up but the internet answers. `fix undo public-dns` puts your old settings back. On a Mac it uses `networksetup -setdnsservers` for the service in use, where "Empty" means automatic. On Linux it uses `nmcli` for the connection in use.
+- `renew-address` asks the router for a new address. It is offered only when the adapter in use has no usable address. It has no undo. On a Mac it uses `ipconfig set` with DHCP for the adapter in use. On Linux it uses `nmcli device reapply`.
+- `reset-adapter` turns the network adapter off and on. It is offered only when the connection is already dead. It has no undo. On a Mac it uses `networksetup -setnetworkserviceenabled`, off and then on, for the service in use. On Linux it uses `nmcli device disconnect` and then `connect`.
 
-`public-dns`, `renew-address` and `reset-adapter` work only on Windows, and Windows asks for permission first. When you say yes to `renew-address` or `reset-adapter`, Network Doctor looks again: if the trouble is gone, it changes nothing. After each of the three, it reads the result back and tells you if the fix failed. It never changes drivers or security, and it never does anything that could cut off a connection that works.
+`proxy`, `public-dns`, `renew-address` and `reset-adapter` work on Windows, Mac and Linux. On a Mac or Linux, a fix whose system tool is missing is refused, and nothing changes. Windows asks for permission first. A Mac asks for your password in its own box at the moment you say yes, when the change needs it; on Linux, the network manager asks by itself when it must. When you say yes to `renew-address` or `reset-adapter`, Network Doctor looks again: if the trouble is gone, it changes nothing. After each of the three, it reads the result back and tells you if the fix failed. It never changes drivers or security, and it never does anything that could cut off a connection that works.
 
 **Machines nobody sits at.** `NETDOCTOR_UNATTENDED` is an environment variable. If it has any value at all, even 0 or off, fixes are off. They stay off until you type `netdoctor fix enable-here` on that machine. Network Doctor does not find out by itself that a machine is a server.
 
@@ -151,7 +153,7 @@ netdoctor config name "Your Name"
 netdoctor schedule enable        (Monday at 0900 by default)
 ```
 
-`schedule enable` works on Windows. It makes a Windows scheduled task. On Mac and Linux, use cron (or a systemd timer on Linux) to run `netdoctor weekly` once a week.
+`schedule enable` works on Windows, Mac and Linux. On Windows it makes a scheduled task, on a Mac a LaunchAgent, and on Linux a user systemd timer, or a line in your own crontab when there is no user systemd. A run missed while the computer was off or asleep should happen at the next chance, except with the crontab line, which waits for the next Monday. `schedule disable` takes it away, and `schedule status` says whether it is on. The weekly check in setup is the same job.
 
 Each week it adds a line to `weekly.csv`, which Excel opens. If your download stays under half of your plan for three weeks in a row, it writes a draft complaint email to `complaint-draft.txt`. It never sends it. You read it, change it and send it yourself.
 
@@ -167,9 +169,9 @@ The slow-speed warning needs your plan speed (`netdoctor config plan N`). It com
 
 Messages show in the window by default. `netdoctor config quiet 22 6` keeps it quiet from 2200 to 0600.
 
-If you picked the Alerts add-on in the Windows setup file and have not chosen places yourself, alerts go to the window, to the file `alerts.log` and to the screen. `netdoctor setup` asks once whether to keep this, and Enter means yes.
+If you picked the Alerts add-on in the setup (on Windows, Mac or Linux) and have not chosen places yourself, alerts go to the window, to the file `alerts.log` and to the screen. `netdoctor setup` asks once whether to keep this, and Enter means yes.
 
-To save alerts in a file, type `netdoctor config alerts-file on`. Type `off` to stop. It does not change where else alerts go. `netdoctor config sinks console,file,screen` sets all the places at once, with a Windows pop-up as `screen`.
+To save alerts in a file, type `netdoctor config alerts-file on`. Type `off` to stop. It does not change where else alerts go. `netdoctor config sinks console,file,screen` sets all the places at once. `screen` is a pop-up on Windows, a notification on a Mac, and a desktop notification through `notify-send` on Linux. If the screen alert cannot be shown, alerts are still saved in the file.
 
 The file is `alerts.log`, in the same folder as `weekly.csv`. Each alert is one line with three parts split by a tab: the time (like `2026-11-11T20:00:00Z`), the kind (`drop`, `slow` or `new_device`), and the message. Another program can read it line by line.
 
@@ -186,7 +188,7 @@ Your own data stays on your computer. Your name, your devices, your results and 
 - **Device names**: a name lookup for each device's address on your network. It goes to your computer's own name server. That is usually your router, or Cloudflare after the `public-dns` fix.
 - **Alerts helper**: `watch`, which the Alerts add-on runs all the time, runs the light Cloudflare speed test on its first round and every 30th round after, about every 30 minutes at the default of one round every 60 seconds.
 - **Reachability**: a ping to `1.1.1.1` and a lookup of the name `example.com`.
-- **Ookla's tool**: only if you added it. Network Doctor uses it when it is in an `ookla` folder beside the program, named by the `NETDOCTOR_OOKLA` environment variable, or found on the PATH. If you tick both Ookla boxes, the Windows setup downloads it from `install.speedtest.net` and runs it once to accept Ookla's license. It talks to Ookla's servers and reports its test to Ookla, under Ookla's own privacy terms.
+- **Ookla's tool**: only if you added it. Network Doctor uses it when it is in an `ookla` folder beside the program, named by the `NETDOCTOR_OOKLA` environment variable, or found on the PATH. If you tick both Ookla boxes, the setup on Windows, Mac or Linux downloads it from `install.speedtest.net` and runs it once to accept Ookla's license. It talks to Ookla's servers and reports its test to Ookla, under Ookla's own privacy terms.
 
 Like any web request, each server sees your public internet address.
 
@@ -210,6 +212,59 @@ The program goes in `C:\Program Files\Network Doctor`. Your results go in `C:\Pr
 
 **To remove it.** Open Windows Settings, then Apps, then Installed apps, find Network Doctor and press Uninstall. It asks if you want to keep your saved results. It removes the weekly task and the alerts helper too. IT can run `"C:\Program Files\Network Doctor\unins000.exe" /VERYSILENT /SUPPRESSMSGBOXES`. That keeps your results. Add `/DELETERESULTS=1` to delete them.
 
+## Install it (Mac)
+
+If you were given the Mac setup file (`NetworkDoctor-Setup-`, a version number and `-mac.zip`), double-click it to open it. Inside are Network Doctor Setup and a page, How to open Network Doctor Setup, with the steps below.
+
+**The first time, the Mac blocks it.** A Mac blocks a downloaded file that Apple has not checked, and Network Doctor is not checked by Apple yet. The way round, once:
+
+1. Double-click Network Doctor Setup once. The Mac says it cannot open it. Close that message.
+2. Open System Settings, then Privacy and Security.
+3. Near the bottom, press "Open Anyway" next to Network Doctor Setup.
+4. Enter your Mac password. Then press Open.
+
+Newer Macs have no right-click way round this. A file copied from a USB stick or a shared network folder is not blocked; a file sent by AirDrop is checked too.
+
+Setup opens a page in your web browser. It never asks for an administrator password, and it changes only your own folders. Pick the parts you want:
+
+- **Check on demand.** Always included. You run a check any time you want one.
+- **Weekly check.** Saves your speed to a file every Monday at 0900. If the Mac was asleep then, it should run when the Mac wakes. Your data never leaves your computer. The speed test and the small requests in "What goes over the internet" do go out.
+- **Alerts.** A small helper starts when you log in and runs all the time; if it stops, the Mac starts it again. Alerts are kept in a file and shown as a notification when your connection drops, stays slow, or a new device appears. Your data never leaves your computer. The light speed test and the small requests in "What goes over the internet" do go out.
+
+Next comes Ookla's speed tool, on its own step, the same as on Windows (see "Better speed numbers" above). Then "Ready to install" shows the folder and the parts. Press Install.
+
+**The finish screen** says Network Doctor is installed, how to run a check, whether the weekly check and alerts are on, where the program and your results are, and how to remove it. Press "Open the guide" to read this guide right there. Then close the browser tab.
+
+To run a check, press the Network Doctor icon on your Desktop or in your Applications folder. The program goes in the Applications folder inside your home folder (`~/Applications/Network Doctor.app`), with an alias on your Desktop. Your results go in `~/Library/Application Support/NetworkDoctor`.
+
+**Run the setup again to repair.** It puts back the parts you chose, removes the ones you did not, and keeps your results.
+
+**To remove it.** Open Uninstall Network Doctor in your Applications folder. A page asks if you want to keep your saved results. It removes the weekly check, the alerts helper, the icons and the program.
+
+For IT, with no window: run `"Network Doctor Setup.app/Contents/MacOS/netdoctor" install --silent` from the folder that holds the setup app. Add `--parts=scheduled,proactive` for both add-ons, or just one of the two names. A silent install never adds Ookla's tool. `netdoctor uninstall --silent` removes it and keeps the results; add `--delete-results` to delete them.
+
+## Install it (Linux)
+
+If you were given the Linux setup file (`NetworkDoctor-Setup-`, a version number and `-linux`, ending in `.tar.gz`), open it and extract it; most file managers do this when you double-click it. You get one folder with Install Network Doctor, the program and this guide. Double-click Install Network Doctor. If your desktop asks before it runs a file you downloaded, right-click it, choose "Allow Launching", and double-click it again.
+
+Setup opens a page in your web browser. It never asks for an administrator password, and it changes only your own folders. Pick the parts you want:
+
+- **Check on demand.** Always included. You run a check any time you want one.
+- **Weekly check.** Saves your speed to a file every Monday at 0900. On most desktops, if the computer was off then, it should run the next time it starts; on the rest it waits for the next Monday. Your data never leaves your computer. The speed test and the small requests in "What goes over the internet" do go out.
+- **Alerts.** A small helper starts when you log in to the desktop and runs all the time. On most desktops, if it stops with an error, it is started again a minute later; on the rest it starts again at your next log-in. Alerts are kept in a file and shown as a desktop notification when your connection drops, stays slow, or a new device appears. Your data never leaves your computer. The light speed test and the small requests in "What goes over the internet" do go out.
+
+Next comes Ookla's speed tool, on its own step, the same as on Windows (see "Better speed numbers" above). Then "Ready to install" shows the folder and the parts. Press Install.
+
+**The finish screen** says Network Doctor is installed, how to run a check, whether the weekly check and alerts are on, where the program and your results are, and how to remove it. Press "Open the guide" to read this guide right there. Then close the browser tab.
+
+To run a check, press the Network Doctor icon on your Desktop or in your applications menu. The first time you open the Desktop icon, some desktops ask once: right-click it and choose "Allow Launching". The one in the applications menu needs nothing. The program goes in `~/.local/share/NetworkDoctor`. Your results go in `~/.config/NetworkDoctor`.
+
+**Run the setup again to repair.** It puts back the parts you chose, removes the ones you did not, and keeps your results.
+
+**To remove it.** Open Uninstall Network Doctor in your applications menu. A page asks if you want to keep your saved results. It removes the weekly check, the alerts helper, the icons and the program.
+
+For IT, with no window: run `./netdoctor install --silent` in the extracted folder. Add `--parts=scheduled,proactive` for both add-ons, or just one of the two names. A silent install never adds Ookla's tool. `netdoctor uninstall --silent` removes it and keeps the results; add `--delete-results` to delete them.
+
 ## If something goes wrong
 
 - **It says it could not read something**: a few facts need administrator rights. On Linux, that is the drop history, which comes from the system log. On a Mac, that is the programs other people are running. Then it says so and does not guess.
@@ -221,6 +276,7 @@ The program goes in `C:\Program Files\Network Doctor`. Your results go in `C:\Pr
 Where files live:
 
 - A copy installed by setup on Windows: `C:\ProgramData\NetworkDoctor`.
+- A copy installed by setup on a Mac or Linux: the same folder as the plain file there, below.
 - The plain file on Windows: `%AppData%\NetworkDoctor`.
 - The plain file on a Mac: `~/Library/Application Support/NetworkDoctor`.
 - The plain file on Linux: `~/.config/NetworkDoctor`, or `NetworkDoctor` inside the `XDG_CONFIG_HOME` folder when that is set.

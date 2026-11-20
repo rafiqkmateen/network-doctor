@@ -1,10 +1,10 @@
 # Network Doctor
 
-Network Doctor is a finished home network checker for people who have never opened a terminal. You press an icon, a colorful page opens in your browser, and it checks your internet connection, wired or Wi-Fi. It explains in plain words what is wrong and what to check first. It never changes your network.
+Network Doctor is a home network checker for people who have never opened a terminal. You press an icon, a colorful page opens in your browser, and it checks your internet connection, wired or Wi-Fi. It explains in plain words what is wrong and what to check first. A check only looks; nothing changes unless you ask for a fix and say yes.
 
 Designed and directed by Rafiq, built with Claude.
 
-This repository is a showcase of the finished tool: its guide, pictures, written requirements, test cases and test results.
+This repository is a showcase of the tool: its guide, pictures, written requirements, test cases and test results.
 
 ## How it works for the person using it
 
@@ -32,7 +32,7 @@ This repository is a showcase of the finished tool: its guide, pictures, written
 
 ## What it will never do
 
-- **It never changes your network.** Checks only look.
+- **A check never changes your network.** Checks only look. A change happens only if you run a fix and say yes.
 - **It sends none of your data away.** No tracking and no reports. Your devices, your results and your settings stay on your computer. The few small requests it makes, such as the speed test, are listed in the [guide](docs/GUIDE.md), with the server each one goes to.
 - **It never asks for a router password.**
 
@@ -43,7 +43,7 @@ This repository is a showcase of the finished tool: its guide, pictures, written
 | **Security by design** | Read-only checks. The page has no button that changes your network, writes data as text only and loads nothing from outside the computer. |
 | **Privacy** | No telemetry. Every outside request is named in the guide, and a leak test scans the project for private data. |
 | **Engineering discipline** | Written [requirements](docs/requirements.md), [test cases](docs/test-cases.md) and [test results](docs/test-results.md), with a test case for each requirement. |
-| **One codebase, every system** | Written in Go, for Windows, Mac and Linux. |
+| **One codebase, every system** | Written in Go, for Windows, Mac and Linux. The Mac and Linux setups are not yet tried on a real machine (see the "Not yet tried" note in the guide). |
 | **Directing AI to build** | Designed and directed by Rafiq, built with Claude, under written rules, a test for each requirement and a separate reviewer. |
 
 ## How it is made
