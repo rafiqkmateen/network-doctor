@@ -277,6 +277,24 @@ func TestPictures(t *testing.T) {
 	}
 }
 
+// TestDemoVideo: ND-317. The front page links the short demo video by a relative text link (not a
+// picture, so the example-picture rule of ND-254 does not apply), says it is silent and a real
+// check, and the file is in the repository, is an MP4 and stays small.
+func TestDemoVideo(t *testing.T) {
+	const rel = "docs/images/network-doctor-demo.mp4"
+	mustHave(t, readme(t), "demo video", "]("+rel+")", "no sound", "real check", "windows")
+	b, err := os.ReadFile(filepath.Join(root(t), filepath.FromSlash(rel)))
+	if err != nil {
+		t.Fatalf("the demo video is not in the repository: %v", err)
+	}
+	if len(b) < 12 || string(b[4:8]) != "ftyp" {
+		t.Errorf("%s is not an MP4 file", rel)
+	}
+	if len(b) > 5<<20 {
+		t.Errorf("%s is %d bytes; the limit is 5 MB", rel, len(b))
+	}
+}
+
 // banned are style words the two documents must not use: a particular computer and the word
 // for a tool that stands alone. The author's private words are not here; they are read from
 // conf/guard_words.txt when that file exists (see package guardwords).

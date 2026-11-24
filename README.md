@@ -24,6 +24,8 @@ Windows is tried on real computers. The Mac and Linux setups and fixes are prove
 
 The page looks the same on Mac and Linux as on Windows. The web page only looks, apart from saving your choices about your devices, and has no fix buttons; fixes are run by command.
 
+**See it work:** [a 60-second video, no sound](docs/images/network-doctor-demo.mp4) of a real check on one Windows computer on a wired connection, speed test included (shown faster while it waits). It also shows the list of fixes; that list is only shown, and no fix is run.
+
 ## What this project demonstrates
 
 | Skill | Evidence in this project |
@@ -31,7 +33,7 @@ The page looks the same on Mac and Linux as on Windows. The web page only looks,
 | **Security by design** | Checks only look. A fix changes something only when you type it and say yes to that one fix, after a before-and-after view, with a log and an undo where one is possible. It never touches drivers or security protections, never asks for a router password, and refuses to reset the adapter or renew the address while the connection works. |
 | **No data leaves quietly** | No tracking and no reports. Every request it makes is listed in the guide, with the server it goes to. A leak test in the repository scans the files for private data. |
 | **Automation** | The weekly check runs on its own through a Windows scheduled task, a Mac LaunchAgent, or a Linux user systemd timer (a crontab line where there is none), and the alerts helper starts at log-in and is started again if it stops. `netdoctor watch` raises an alert when the connection drops, and `netdoctor check --json` gives the full result to scripts and other tools. |
-| **Engineering discipline** | Written [requirements](docs/requirements.md), [test cases](docs/test-cases.md) and [test results](docs/test-results.md); 501 Go test functions; about 13,000 lines of program and 16,000 lines of tests (non-blank Go lines); on every change GitHub checks formatting, runs go vet and the tests on Windows and Linux, builds the Windows installer and installs and removes every choice on a clean machine. Mac is proved by a separate run started by hand; neither Mac nor Linux is yet proved on a real desktop. |
+| **Engineering discipline** | Written [requirements](docs/requirements.md), [test cases](docs/test-cases.md) and [test results](docs/test-results.md); 502 Go test functions; about 13,000 lines of program and 16,000 lines of tests (non-blank Go lines); on every change GitHub checks formatting, runs go vet and the tests on Windows and Linux, builds the Windows installer and installs and removes every choice on a clean machine. Mac is proved by a separate run started by hand; neither Mac nor Linux is yet proved on a real desktop. |
 | **One codebase, every system** | Written in Go. One small program file each for Windows, Mac, Linux and ARM servers. |
 | **Directing AI to build** | Designed and directed by Rafiq. Built with Claude, under written rules, a test for each requirement and a separate reviewer. |
 
