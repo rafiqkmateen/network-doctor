@@ -1,0 +1,62 @@
+name: ci
+permissions:
+  contents: read
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Check formatting
+        shell: bash
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then echo "Not formatted:"; echo "$unformatted"; exit 1; fi
+      - run: go vet ./...
+      - run: go test ./...
+      - run: go build ./cmd/netdoctor
+      - name: Run the built program for real and read the adapter
+        shell: bash
+        run: |
+          # ND-164: on each real system the adapter must be read, not "unknown".
+          ./netdoctor check --json --quick > check.json || true
+          cat check.json
+          # GitHub's Windows machine has a virtual adapter with no wired or Wi-Fi label,
+          # and the Windows reader is proven live; only Linux must name the kind.
+          if [ "$RUNNER_OS" != "Windows" ] && ! grep -Eq '"kind": "(wired|wifi)"' check.json; then
+            echo "The adapter was not read on this system."
+            exit 1
+          fi
+          if grep -q "not available on this system yet" check.json; then
+            echo "A reader said it is not available on this system."
+            exit 1
+          fi
+  installer:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Build the installer
+        shell: pwsh
+        run: scripts/build-installer.ps1
+      - name: Install and uninstall every choice on a clean machine
+        shell: pwsh
+        run: |
+          $setup = (Get-ChildItem dist\release\NetworkDoctor-Setup-*.exe | Select-Object -First 1).FullName
+          scripts/test-installer.ps1 -Setup $setup
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer
+          path: dist/release/NetworkDoctor-Setup-*.zip

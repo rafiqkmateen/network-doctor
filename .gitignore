@@ -1,0 +1,6 @@
+*.exe
+dist/
+*.log
+.env
+__pycache__/
+run/

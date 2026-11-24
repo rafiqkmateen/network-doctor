@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Network Doctor</title>
+<style>
+:root{--bg:#f3f5f9;--card:#fff;--ink:#14171f;--mute:#5d6676;--line:#e1e5ed;--ok:#12805c;--okbg:#e3f6ee;--bad:#b42318;--badbg:#fde8e6;--accent:#2563eb;--accentbg:#e6eefe;--shadow:0 1px 2px rgba(20,23,31,.06),0 8px 24px rgba(20,23,31,.06)}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1017;--card:#161a23;--ink:#eef0f5;--mute:#98a2b3;--line:#262c39;--ok:#4cd3a2;--okbg:#10372c;--bad:#ff8a80;--badbg:#3d1a17;--accent:#6ea0ff;--accentbg:#17233d;--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35)}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif}
+main{max-width:880px;margin:0 auto;padding:24px 16px 56px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.15rem}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--accent);display:grid;place-items:center}
+.when{color:var(--mute);font-size:.9rem}
+.card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:20px 22px;margin-top:16px}
+.hero{display:flex;gap:20px;align-items:center;border:2px solid var(--line)}
+.hero.ok{border-color:var(--ok);background:linear-gradient(135deg,var(--okbg),var(--card) 70%)}
+.hero.bad{border-color:var(--bad);background:linear-gradient(135deg,var(--badbg),var(--card) 70%)}
+.dot{flex:none;width:76px;height:76px;border-radius:50%;background:var(--line);display:grid;place-items:center}
+.hero.ok .dot{background:var(--ok)}.hero.bad .dot{background:var(--bad)}
+.dot svg{width:40px;height:40px;display:none}
+.hero.ok .dot .i-ok,.hero.bad .dot .i-bad{display:block}
+.hero.wait .dot{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.hero.wait .dot{animation:none}}
+.hero h1{margin:0;font-size:1.6rem;line-height:1.25}
+.hero p{margin:6px 0 0;color:var(--mute)}
+.hero p.first{color:var(--ink);font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:16px}
+.tile{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:16px 18px;border-top:5px solid var(--accent)}
+.tile .lab{color:var(--mute);font-size:.88rem}
+.tile .num{font-size:2.3rem;font-weight:700;line-height:1.1;margin-top:4px}
+.tile .num small{font-size:1rem;font-weight:600;color:var(--mute)}
+.tile .num.none{font-size:1.3rem;color:var(--mute);padding:8px 0 4px}
+.tile .say{font-size:.88rem;margin-top:2px;color:var(--mute)}
+h2{margin:0 0 4px;font-size:1.1rem}
+.sub{color:var(--mute);margin:0 0 14px;font-size:.93rem}
+ul{margin:8px 0 0;padding-left:20px}li{margin:3px 0}
+.bars{display:flex;align-items:flex-end;gap:10px;height:130px;margin-top:6px}
+.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%;min-width:0}
+.bar b{font-size:.8rem;font-weight:600;color:var(--mute)}
+.bar i{display:block;width:100%;max-width:56px;border-radius:8px 8px 4px 4px;background:var(--accent)}
+.bar i.zero{background:var(--line);height:6px}
+.bar span{font-size:.78rem;color:var(--mute)}
+.note{margin-top:14px;padding:10px 14px;border-radius:12px;background:var(--accentbg);font-size:.93rem}
+.devs{display:grid;gap:10px}
+.dev{display:flex;align-items:center;gap:14px;padding:10px 14px;border:1px solid var(--line);border-radius:14px}
+.dev div{min-width:0}
+.dev b{display:block;overflow-wrap:anywhere}
+.dev em{font-style:normal;color:var(--mute);font-size:.88rem}
+.tag{margin-left:auto;font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--okbg);color:var(--ok);white-space:nowrap}
+.tag.un{background:var(--bg);color:var(--mute);border:1px solid var(--line)}
+.tag.nm{background:var(--bad);color:#fff}
+.dev{flex-direction:column;align-items:stretch;gap:10px}
+.dev.nm{border-color:var(--bad);background:var(--badbg)}
+.devtop{display:flex;align-items:center;gap:14px}
+.acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.acts input{flex:1 1 160px;min-width:0;font:inherit;font-size:.92rem;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+button.sm{padding:8px 14px;font-size:.9rem;border-radius:10px;box-shadow:none}
+button.plain{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+.alert{margin:12px 0;padding:12px 14px;border-radius:12px;border:1px solid var(--bad);background:var(--badbg)}
+.alert p{margin:6px 0}
+.alert button{margin:4px 8px 0 0}
+a.btn{display:inline-block;margin-top:4px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600;padding:8px 14px;border-radius:10px}
+.small{color:var(--mute);font-size:.85rem}
+.ign{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px}
+.set{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.set span{display:block;color:var(--mute);font-size:.9rem}
+#settings:empty{display:none}
+#settings{margin-top:22px}
+.devs{margin-top:12px}
+details{margin-top:12px;color:var(--mute);font-size:.9rem}
+summary{cursor:pointer}
+details p{margin:6px 0 0;overflow-wrap:anywhere}
+.checks{display:grid;gap:12px}
+.chk{display:flex;gap:12px;align-items:flex-start}
+.chk i{flex:none;width:10px;height:10px;border-radius:50%;background:var(--mute);margin-top:8px}
+.chk b{display:block}
+.chk span{color:var(--mute);font-size:.92rem}
+.cta{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:22px}
+button{font-family:inherit;background:var(--accent);color:#fff;border:0;border-radius:14px;padding:14px 30px;font-size:1.05rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow)}
+button:disabled{opacity:.6;cursor:default}
+#state{color:var(--mute);font-size:.92rem;text-align:center}
+footer{text-align:center;color:var(--mute);font-size:.82rem;margin-top:18px}
+@media (max-width:520px){.card{padding:16px}.hero{gap:14px}.dot{width:56px;height:56px}.dot svg{width:30px;height:30px}.hero h1{font-size:1.3rem}.tile .num{font-size:1.9rem}.tile .num.none{font-size:1.1rem}.tile{padding:14px}.bars{gap:6px}button.sm{padding:8px 10px}.acts{gap:6px}}
+.addr{display:block;color:var(--mute);font-size:.8rem;overflow-wrap:anywhere}
+.saved{font-size:.85rem;font-weight:600;color:var(--ok);white-space:nowrap}
+.tilenote{margin:8px 2px 0}
+.headright{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+button[hidden]{display:none}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="brand"><div class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9a15 15 0 0 1 20 0"/><path d="M5.5 12.5a10 10 0 0 1 13 0"/><path d="M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="19.5" r="1" fill="#fff"/></svg></div>Network Doctor</div>
+  <div class="headright"><div class="when" id="when"></div><button id="go2" class="sm" hidden>Check again</button></div>
+</header>
+
+<section class="card hero wait" id="hero">
+  <div class="dot" aria-hidden="true">
+    <svg class="i-ok" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    <svg class="i-bad" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M12 6v8"/><circle cx="12" cy="18.5" r="1.4" fill="#fff"/></svg>
+  </div>
+  <div id="herotext"><h1>Checking... about 30 seconds</h1><p>Network Doctor is looking at your connection.</p></div>
+</section>
+
+<div id="out"></div>
+
+<div class="cta"><button id="go" disabled>Check again</button><div id="state" role="status"></div></div>
+<section id="settings"></section>
+<footer>Network Doctor never changes your network. It saves only your device choices and the new-device switch.</footer>
+</main>
+
+<script id="logic">
+// The page's rules, kept apart from drawing so they can be tested on their own (with Node).
+// Every word and number comes from a field of the check (/api/check).
+var NDLogic = (function () {
+  'use strict';
+  var TOO_SOON = 'Too soon to test again.';
+  var HIDDEN_MAKER = 'private address (device hides its maker)';
+  var MAC = /^[0-9A-Fa-f]{2}([:-][0-9A-Fa-f]{2}){5}$/;
+
+  // Times: this computer's own clock setting when the check sends it (clock_24h), otherwise the
+  // browser's own format. No clock style is forced beyond that.
+  function timeOpts(c24) {
+    var o = {hour: 'numeric', minute: '2-digit'};
+    if (typeof c24 === 'boolean') o.hour12 = !c24;
+    return o;
+  }
+  function clockText(d, c24, locale) { return d.toLocaleTimeString(locale || [], timeOpts(c24)); }
+  function dateTimeText(d, c24, locale) {
+    var o = timeOpts(c24);
+    o.year = 'numeric'; o.month = 'short'; o.day = 'numeric';
+    return d.toLocaleString(locale || [], o);
+  }
+  function atHour(h) { var d = new Date(); d.setHours(h, 0, 0, 0); return d; }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+  function mins(ns) { var m = Math.round(ns / 6e10); return m < 1 ? 'under a minute' : plural(m, 'minute', 'minutes'); }
+  // The same plain words the terminal uses for a wait and for an age.
+  function waitWords(s) { if (s <= 0) return 'in a little while'; var m = Math.ceil(s / 60); return m <= 1 ? 'in about 1 minute' : 'in about ' + m + ' minutes'; }
+  function ageWords(s) { var m = Math.floor(s / 60); return m < 1 ? 'less than a minute ago' : m === 1 ? '1 minute ago' : m + ' minutes ago'; }
+
+  function patternSentence(dr, c24, locale) {
+    if (dr && typeof dr.pattern_hour === 'number') {
+      return 'Drops often start around ' + clockText(atHour(dr.pattern_hour), c24, locale) +
+        '. Check what runs at that time, such as updates or power saving.';
+    }
+    return dr && dr.pattern ? dr.pattern : '';
+  }
+  // The notes, with the terminal's too-soon note rebuilt so its time follows this computer.
+  function notesFor(r, locale) {
+    var notes = (r.notes || []).slice();
+    if (r.speed_retry_at) {
+      notes = notes.filter(function (n) { return n.indexOf(TOO_SOON) !== 0; });
+      notes.unshift(TOO_SOON + ' This is the reading from ' + ageWords(r.speed_age_seconds || 0) + '. Come back ' +
+        waitWords(r.speed_wait_seconds || 0) + ' (at ' + clockText(new Date(r.speed_retry_at), r.clock_24h, locale) + ').');
+    }
+    return notes;
+  }
+  // A healthy answer with drops this week gets one line, so the green box and the chart agree.
+  function healthyDropsLine(r) {
+    var n = r.drops && r.drops.count ? r.drops.count : 0;
+    if (r.finding.cause !== 'none' || !n) return '';
+    return 'Working now. It dropped ' + (n === 1 ? 'once' : n + ' times') + ' in the last 7 days.';
+  }
+  // A speed reused from an earlier test says so beside the numbers.
+  function speedAgeLabel(r) {
+    if (!r.reading || !r.reading.speed_measured || !(r.speed_age_seconds > 0)) return '';
+    return 'Earlier reading, from ' + ageWords(r.speed_age_seconds);
+  }
+  // A page that meets a check already running waits for it: every 10 seconds, at most 12 times.
+  function busyStep(attempt) {
+    if (attempt < 12) return {retry: true, wait: 10000, text: 'A check is already running. Waiting for it...'};
+    return {retry: false, wait: 0, text: 'A check is already running. Press Check again in a moment.'};
+  }
+  function makerText(m) {
+    if (!m || m.toLowerCase() === 'unknown') return 'Maker not known';
+    if (m === HIDDEN_MAKER) return 'Maker hidden by the device';
+    return m;
+  }
+  // Drops older than the 7 days on the bars, said in plain words so bars plus note equal the count.
+  function offChartNote(total, shown) {
+    var n = (total || 0) - (shown || 0);
+    if (n <= 0) return '';
+    return n === 1 ? '1 earlier drop is not on this chart.' : n + ' earlier drops are not on this chart.';
+  }
+  function shownName(d) { return d.label || d.name || ''; }
+
+  // What the device list shows. canSave comes from the server: only then are there buttons.
+  function deviceView(r, canSave) {
+    var all = r.devices || [];
+    var warn = r.warn_new_devices !== false, decided = r.known_count > 0;
+    var shown = all.filter(function (d) { return d.state !== 'ignored'; });
+    var ignored = all.filter(function (d) { return d.state === 'ignored'; });
+    shown.sort(function (a, b) { return (b.state === 'not-mine') - (a.state === 'not-mine'); }); // not mine on top
+    var notMine = shown.filter(function (d) { return d.state === 'not-mine'; });
+    var strangers = shown.filter(function (d) { return !d.known && d.state !== 'not-mine'; }).length;
+    var sub = plural(all.length, 'device', 'devices') + ' found';
+    if (decided && warn) sub += ', ' + strangers + ' not marked yours';
+    var rows = shown.map(function (d) {
+      var tag = '';
+      if (d.state === 'not-mine') tag = 'Not mine';
+      else if (decided && d.known) tag = 'Yours';
+      else if (decided && warn) tag = 'Not marked yours';
+      return {device: d, name: shownName(d) || 'No name',
+        maker: makerText(d.maker) + (d.this_computer ? ', this computer' : ''),
+        address: (d.ip || '') + (d.mac ? ' / ' + d.mac : ''),
+        tag: tag, actions: !!canSave && MAC.test(d.mac || '')};
+    });
+    var undecided = shown.filter(function (d) { return !d.state && !d.known && MAC.test(d.mac || ''); });
+    return {
+      count: all.length, sub: sub + '.', strangers: strangers,
+      tell: !decided, offNote: !warn, notMineBox: notMine.length > 0 && warn, notMine: notMine.length,
+      routerPage: r.router_page || '', rows: rows, ignored: ignored,
+      allMine: canSave && undecided.length ? undecided.map(function (d) { return {mac: d.mac, name: shownName(d), state: 'mine'}; }) : []
+    };
+  }
+
+  // Show saved choices at once, without a new check.
+  function applyMarks(r, marks) {
+    var norm = function (m) { return String(m).toUpperCase().replace(/-/g, ':'); };
+    marks.forEach(function (m) {
+      var d = (r.devices || []).filter(function (x) { return norm(x.mac) === norm(m.mac); })[0];
+      if (!d) return;
+      // Only mine and not mine count as choices; ignoring alone keeps the list neutral.
+      var counts = function (st) { return st === 'mine' || st === 'not-mine' ? 1 : 0; };
+      r.known_count = Math.max(0, (r.known_count || 0) + counts(m.state) - counts(d.state));
+      var now = m.state !== 'undecided';
+      d.state = now ? m.state : '';
+      d.known = m.state === 'mine' || !!d.this_computer;
+      var n = String(m.name || '').trim().slice(0, 40);
+      if (n) d.label = n;
+    });
+    return r;
+  }
+  function applyWarn(r, on) { r.warn_new_devices = !!on; return r; }
+
+  return {TOO_SOON: TOO_SOON, timeOpts: timeOpts, clockText: clockText, dateTimeText: dateTimeText,
+    plural: plural, mins: mins, waitWords: waitWords, ageWords: ageWords, patternSentence: patternSentence,
+    notesFor: notesFor, healthyDropsLine: healthyDropsLine, makerText: makerText, deviceView: deviceView,
+    speedAgeLabel: speedAgeLabel, busyStep: busyStep, offChartNote: offChartNote,
+    applyMarks: applyMarks, applyWarn: applyWarn};
+})();
+if (typeof module !== 'undefined') module.exports = NDLogic;
+</script>
+
+<script>
+'use strict';
+// Drawing. Data is written as text only (textContent), never as HTML.
+const L = NDLogic;
+const $ = id => document.getElementById(id);
+const out = $('out'), btns = [$('go'), $('go2')], state = $('state');
+let closed = false, last = null, canSave = false, misses = 0, saved = new Set();
+let saveNote = '', warnNote = ''; // save messages sit by their own row, never under Check again
+const norm = m => String(m).toUpperCase().replace(/-/g, ':');
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+function card(title, sub) {
+  const s = el('section', 'card');
+  s.appendChild(el('h2', '', title));
+  if (sub) s.appendChild(el('p', 'sub', sub));
+  out.appendChild(s);
+  return s;
+}
+function list(parent, items) {
+  if (!items || !items.length) return;
+  const u = el('ul');
+  items.forEach(i => u.appendChild(el('li', '', i)));
+  parent.appendChild(u);
+}
+function button(text, cls, onClick) { const b = el('button', cls, text); b.type = 'button'; b.addEventListener('click', onClick); return b; }
+function round(n) { return Math.round(n || 0).toString(); }
+function kindWords(k) { return k === 'wired' ? 'Wired' : k === 'wifi' ? 'Wi-Fi' : 'Connection type not known'; }
+function busy(on) { btns.forEach(b => { b.disabled = on || closed; }); }
+
+function tile(parent, label, value, unit, say) {
+  const t = el('div', 'tile');
+  t.appendChild(el('div', 'lab', label));
+  if (value === null) {
+    t.appendChild(el('div', 'num none', 'Not measured'));
+  } else {
+    const n = el('div', 'num', value + ' ');
+    n.appendChild(el('small', '', unit));
+    t.appendChild(n);
+  }
+  if (say) t.appendChild(el('div', 'say', say));
+  parent.appendChild(t);
+}
+
+function hero(kind, headline, lines, first) {
+  $('hero').className = 'card hero ' + kind;
+  const box = $('herotext');
+  box.replaceChildren(el('h1', '', headline));
+  lines.filter(Boolean).forEach(l => box.appendChild(el('p', '', l)));
+  if (first) box.appendChild(el('p', 'first', first));
+}
+
+function dropBars(parent, r) {
+  const end = new Date(r.time), days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(end.getFullYear(), end.getMonth(), end.getDate() - i);
+    days.push({key: d.toDateString(), label: d.toLocaleDateString([], {weekday: 'short'}), n: 0});
+  }
+  (r.drops.drops || []).forEach(x => {
+    const day = days.find(d => d.key === new Date(x.start).toDateString());
+    if (day) day.n++;
+  });
+  const top = Math.max(1, ...days.map(d => d.n));
+  const bars = el('div', 'bars');
+  bars.setAttribute('role', 'img');
+  bars.setAttribute('aria-label', 'Drops by day: ' + days.map(d => d.label + ' ' + d.n).join(', '));
+  days.forEach(d => {
+    const b = el('div', 'bar');
+    b.appendChild(el('b', '', String(d.n)));
+    const i = el('i', d.n ? '' : 'zero');
+    if (d.n) i.style.height = Math.max(8, Math.round(d.n / top * 100)) + '%';
+    b.appendChild(i);
+    b.appendChild(el('span', '', d.label));
+    bars.appendChild(b);
+  });
+  parent.appendChild(bars);
+  const note = L.offChartNote(r.drops.count, days.reduce((a, d) => a + d.n, 0));
+  if (note) parent.appendChild(el('p', 'small', note));
+}
+
+function render(r) {
+  last = r;
+  out.replaceChildren();
+  const f = r.finding, rd = r.reading, ok = f.cause === 'none', c24 = r.clock_24h;
+  $('when').textContent = 'Checked at ' + L.clockText(new Date(r.time), c24);
+  $('go2').hidden = false;
+  const link = kindWords(rd.kind) + (rd.link_mbps ? ' at ' + rd.link_mbps + ' Mbps' : '') + '.';
+  hero(ok ? 'ok' : 'bad', f.summary, [link, L.healthyDropsLine(r)], ok ? '' : 'Check first: ' + f.check_first);
+
+  // The four numbers. A speed that was not measured is never shown as 0.
+  const tiles = el('div', 'tiles');
+  const plan = rd.plan_mbps ? 'Your plan: ' + round(rd.plan_mbps) + ' Mbps' : '';
+  tile(tiles, 'Download speed', rd.speed_measured ? round(rd.down_mbps) : null, 'Mbps', rd.speed_measured ? plan : '');
+  tile(tiles, 'Upload speed', rd.speed_measured ? round(rd.up_mbps) : null, 'Mbps', '');
+  tile(tiles, 'Reply time to the internet', round(rd.internet_ms), 'ms', '');
+  tile(tiles, 'Lost on the way to the internet', round(rd.internet_loss_pct), '%', '');
+  out.appendChild(tiles);
+  const age = L.speedAgeLabel(r);
+  if (age) out.appendChild(el('p', 'small tilenote', age));
+
+  let s = card('Your connection');
+  list(s, ['Connection: ' + link,
+    'To the router: ' + round(rd.router_ms) + ' ms, ' + round(rd.router_loss_pct) + '% lost',
+    'To the internet: ' + round(rd.internet_ms) + ' ms, ' + round(rd.internet_loss_pct) + '% lost',
+    rd.speed_measured
+      ? 'Speed: ' + round(rd.down_mbps) + ' down, ' + round(rd.up_mbps) + ' up (Mbps)' + (rd.plan_mbps ? ' of ' + round(rd.plan_mbps) + ' planned' : '')
+      : 'Speed: not measured this time']);
+  list(s, r.link_advice);
+
+  const dr = r.drops || {count: 0, brief_blips: 0};
+  s = card('Drops in the last 7 days',
+    L.plural(dr.count, 'drop', 'drops') + ', plus ' + L.plural(dr.brief_blips, 'blip', 'blips') + ' under 5 seconds.');
+  dropBars(s, r);
+  const pat = L.patternSentence(dr, c24);
+  if (pat) s.appendChild(el('div', 'note', pat));
+  if (dr.drops && dr.drops.length) {
+    const d = el('details');
+    d.appendChild(el('summary', '', 'Show each drop'));
+    list(d, dr.drops.map(x => L.dateTimeText(new Date(x.start), c24) + ' for ' + L.mins(x.length)));
+    s.appendChild(d);
+  }
+
+  if (r.bandwidth_advice && r.bandwidth_advice.length) {
+    s = card('Line use right now');
+    list(s, r.bandwidth_advice);
+  }
+
+  devices(r);
+
+  if (r.settings && r.settings.length) {
+    s = card('Settings review', 'What Network Doctor found. Nothing was changed.');
+    const c = el('div', 'checks');
+    r.settings.forEach(a => {
+      const row = el('div', 'chk'), txt = el('div');
+      row.appendChild(el('i'));
+      txt.appendChild(el('b', '', a.area));
+      txt.appendChild(el('span', '', a.finding + ' ' + a.effect));
+      row.appendChild(txt);
+      c.appendChild(row);
+    });
+    s.appendChild(c);
+  }
+
+  const notes = L.notesFor(r);
+  if (notes.length) { s = card('Notes'); list(s, notes); }
+  choicesArea(r);
+}
+
+// Devices. The buttons show only when the server said this page can save.
+function devices(r) {
+  if (!(r.devices || []).length) return;
+  const v = L.deviceView(r, canSave);
+  const s = card('Devices on your network', v.sub);
+  if (v.tell) s.appendChild(el('p', '', 'Tell Network Doctor which of these are yours and it will warn you about new ones.'));
+  if (v.offNote) s.appendChild(el('p', 'note', 'Warnings about new devices are off. You can turn them back on under Your choices at the bottom of this page.'));
+  if (v.notMineBox) {
+    const box = el('div', 'alert');
+    box.appendChild(el('b', '', v.notMine === 1 ? 'A device you marked Not mine is on your network.' : v.notMine + ' devices you marked Not mine are on your network.'));
+    box.appendChild(el('p', '', 'Network Doctor only looks and cannot remove a device. To remove it, change the Wi-Fi password on your router. Anyone who does not know the new password is taken off your network.'));
+    if (v.routerPage) {
+      const a = el('a', 'btn', "Open my router's page");
+      a.href = v.routerPage;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      box.appendChild(a);
+      box.appendChild(el('p', 'small', "You type the router's password yourself. Network Doctor never logs in to your router."));
+    }
+    s.appendChild(box);
+  }
+  if (saveNote) s.appendChild(el('p', 'small', saveNote));
+  if (v.allMine.length) s.appendChild(button('All of these are mine', 'sm', () => choose(v.allMine)));
+  const g = el('div', 'devs');
+  v.rows.forEach(row => {
+    const d = row.device;
+    const box = el('div', d.state === 'not-mine' ? 'dev nm' : 'dev'), top = el('div', 'devtop'), txt = el('div');
+    txt.appendChild(el('b', '', row.name));
+    txt.appendChild(el('em', '', row.maker));
+    txt.appendChild(el('span', 'addr', row.address));
+    top.appendChild(txt);
+    if (saved.has(norm(d.mac))) top.appendChild(el('span', 'saved', 'Saved.'));
+    if (row.tag) top.appendChild(el('span', row.tag === 'Yours' ? 'tag' : row.tag === 'Not mine' ? 'tag nm' : 'tag un', row.tag));
+    box.appendChild(top);
+    if (row.actions) {
+      const acts = el('div', 'acts'), name = el('input');
+      name.type = 'text';
+      name.placeholder = 'Name (optional)';
+      name.maxLength = 40;
+      name.setAttribute('aria-label', 'Name (optional)');
+      acts.appendChild(name);
+      const pick = st => () => choose([{mac: d.mac, name: name.value, state: st}]);
+      acts.appendChild(button('This one is mine', 'sm', pick('mine')));
+      acts.appendChild(button('Not mine', 'sm plain', pick('not-mine')));
+      acts.appendChild(button('Ignore', 'sm plain', pick('ignored')));
+      box.appendChild(acts);
+    }
+    g.appendChild(box);
+  });
+  s.appendChild(g);
+  if (v.ignored.length) {
+    const det = el('details');
+    det.appendChild(el('summary', '', L.plural(v.ignored.length, 'device', 'devices') + ' ignored'));
+    v.ignored.forEach(d => {
+      const p = el('div', 'ign');
+      p.appendChild(el('span', '', (d.label || d.name || 'No name') + ', ' + L.makerText(d.maker)));
+      if (canSave) p.appendChild(button('Bring back', 'sm plain', () => choose([{mac: d.mac, name: '', state: 'undecided'}])));
+      det.appendChild(p);
+    });
+    s.appendChild(det);
+  }
+}
+
+function headers(json) {
+  const h = {'X-NetDoctor': '1'};
+  if (json) h['Content-Type'] = 'application/json';
+  return h;
+}
+async function post(path, body) {
+  const res = await fetch(path, {method: 'POST', cache: 'no-store', headers: headers(true), body: JSON.stringify(body)});
+  if (!res.ok) throw new Error(String(res.status));
+}
+
+async function choose(marks) {
+  try {
+    await post('/api/known', {devices: marks});
+  } catch (e) {
+    saveNote = 'Could not save that. Press again to try once more.';
+    render(last);
+    return;
+  }
+  saveNote = '';
+  saved = new Set(marks.map(m => norm(m.mac)));
+  render(L.applyMarks(last, marks));
+}
+
+// Your choices: the new-device switch, kept apart from the device list.
+function choicesArea(r) {
+  const box = $('settings');
+  box.replaceChildren();
+  if (!r) return;
+  const on = r.warn_new_devices !== false;
+  box.className = 'card';
+  box.appendChild(el('h2', '', 'Your choices'));
+  const row = el('div', 'set'), txt = el('div');
+  txt.appendChild(el('b', '', 'Warn me about new devices'));
+  txt.appendChild(el('span', '', on ? 'On' : 'Off'));
+  if (warnNote) txt.appendChild(el('span', 'saved', warnNote));
+  row.appendChild(txt);
+  box.appendChild(row);
+  if (!canSave) {
+    box.appendChild(el('p', 'small', 'This page cannot change your choices. Use the page Network Doctor opens on its own computer.'));
+    return;
+  }
+  if (on) {
+    row.appendChild(button('Turn off', 'sm plain', () => {
+      if (box.querySelector('.alert')) return; // the question is already showing
+      const ask = el('div', 'alert');
+      ask.appendChild(el('p', '', 'Network Doctor will stop warning you about new devices on your network. Anyone could join and you would not be told.'));
+      ask.appendChild(button('Turn off warnings', 'sm', () => setWarn(false)));
+      ask.appendChild(button('Keep them on', 'sm plain', () => choicesArea(last)));
+      row.after(ask);
+    }));
+  } else {
+    box.appendChild(el('p', 'small', 'Warnings are off. Press Turn on to get them back.'));
+    row.appendChild(button('Turn on', 'sm', () => setWarn(true)));
+  }
+}
+
+async function setWarn(on) {
+  try {
+    await post('/api/settings', {warn_new_devices: on});
+  } catch (e) {
+    warnNote = 'Could not save that. Press again to try once more.';
+    choicesArea(last);
+    return;
+  }
+  warnNote = 'Saved.';
+  render(L.applyWarn(last, on));
+}
+
+// A newer Network Doctor page was opened, or Network Doctor was removed: this one wipes every old
+// number and says which.
+function retired(why) {
+  if (closed && document.body.dataset.retired) return;
+  closed = true;
+  document.body.dataset.retired = '1';
+  const m = el('main', 'card');
+  m.appendChild(el('h1', '', why === 'removed' ? 'Network Doctor was removed from this computer.' : 'A newer Network Doctor page is open. Use that one.'));
+  m.appendChild(el('p', '', 'You can close this tab.'));
+  document.body.replaceChildren(m);
+}
+
+function gone() {
+  if (closed) return;
+  closed = true;
+  busy(true);
+  state.textContent = 'Network Doctor has stopped. Start it again.';
+}
+
+async function check(attempt) {
+  attempt = typeof attempt === 'number' ? attempt : 0;
+  if (closed) return;
+  busy(true);
+  state.textContent = 'Checking... about 30 seconds';
+  if (!last) hero('wait', 'Checking... about 30 seconds', ['Network Doctor is looking at your connection.'], '');
+  let res;
+  try {
+    res = await fetch('/api/check', {cache: 'no-store', headers: headers(false)});
+  } catch (e) {
+    gone();
+    return;
+  }
+  if (res.status === 410) {
+    retired((await res.text().catch(() => '')).trim());
+    return;
+  }
+  if (res.status === 429) {
+    const step = L.busyStep(attempt);
+    state.textContent = step.text;
+    if (!last) hero('wait', 'A check is already running.', [step.retry ? 'Waiting for it...' : 'Press Check again in a moment.'], '');
+    if (step.retry) setTimeout(() => check(attempt + 1), step.wait);
+    else busy(false);
+    return;
+  }
+  try {
+    if (!res.ok) throw new Error(String(res.status));
+    canSave = res.headers.get('X-NetDoctor-Save') === '1';
+    saved = new Set();
+    saveNote = '';
+    warnNote = '';
+    render(await res.json());
+    state.textContent = '';
+  } catch (e) {
+    state.textContent = 'The check did not finish. Press Check again to try once more.';
+    if (!last) hero('wait', 'The check did not finish.', ['Press Check again to try once more.'], '');
+  }
+  busy(false);
+}
+
+// The heartbeat tells Network Doctor this page is still open. Browsers delay timers in a hidden tab,
+// so only three misses in a row count as stopped.
+function alive() {
+  fetch('/api/alive', {cache: 'no-store', headers: headers(false)})
+    .then(res => { if (res.status === 410) { res.text().then(t => retired(t.trim()), () => retired('')); return; } misses = res.ok ? 0 : misses + 1; if (misses >= 3) gone(); })
+    .catch(() => { misses++; if (misses >= 3) gone(); });
+}
+setInterval(alive, 5000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) alive(); });
+btns.forEach(b => b.addEventListener('click', () => check(0)));
+check();
+</script>
+</body>
+</html>

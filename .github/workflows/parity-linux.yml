@@ -1,0 +1,126 @@
+# Purpose: prove the Linux setup on GitHub's clean Linux machine and take the Windows pictures
+# beside it (ND-269 to ND-315, the G and P rows of docs/test-cases.md for Linux and Windows).
+# Started only by hand or by a push to the branch parity-work (ND-313); never by pull requests.
+# A push runs every job, the Ookla fingerprints included. By hand with "ookla" ticked, only the
+# fingerprints run. The fingerprint job only fetches and hashes Ookla's files: it never accepts
+# Ookla's license, never unpacks or runs the file.
+# Each job ends with a summary of the seconds it used.
+# Owner: Rafiq. Version 0.2.0 (2026-11-20: fingerprints on push, gio for the launchers, seconds
+# used; 0.1.0: first build).
+name: parity-linux
+
+on:
+  workflow_dispatch:
+    inputs:
+      ookla:
+        description: "Only print the SHA-256 of Ookla's Mac and Linux files"
+        type: boolean
+        default: false
+  push:
+    branches: [parity-work]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    if: github.event_name == 'push' || !inputs.ookla
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Note the start time
+        run: echo "ND_START=$(date +%s)" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Tools the proof uses
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q desktop-file-utils cron dbus-user-session libglib2.0-bin
+          gio version
+          google-chrome --version
+          node --version
+      - name: Build the Linux setup file
+        run: bash scripts/package-linux.sh amd64
+      - name: Install, use and uninstall every choice, then the pass with no user systemd
+        run: bash scripts/parity/linux-proof.sh dist/release/NetworkDoctor-Setup-*-linux-amd64.tar.gz parity-out/linux
+      - name: Upload the pictures and the results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-proof
+          path: parity-out/linux
+          if-no-files-found: warn
+      - name: Upload the Linux setup file
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-setup
+          path: dist/release/NetworkDoctor-Setup-*-linux-amd64.tar.gz
+          if-no-files-found: warn
+      - name: Summary
+        if: always()
+        run: |
+          used=$(( $(date +%s) - ND_START ))
+          echo "Linux job seconds used: $used (about $(( (used + 59) / 60 )) minutes)"
+          echo "Linux job seconds used: $used" >> "$GITHUB_STEP_SUMMARY"
+
+  windows-pictures:
+    if: github.event_name == 'push' || !inputs.ookla
+    runs-on: windows-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Note the start time
+        run: echo "ND_START=$(date +%s)" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build the Windows program
+        run: CGO_ENABLED=0 go build -trimpath -o netdoctor.exe ./cmd/netdoctor
+      - name: Open the page and take the pictures
+        run: bash scripts/parity/windows-pictures.sh netdoctor.exe parity-out/windows
+      - name: Upload the pictures and the results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-pictures
+          path: parity-out/windows
+          if-no-files-found: warn
+      - name: Summary
+        if: always()
+        run: |
+          used=$(( $(date +%s) - ND_START ))
+          echo "Windows job seconds used: $used (about $(( (used + 59) / 60 )) minutes)"
+          echo "Windows job seconds used: $used" >> "$GITHUB_STEP_SUMMARY"
+
+  ookla-fingerprints:
+    if: github.event_name == 'push' || inputs.ookla
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Note the start time
+        run: echo "ND_START=$(date +%s)" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v4
+      - name: Print the name, address and SHA-256 of each Ookla file (fetch and hash only)
+        run: bash scripts/parity/ookla-fingerprints.sh
+      - name: Summary
+        if: always()
+        run: |
+          used=$(( $(date +%s) - ND_START ))
+          echo "Ookla fingerprints job seconds used: $used"
+          echo "Ookla fingerprints job seconds used: $used" >> "$GITHUB_STEP_SUMMARY"

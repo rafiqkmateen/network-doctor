@@ -1,0 +1,62 @@
+# Purpose: prove the Mac setup on GitHub's clean Mac machine (ND-269 to ND-315, the G and P rows
+# of docs/test-cases.md for the Mac). Started only by hand or by a push to the branch
+# parity-work-mac, so it never runs by accident: run it only after parity-linux has passed.
+# The job prints the seconds it used.
+# Owner: Rafiq. Version 0.1.0 (2026-11-20: first build).
+name: parity-mac
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [parity-work-mac]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mac:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: Note the start time
+        run: echo "ND_START=$(date +%s)" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Tools the proof uses
+        run: |
+          sw_vers
+          "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --version
+          node --version
+      - name: Build the Mac setup file
+        run: bash scripts/package-mac.sh
+      - name: Install, use and uninstall every choice
+        run: bash scripts/parity/mac-proof.sh dist/release/NetworkDoctor-Setup-*-mac.zip parity-out/mac
+      - name: Upload the pictures and the results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-proof
+          path: parity-out/mac
+          if-no-files-found: warn
+      - name: Upload the Mac setup file
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-setup
+          path: dist/release/NetworkDoctor-Setup-*-mac.zip
+          if-no-files-found: warn
+      - name: Summary
+        if: always()
+        run: |
+          used=$(( $(date +%s) - ND_START ))
+          echo "Mac job seconds used: $used (about $(( (used + 59) / 60 )) minutes)"
+          echo "Mac job seconds used: $used" >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Network Doctor</title>
+<style>
+:root{--bg:#f3f5f9;--card:#fff;--ink:#14171f;--mute:#5d6676;--line:#e1e5ed;--ok:#12805c;--okbg:#e3f6ee;--bad:#b42318;--badbg:#fde8e6;--accent:#2563eb;--accentbg:#e6eefe;--shadow:0 1px 2px rgba(20,23,31,.06),0 8px 24px rgba(20,23,31,.06)}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1017;--card:#161a23;--ink:#eef0f5;--mute:#98a2b3;--line:#262c39;--ok:#4cd3a2;--okbg:#10372c;--bad:#ff8a80;--badbg:#3d1a17;--accent:#6ea0ff;--accentbg:#17233d;--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35)}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif;overflow-wrap:anywhere}
+main{max-width:720px;margin:0 auto;padding:24px 16px 56px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.15rem;margin-bottom:6px}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--accent);display:grid;place-items:center}
+.logo svg{width:20px;height:20px}
+.card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:20px 22px;margin-top:16px}
+h1{margin:0 0 8px;font-size:1.45rem;line-height:1.25}
+p{margin:8px 0}
+.mute{color:var(--mute)}
+.part,.tick{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:12px;margin:10px 0}
+.part input,.tick input{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--accent)}
+.part label,.tick label{flex:1}
+.folder{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--accentbg);border-radius:8px;padding:6px 10px;word-break:break-all}
+ul{margin:6px 0 12px;padding-left:1.3em}
+a{color:var(--accent)}
+.links a{display:block;margin:6px 0}
+.acts{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+button{font-family:inherit;background:var(--accent);color:#fff;border:0;border-radius:14px;padding:12px 26px;font-size:1.02rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow)}
+button.back{background:transparent;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+button:disabled{opacity:.55;cursor:default}
+.msg{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--badbg);color:var(--bad)}
+.done{border:2px solid var(--ok);background:linear-gradient(135deg,var(--okbg),var(--card) 70%)}
+.fail{border:2px solid var(--bad);background:linear-gradient(135deg,var(--badbg),var(--card) 70%)}
+.wait{display:flex;gap:14px;align-items:center}
+.spin{flex:none;width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+.guide{white-space:pre-wrap;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--accentbg);border-radius:10px;padding:12px;margin:10px 0 0;max-height:70vh;overflow:auto}
+[hidden]{display:none!important}
+@media (max-width:520px){.card{padding:16px}h1{font-size:1.25rem}button{flex:1}}
+</style>
+</head>
+<body>
+<main>
+<div class="brand"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9a15 15 0 0 1 20 0"/><path d="M5.5 12.5a10 10 0 0 1 13 0"/><path d="M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="19.5" r="1"/></svg></span><span id="brand"></span></div>
+
+<section class="card" id="sWelcome" hidden>
+  <h1 id="welcomeHead"></h1>
+  <p id="welcome" class="mute"></p>
+  <h2 id="partsHead" style="font-size:1.05rem;margin:16px 0 4px"></h2>
+  <div id="parts"></div>
+  <div class="acts"><button id="toOokla"></button></div>
+</section>
+
+<section class="card" id="sOokla" hidden>
+  <h1 id="oTitle"></h1>
+  <p id="oLead" class="mute"></p>
+  <p id="oNote"></p>
+  <div class="tick"><input type="checkbox" id="ooklaOffer"><label for="ooklaOffer" id="oOffer"></label></div>
+  <div class="tick"><input type="checkbox" id="ooklaAgree"><label for="ooklaAgree" id="oAgree"></label></div>
+  <div class="links">
+    <a id="oEula" target="_blank" rel="noreferrer noopener"></a>
+    <a id="oTerms" target="_blank" rel="noreferrer noopener"></a>
+  </div>
+  <p id="oSelf" class="mute"></p>
+  <div class="links"><a id="oCli" target="_blank" rel="noreferrer noopener"></a></div>
+  <div class="msg" id="oMsg" hidden></div>
+  <div class="acts"><button class="back" id="backWelcome"></button><button id="toReady"></button></div>
+</section>
+
+<section class="card" id="sReady" hidden>
+  <h1 id="readyHead"></h1>
+  <p id="readyDir"></p>
+  <p class="folder" id="folder"></p>
+  <p id="readyParts"></p>
+  <ul id="readyList"></ul>
+  <p id="readySpeed"></p>
+  <ul><li id="readyOokla"></li></ul>
+  <div class="acts"><button class="back" id="backOokla"></button><button id="go"></button></div>
+</section>
+
+<section class="card" id="sAsk" hidden>
+  <h1 id="askHead"></h1>
+  <p id="askNote"></p>
+  <div class="acts"><button id="remove"></button></div>
+</section>
+
+<section class="card" id="sWork" hidden>
+  <div class="wait"><span class="spin" aria-hidden="true"></span><p id="working"></p></div>
+</section>
+
+<section class="card" id="sEnd" hidden>
+  <div id="endLines"></div>
+  <div id="guideBox" hidden>
+    <p id="guideLine"></p>
+    <p><button id="guideOpen" hidden></button></p>
+    <pre class="guide" id="guideText" hidden></pre>
+  </div>
+  <p id="endTail" hidden></p>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var T = null;
+  var $ = function (id) { return document.getElementById(id); };
+  var steps = ['sWelcome', 'sOokla', 'sReady', 'sAsk', 'sWork', 'sEnd'];
+  function show(id) {
+    steps.forEach(function (s) { $(s).hidden = s !== id; });
+    window.scrollTo(0, 0);
+  }
+  function text(id, s) { $(id).textContent = s || ''; }
+  function post(path, body) {
+    return fetch(path, { method: 'POST', headers: { 'X-NetDoctor': '1', 'Content-Type': 'application/json' },
+      body: JSON.stringify(body || {}), credentials: 'same-origin', cache: 'no-store' });
+  }
+  // The guide is fetched before the finish screen tells the server it was shown, because the
+  // server quits soon after that; the button shows only when the guide came back (ND-279).
+  var guide = '';
+  function loadGuide() {
+    return fetch('guide', { cache: 'no-store', credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.text() : ''; })
+      .catch(function () { return ''; })
+      .then(function (g) { guide = g; });
+  }
+  function end(lines, ok, tail) {
+    var box = $('endLines');
+    box.textContent = '';
+    (lines || []).forEach(function (l, i) {
+      var el = document.createElement(i === 0 ? 'h1' : 'p');
+      el.textContent = l;
+      box.appendChild(el);
+    });
+    var g = Boolean(ok && guide && T);
+    $('guideBox').hidden = !g;
+    $('guideOpen').hidden = !g;
+    if (g) {
+      text('guideLine', T.guide_line); text('guideOpen', T.guide_open);
+      $('guideText').textContent = guide;
+      $('guideOpen').onclick = function () { $('guideOpen').hidden = true; $('guideText').hidden = false; };
+    }
+    text('endTail', tail); $('endTail').hidden = !tail;
+    $('sEnd').className = 'card ' + (ok ? 'done' : 'fail');
+    show('sEnd');
+    post('api/shown').catch(function () {}); // the server stops soon after, never in the middle of work
+  }
+  function gone() { end([T ? T.gone : ''], false); }
+
+  function partBox(p) {
+    var row = document.createElement('div');
+    row.className = 'part';
+    row.innerHTML = '<input type="checkbox" id="part-' + p.id + '"' + (p.fixed ? ' checked disabled' : '') + '><label></label>';
+    row.querySelector('label').htmlFor = 'part-' + p.id;
+    row.querySelector('label').textContent = p.sentence;
+    return row;
+  }
+  function chosen(id) { return $('part-' + id).checked; }
+
+  function setupInstall() {
+    text('brand', T.title);
+    document.title = T.title;
+    text('welcomeHead', T.welcome_head); text('welcome', T.welcome); text('partsHead', T.parts_head);
+    T.parts.forEach(function (p) { $('parts').appendChild(partBox(p)); });
+    text('toOokla', T.next); text('toReady', T.next); text('go', T.install);
+    text('backWelcome', T.back); text('backOokla', T.back);
+    var o = T.ookla;
+    text('oTitle', o.title); text('oLead', o.lead); text('oNote', o.note); text('oOffer', o.offer); text('oAgree', o.agree);
+    text('oEula', o.eula); $('oEula').href = o.eula_url;
+    text('oTerms', o.terms); $('oTerms').href = o.terms_url;
+    text('oSelf', o.self); text('oCli', o.cli_page); $('oCli').href = o.cli_url;
+    text('readyHead', T.ready_head); text('readyDir', T.ready_dir); text('folder', T.folder);
+    text('readyParts', T.ready_parts); text('readySpeed', T.ready_speed); text('working', T.working);
+
+    $('toOokla').onclick = function () { show('sOokla'); };
+    $('backWelcome').onclick = function () { show('sWelcome'); };
+    $('backOokla').onclick = function () { show('sOokla'); };
+    $('toReady').onclick = function () {
+      if ($('ooklaOffer').checked && !$('ooklaAgree').checked) {
+        text('oMsg', o.need_tick); $('oMsg').hidden = false; return;
+      }
+      $('oMsg').hidden = true;
+      var list = $('readyList');
+      list.textContent = '';
+      T.parts.forEach(function (p) {
+        if (p.fixed || chosen(p.id)) { var li = document.createElement('li'); li.textContent = p.short; list.appendChild(li); }
+      });
+      text('readyOokla', ($('ooklaOffer').checked && $('ooklaAgree').checked) ? T.ready_ookla : T.ready_none);
+      show('sReady');
+    };
+    $('go').onclick = function () {
+      $('go').disabled = true;
+      show('sWork');
+      var offer = $('ooklaOffer').checked;
+      post('api/install', { weekly: chosen('scheduled'), alerts: chosen('proactive'),
+        ookla_offer: offer, ookla_agree: offer && $('ooklaAgree').checked })
+        .then(function (r) { return r.json(); })
+        .then(function (a) {
+          if (!a.ok) { end(a.lines, false); return; }
+          return loadGuide().then(function () { end(a.lines, true, T.close_page); });
+        })
+        .catch(gone);
+    };
+    show('sWelcome');
+  }
+
+  function setupUninstall() {
+    var u = T.uninstall;
+    text('brand', T.title);
+    document.title = T.title;
+    text('askHead', u.ask); text('askNote', u.note); text('remove', u.button);
+    text('working', u.working);
+    if (!T.installed) { end([T.not_there], false); return; }
+    $('remove').onclick = function () {
+      $('remove').disabled = true;
+      show('sWork');
+      post('api/uninstall', {})
+        .then(function (r) { return r.json(); })
+        .then(function (a) { end(a.lines, a.ok); })
+        .catch(gone);
+    };
+    show('sAsk');
+  }
+
+  fetch('api/texts', { cache: 'no-store', credentials: 'same-origin' })
+    .then(function (r) { return r.json(); })
+    .then(function (t) { T = t; if (t.mode === 'uninstall') { setupUninstall(); } else { setupInstall(); } })
+    .catch(gone);
+})();
+</script>
+</body>
+</html>

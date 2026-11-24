@@ -1,0 +1,111 @@
+# Changelog
+
+Purpose: every change to Network Doctor, newest first, in Keep a Changelog form.
+Owner: Rafiq. Version 0.4.4.
+
+## [Unreleased]
+
+## [0.4.0] - not yet released (2026-11-22)
+
+### Changed
+- Removing Network Doctor now takes away everything, on Windows, Mac and Linux: the program, the icons, the weekly check, the alerts helper, and the whole results folder with the saved results, the alert log, the known-devices list, the device choices, the new-device switch and the settings (on a Mac also the jobs' run logs), so a new install on that computer starts fresh. No keep-or-delete question is asked any more: the Windows "Keep your saved results?" box is gone (Inno Setup's own "remove it?" question stays), and the Mac and Linux removal page has one button and says what goes. For IT the default is now to delete, silent or not; `/KEEPRESULTS=1` (Windows) and `uninstall --silent --keep-results` (Mac and Linux) keep the results, also when the old switch is given too. The old `/DELETERESULTS=1` and `--delete-results` are still accepted and change nothing, so no script breaks; `--keep-results` without `--silent` is refused with exit code 2. The finish screens on all three systems say so (ND-118, ND-260, ND-279, ND-290, ND-291, ND-312).
+- Before removal deletes anything it now puts back every fix still applied (the proxy, power saving, the name servers), with the program's own undo, so no change of a fix is left behind once the undo notes are gone. On Windows the uninstaller runs the installed program's new `fix undo-all` after the person confirms and before anything is removed. When a fix cannot be put back (the computer refused, the setting or the notes cannot be read, the name servers' adapter is no longer listed, or, on a Mac and Linux, it may need administrator rights, which removal never asks for), the program, icons and jobs still go, but the results folder keeps only the undo notes, and the person is told in plain words which change, where its notes are and what to do next; `uninstall --silent` then exits 1, and on Windows the lines go to the uninstaller's log and `fix-not-undone.txt` and, unless silent, show once with only OK. With nothing recorded no setting is read. A setting the person changed by hand after the fix counts as settled at removal, not as a fault: it is left as they set it, its note is dropped, they are told it was "left as you set it", and the exit stays 0 (`fix undo NAME` still refuses it as before). It counts as changed by hand only when the setting was read without any error and seen changed on the very adapter or setting the fix changed (on Linux, the same NetworkManager connection), and only when the note was written by the account the removal runs as: each note now records the account that applied the fix (user name and SID on Windows, user name and number on a Mac and Linux). The proxy reads on Windows and Linux no longer turn a failed read into "off with no server". Another account, an older note with no account, or a failed read is a real failure, its note kept; in a removal with both, only the notes of the fixes not put back stay. On Windows, notes holding nothing (`{}`) no longer bring a "not put back" message when the program cannot start. `/KEEPRESULTS` now keeps the results given bare or with any value but empty or `0` (bare `/KEEPRESULTS` and `=yes` used to delete) (ND-118, ND-316).
+- The program's version is 0.4.0 (the next version, not yet released); the latest release is still v0.3.0, so the setup file for a retest no longer carries the released file's name (ND-211).
+- The example pictures of the page (`docs/images/web-check-good.png`, `web-check-problem.png`) are redone for the new page, and two are added to the guide: the devices list (`web-devices.png`) and the notice an older page shows (`web-newer-page.png`). All four use made-up data from a test server (documentation addresses only); the docs test requires all four in the guide.
+- One open page at a time: a new press of the icon retires the older page, which then shows only "A newer Network Doctor page is open. Use that one." and its program quits as soon as that page has heard, or after 75 seconds for a hidden tab, after any running check; two presses at once take turns through a lock file, so one page stays (ND-266).
+- The drops card says how many counted drops fall before the 7 days on the bars, so bars plus the note equal the count (ND-267).
+- "Saved." shows only beside the device row or the switch it belongs to, no longer under Check again (ND-268).
+- The front page is shorter and shows what the project demonstrates (security, automation, engineering discipline), who built it and how to reach them. The full list of checks, fixes and outside requests is in the one-page guide; the front page keeps the short set and links to it. The requirements, test cases and docs tests for the page were changed to match (ND-250, ND-252).
+- The setup build script reads its version from the program when none is given, so the setup file's name follows the program; the GitHub installer job finds the file by its pattern.
+- The wired-or-Wi-Fi decision on Windows and Linux is kept apart from the commands that read the system (`windowsKind`, `linuxKind` in `internal/collect/kind.go`), as the Mac one already was. What the tool reports does not change.
+- `known add` (and the setup helper) now updates a device already on the list instead of adding it a second time, keeps its name when none is given, cuts a name to 40 characters with control characters removed, and refuses an address that is not a real hardware address. `known list` shows only the devices that are yours, as before. In `check`, an ignored device is marked "(ignored)" and is not counted as not known, and a not-mine one is marked so; the phone page (`share`) reads the choices and the switch again at each check (ND-264).
+- `serve` and `share` refuse a request whose Host header is neither localhost nor an address written as numbers (ND-263).
+
+### Fixed
+- On the Mac and Linux setup page, long folder names ran past the card's edge at phone width. Every setup and removal page now wraps them (ND-279).
+- The Mac finish screen pointed to the guide inside the app, which Finder will not open. On Mac and Linux the finish screen now says "The full guide explains every part." and has an "Open the guide" button that shows the guide on the same page, served by the setup page itself (ND-272, ND-279).
+- On Linux, a mobile-broadband modem (an adapter name starting `ww`) with no wireless folder was called wired, so a check could give cable advice for it. It is now called unknown, even when it has a device folder. When an unknown connection is down (this includes a machine where no adapter could be read at all), the check says "The network connection is not working." and no longer tells you to check a cable. Wi-Fi and wired adapters are reported as before.
+
+### Added
+- The guide has "Install it (Mac)" and "Install it (Linux)", and says the setup, the weekly schedule, screen alerts and the `proxy`, `public-dns`, `renew-address` and `reset-adapter` fixes work on all three systems; the front page has short Mac and Linux install sections (ND-250 to ND-252).
+- Setup makes a Network Doctor icon on the desktop and one in the Start menu. Pressing it opens a page in the web browser that runs a full check, with no console window, so nobody has to open a terminal or type a command; the finish screen says so. Removal takes both icons away (ND-261).
+- `netdoctor open` (and `netdoctorw open`, what the icons run): starts the page on 127.0.0.1 at a free port the system picks, opens the default browser to it with no console window, and quits by itself about 3 minutes after the page stops sending its heartbeat (the page waits for three misses in a row), or after about 5 minutes if the page never loads, never during a check. It answers only this computer and refuses a Host header that does not name this computer and its port, so a website cannot reach it through a DNS trick. Starting a check and the heartbeat need the page's own header: `GET /api/check` and `GET /api/alive` without `X-NetDoctor: 1` (or a browser's same-origin mark) now return 403, so another website can neither start a check nor keep it running; a plain load of the page no longer counts as a heartbeat. Every response of the page servers (`open`, `serve`, `share`) now carries `X-Frame-Options: DENY` and `Content-Security-Policy: frame-ancestors 'none'`, so no website can show the page in a frame. With no browser, Windows shows the address in a message box and the program stops when OK is pressed (ND-263).
+- A new page, shared by `open` and `serve`: a coloured answer box, four number tiles, a bar chart of drops by day, the device list and the settings review, in light and dark mode and at phone width. It runs the check when it loads and keeps "Check again". Everything on it comes from a field of the check; a speed that was not measured says "Not measured", never 0. Times follow the Windows clock setting (sent as `clock_24h`; the browser's format elsewhere): the check now also sends `drops.pattern_hour` and `speed_retry_at`, while the terminal's sentences stay as they were (ND-262).
+- Marking devices on the page on this computer: "This one is mine" with an optional name (up to 40 characters, plain text), "Not mine", "Ignore", "All of these are mine" and "Bring back". Choices go in the same known list `known add` writes, every line with its tag (`02:00:00:00:00:20 [ignored] printer`; untagged lines from earlier versions still mean mine), saved all at once and never half written, one save at a time between programs; a name that starts like a tag keeps its words in round brackets; tags in any case and a byte-order mark are read. Ignoring devices alone keeps the list's neutral wording until a first Mine or Not mine. Each row shows its address and "Saved." when pressed; a reused speed is labelled beside the tiles; a page that meets a running check waits for it. Ignored devices are never strangers on the page or in alerts; a Not-mine device stays on top with what to do about it and, for a private router address, a link to the router's own page (Network Doctor never logs in). Saved only through POST /api/known: this computer only, a Host naming this computer, the `X-NetDoctor: 1` header and a JSON body, real hardware addresses only, at most 256. The check now also sends each device's `state`, `label` and `this_computer`, `known_count` and `router_page` (ND-264).
+- "Warn me about new devices", a switch in the page's "Your choices" area, on by default and on when the settings file has no value. Turning it off takes one more press after a plain warning; while it is off, the page shows no stranger warnings and `watch` raises no new-device alert. Kept as `warn_new_devices`, shown by `config show`, changed only through POST /api/settings with the same protections (ND-265).
+- The installer's last screen says what to do next: that Network Doctor is installed, how to run a check (press the Network Doctor icon on the desktop or in the Start menu), whether the weekly check and alerts are on (built from the parts chosen, so it never claims one that was not picked), where the program and the results are, how to remove it, and that the full guide is `GUIDE.md` in the program folder. A silent install still shows nothing (ND-260).
+- Tests: the nine automated rows that no test named are now named by the tests that check them (one new test checks the version against the guide, the front page, the changelog and the requirement), and the test results page has rows for the newer requirements.
+- Tests: the wired-or-Wi-Fi decision on Windows and Linux is tested on sample facts on every system, with Wi-Fi, wired and unknown cases (ND-258).
+
+## [0.3.0] - 2026-11-19
+
+### Added
+- The check names a sign-in page (hotel, airport, cafe Wi-Fi), compares the computer's clock with the answer it gets and flags when it is off by more than 5 minutes (the clock note shows in the `--json` result, not on the page), and says where the internet leaves from (one small extra request on each online check to the speed test's own host, which answers with a country code), remembering it and noting a change for 14 days. It says plainly that a VPN on the router cannot be seen from the computer.
+- When the download is far lower than the upload or the last weekly check, the check runs one more Cloudflare test (never Ookla) and shows both numbers.
+- Wi-Fi advice at the right numbers: weak at -75 dBm or less, a slow link under 20 megabits; a value Windows did not share is never called weak. When Windows hides the Wi-Fi details, the check says so in plain words.
+- The check names the fixes that fit what it found (`fixes`) with an offer for each (`fix_offers`) and lists fixes that can be put back (`undos`). `fix apply`, `fix undo` and `fix list` print one JSON line with `--json`.
+- Fixes with a yes, administrator permission, a read-back and an undo where one makes sense: `public-dns` (Cloudflare for the adapter in use), `renew-address` and `reset-adapter` (only when the trouble is there, checked again at the press). Windows only; on Mac and Linux they are refused and nothing changes.
+- With the alerts part installed and no places saved, alerts go to the console, a file and the screen; setup asks one question and Enter means yes.
+- The check and `watch` can trust a list of devices kept by another program, named with `config known-from PATH`; it is off unless set, so every new device is reported by default.
+- docs: two example pictures of the web page (`docs/images/web-check-good.png`, `docs/images/web-check-problem.png`), made with made-up data, shown in the guide and on the front page.
+- test: a docs test (`internal/docs`) reads the guide and the front page and checks the key words of each topic, the picture links and files, that each picture has an italic caption, that each outside request and what it keeps sit in one bullet, that the two setup lines no longer say nothing leaves the computer, and that no banned word is used (ND-250 to ND-255).
+
+### Fixed
+- The setup screen no longer says "Nothing leaves your computer". Each part's line now says your data never leaves your computer, that the speed test and a few small requests do go out, and points to "What goes over the internet" in the guide.
+- The setup's Ready to Install page lists short names (type, folder, parts, speed tool) instead of cut-off long lines, and the two Ookla tick boxes show their whole text at any screen scaling.
+- The alerts line says what setup turns off (the pop-ups and the file) and that "stays slow" needs a plan speed set.
+- On Windows with the cable unplugged and the computer on Wi-Fi, the check reads the Wi-Fi instead of the dead cable; a Wi-Fi joined without an address from the router is named as such, also on a Mac; a Wi-Fi that works over IPv6 only is not called broken.
+- The Wi-Fi reader and the nearby-networks channel list work on a Windows set to another language; the driver date is read.
+- `fix undo` refuses, with a plain reason, when the setting was changed since the fix; `fix apply proxy` refuses when the proxy is already off; the preview before `reset-adapter` no longer says the line is already down when it works; `watch` no longer warns that the router is an unknown device.
+
+### Changed
+- docs: the guide (0.5.0) and the front page (0.5.0) now say the tool runs on Windows, Mac and Linux with one default part and two add-ons, the weekly check and alerts; that the setup file is for Windows only; which fixes work only on Windows; the new checks and fixes; which results show only in `netdoctor check --json`; each request to an outside server (the speed tests, the country lookup, the sign-in test, the device name lookups, the light speed test `watch` makes about every 30 minutes, and Ookla's tool under Ookla's own terms), with what each sends and keeps; that the web page only looks and fixes are typed in the terminal; that `NETDOCTOR_UNATTENDED` turns fixes off until `fix enable-here`; the data folders on Mac and Linux; that v0.2.0 has only the basic check, the web and phone page, the weekly check, alerts and the fixes name-cache, proxy and power-saving, and a build from source says 0.3.0; that power saving is always refused; how `watch` times its speed test, device check and slow alert; when Ookla's tool is used, where setup downloads it from, and that it reports its tests to Ookla; and the exit codes for `check`. The front page no longer names a particular app-blocking protection.
+- The front page and the guide no longer say the tool "never changes a setting". They say checks only look, and describe the optional `fix` commands, the private phone page (https) and its one-time warning.
+
+## [0.2.0] - 2026-11-12
+
+### Added
+- Ookla's own Speedtest tool is used for the speed number when the person has put it where we look (the `NETDOCTOR_OOKLA` setting, an `ookla` folder beside the program, or the path); otherwise the Cloudflare test runs as before. The answer names the tool (`speed_tool`). Network Doctor never ships Ookla's tool and never accepts Ookla's license for anyone (ND-200 to ND-203).
+- The installer can offer Ookla's tool on its own page: unchecked, never in a silent install, with the person's own license tick, fetched only from Ookla and checked against a fixed hash (ND-210).
+- A choices file, `choices.json`, written beside the program by the installer: which parts the person chose. Running the installer again repairs the machine to match: a part not chosen has its task removed; the uninstaller removes the file (ND-207 to ND-209).
+
+### Changed
+- A speed is reused for 2 minutes when Ookla's tool measured it and for 10 minutes when Cloudflare measured it. A check inside the hold measures nothing and says "Too soon to test again", how old the reading is, and when to come back (`speed_wait_seconds`) (ND-204 to ND-206).
+- The repeating alerts helper uses only the light Cloudflare test, never Ookla's, which moves gigabytes a test.
+- The program version is 0.2.0.
+
+## [0.1.0] - 2026-11-12
+
+### Changed
+- The speed test now opens six connections at once and counts bytes over four seconds after a one-second warm-up, instead of one half-second file on one connection. On a line the website measured at 918 down, the old test read 339; the new one reads about 780 to 800.
+
+- When the speed server refuses a test ("too many requests"), the tool now says the speed was not measured and when to try again, instead of showing 0 Mbps. The JSON has `speed_measured` and, after a refusal, `speed_retry_after_seconds`. The tool also waits out the refusal between runs (`speed-hold.txt`), and the weekly check no longer saves a row without a measured speed (ND-180 to ND-182).
+
+- The speed test is lighter on the public server: four connections for three seconds (was six for four), and a speed measured less than ten minutes ago is reused, with a note of how old it is (`speed_age_seconds` in the JSON, `speed-last.json` in the results folder) (ND-183 and ND-184).
+
+### Fixed
+- The power saving fix no longer says "this adapter does not report a power saving setting" when a driver will not let Windows read it. It says it cannot read the setting and gives the Device Manager steps (found on a real machine: a wired adapter has the setting on, but its driver refuses the read).
+
+### Added
+- Stage 2: `netdoctor fix list | apply NAME [--yes] | undo NAME | enable-here`. Three fixes (clear the name cache, turn off a proxy, turn off adapter power saving), each only after a yes to that one fix, with the setting shown before and after, the old value saved, one-press undo and a log (`fix-log.txt`). Power saving only says what to change by hand until a test shows it never drops the link. Off on an unattended server (`NETDOCTOR_UNATTENDED`) until `fix enable-here` (ND-90 to ND-96).
+- HTTPS for the phone page: `share` is private by default (`--http` for plain) with a certificate made on this computer, and `serve --https` (ND-190 to ND-192).
+- MIT License (`LICENSE`) and the notice for the one outside library, `rsc.io/qr` (`THIRD-PARTY-NOTICES.txt`).
+- `netdoctor share`: finds this computer's address, serves the page for that network only, draws a code for a phone to scan, and says when a phone reaches the page.
+- `netdoctor setup`, the first-run helper: asks a few plain questions and starts by itself only for a person at a keyboard.
+- `netdoctor config alerts-file on|off`, and one tab-split line per alert in `alerts.log`.
+- Linux and Mac readers for adapter, Wi-Fi, line use, programs, devices and settings. Linux also reads connection history; Mac does not yet.
+- Windows installer (`installer/netdoctor.iss`, Inno Setup): the on-demand check always installs; the weekly check and alerts are optional tick boxes; silent switches for IT; an uninstaller that undoes exactly what the install did and keeps saved results by default. Installed copies save in ProgramData. Tested on GitHub's clean Windows machine for all four choices.
+- `netdoctorw.exe`, a build with no console window, used by the weekly and alerts tasks.
+- Install and removal section in the guide.
+
+### Also in this release (first built 2026-11-11)
+- Project instructions, requirements, test cases and test results.
+- Stage 1 of Network Doctor: full check (wired and Wi-Fi), cause finder, drops from the system log, link health, program use, device list, settings review.
+- Command line with JSON output and exit codes, a local web page that can be opened from a phone on allowed addresses, weekly record to a spreadsheet file with a draft complaint (never sent), and watch mode with alerts.
+- Release workflow with checksums and signed build records, and a test workflow for Windows, Mac and Linux (run after the first push).
+
+### Fixed during live testing
+- Sub-second connection flaps no longer bury real drops.
+- This computer is no longer flagged as an unknown device; empty address entries are dropped.
+- Power saving is reported as "could not read" when Windows will not say, not "off".
+- Program ranking uses open connections and the line total, because per-program byte counts need administrator rights.
