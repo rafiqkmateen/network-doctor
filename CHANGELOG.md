@@ -5,6 +5,11 @@ Owner: Rafiq. Version 0.4.4.
 
 ## [Unreleased]
 
+### Changed
+- README (page version 0.8.1): "Use it" now starts with the icon for a setup you built and then the plain program file; "small file" reads "small program file"; the sentence about versions 0.1.0 to 0.3.0 is gone from "Get it" (those versions stay listed in this changelog).
+- README and guide wording: "Get it" now says the tool is made for people who have never opened a terminal and that building from source is for someone comfortable with one; the Mac sentence names macOS 15 (Sequoia) as the version without a right-click way (Apple removed that shortcut in Sequoia; "Open Anyway" in System Settings remains); the test-status sentence reads "neither Mac nor Linux is yet proved on a real desktop"; "device marks and choices" reads "your choices about your devices".
+- The word "pretend" is now "simulated" everywhere (README, guide, requirements, test cases, test results, tests and code comments), including the names of the simulated-computer helpers in the tests; no behaviour changed, and formatting, vet (Windows, Linux, Mac) and every test pass.
+
 ## [0.4.0] - not yet released (2026-11-22)
 
 ### Changed

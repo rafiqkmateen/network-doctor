@@ -335,7 +335,7 @@ func TestInstallFromTheInstalledCopy(t *testing.T) {
 	if r := Install(s.env, Choice{}, io.Discard); len(r.Problems) > 0 {
 		t.Fatal(r.Problems)
 	}
-	if read(t, l.Program) != "pretend program" {
+	if read(t, l.Program) != "simulated program" {
 		t.Error("the program was damaged")
 	}
 }

@@ -14,7 +14,7 @@ import (
 	"github.com/rafiqkmateen/network-doctor/internal/core"
 )
 
-// vpnFake is a pretend machine with a VPN on.
+// vpnFake is a simulated machine with a VPN on.
 type vpnFake struct{ *fake }
 
 func (v vpnFake) Settings(context.Context) (core.Settings, error) {
@@ -27,7 +27,7 @@ type serveCall struct {
 }
 
 // fakeServe stands in for the web page. It records how it was started, can
-// pretend a phone opened the page, and runs until the context ends.
+// simulated a phone opened the page, and runs until the context ends.
 func fakeServe(call *serveCall, phoneAt time.Duration, phone string) func(context.Context, string, []string, func() ([]byte, error), func(string)) error {
 	var mu sync.Mutex
 	return func(ctx context.Context, addr string, allow []string, run func() ([]byte, error), onRemote func(string)) error {

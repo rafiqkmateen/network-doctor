@@ -1,7 +1,7 @@
 package app
 
 // Checks for when the check offers the round-two fixes (ND-235 to ND-238) and how the fix command
-// shows them, written before the build. The fix system is a pretend
+// shows them, written before the build. The fix system is a simulated
 // one; nothing on this computer changes.
 
 import (
@@ -15,9 +15,9 @@ import (
 	"github.com/rafiqkmateen/network-doctor/internal/fix"
 )
 
-// ndFixPC is a pretend Windows computer with the round-two abilities.
+// ndFixPC is a simulated Windows computer with the round-two abilities.
 type ndFixPC struct {
-	*cliPretend
+	*cliSimulated
 	dns            []fix.DNSState
 	sets, renews   int
 	resets, elevns int
@@ -51,8 +51,8 @@ var _ fix.ExtraSystem = (*ndFixPC)(nil)
 
 func newNDFixPC() *ndFixPC {
 	return &ndFixPC{
-		cliPretend: &cliPretend{proxy: fix.ProxyState{}},
-		dns:        []fix.DNSState{{Adapter: "Wi-Fi", IfIndex: 12, Servers: []string{"192.168.1.1"}, Automatic: true}},
+		cliSimulated: &cliSimulated{proxy: fix.ProxyState{}},
+		dns:          []fix.DNSState{{Adapter: "Wi-Fi", IfIndex: 12, Servers: []string{"192.168.1.1"}, Automatic: true}},
 	}
 }
 
@@ -100,7 +100,7 @@ func TestND235PublicDNSOffered(t *testing.T) {
 
 // ND-238: no round-two fix is offered on a system without the abilities (Mac and Linux).
 func TestND238NotOfferedWithoutAbilities(t *testing.T) {
-	ndWithFixSystem(t, &cliPretend{})
+	ndWithFixSystem(t, &cliSimulated{})
 	s := ndWiFi()
 	s.dnsFails = true
 	r := Check(context.Background(), s, Options{PlanMbps: 300, Quick: true})

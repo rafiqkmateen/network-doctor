@@ -37,7 +37,7 @@ func tgz(t *testing.T, files map[string]string) []byte {
 
 func sum(b []byte) string { h := sha256.Sum256(b); return hex.EncodeToString(h[:]) }
 
-// ookla is a pretend Ookla server: every https request, whatever the name, reaches it, so the
+// ookla is a simulated Ookla server: every https request, whatever the name, reaches it, so the
 // address check in the code is the real one.
 type ooklaServer struct {
 	srv  *httptest.Server

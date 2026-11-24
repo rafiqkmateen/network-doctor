@@ -16,7 +16,7 @@ import (
 // exit code, means that side does not answer; a ping that could not start at all (missing, not
 // allowed) or was killed by the system means the situation was not read, and an error is returned,
 // so reset-adapter and renew-address are refused with the plain note. It only reads, and it has no
-// build tag so the tests run it with a pretend computer.
+// build tag so the tests run it with a simulated computer.
 func readConditions(ctx context.Context, src collect.Source) (Conditions, error) {
 	ad, err := src.Adapter(ctx)
 	if err != nil {

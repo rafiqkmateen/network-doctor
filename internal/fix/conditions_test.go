@@ -8,7 +8,7 @@ import (
 	"github.com/rafiqkmateen/network-doctor/internal/collect"
 )
 
-// pingSource is a pretend computer for the reachability read: its adapter, and a ping that answers,
+// pingSource is a simulated computer for the reachability read: its adapter, and a ping that answers,
 // gets no reply, or cannot run at all.
 type pingSource struct {
 	collect.Source // only Adapter and Ping are used

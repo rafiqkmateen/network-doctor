@@ -44,8 +44,8 @@ func noBrowserDialogs(goos, url string) [][]string {
 
 // dialogNoBrowser prints the address, then shows it in the first box program that is there and
 // works. It returns true once the person has pressed OK, so the program ends (as on Windows), and
-// false when the address was only printed. It has no build tag, so the tests run it as a pretend
-// Mac and a pretend Linux on any computer.
+// false when the address was only printed. It has no build tag, so the tests run it as a simulated
+// Mac and a simulated Linux on any computer.
 func dialogNoBrowser(goos string, look func(string) (string, error), run func(string, ...string) error, url string, out io.Writer) bool {
 	printNoBrowser(url, out)
 	for _, c := range noBrowserDialogs(goos, url) {

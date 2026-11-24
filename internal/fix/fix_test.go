@@ -8,8 +8,8 @@ import (
 	"testing"
 )
 
-// pretend is a pretend computer. Nothing here touches the real one.
-type pretend struct {
+// simulated is a simulated computer. Nothing here touches the real one.
+type simulated struct {
 	flushes     int
 	proxy       ProxyState
 	proxyWrites int
@@ -20,23 +20,23 @@ type pretend struct {
 	elevations  int
 }
 
-func newPretend() *pretend {
-	return &pretend{proxy: ProxyState{Enabled: true, Server: "10.0.0.9:8080"}, power: "on"}
+func newSimulated() *simulated {
+	return &simulated{proxy: ProxyState{Enabled: true, Server: "10.0.0.9:8080"}, power: "on"}
 }
 
-func (p *pretend) FlushDNS() error              { p.flushes++; return nil }
-func (p *pretend) Proxy() (ProxyState, error)   { return p.proxy, nil }
-func (p *pretend) SetProxy(s ProxyState) error  { p.proxyWrites++; p.proxy = s; return nil }
-func (p *pretend) PowerSaving() (string, error) { return p.power, p.powerErr }
-func (p *pretend) SetPowerSaving(v string) error {
+func (p *simulated) FlushDNS() error              { p.flushes++; return nil }
+func (p *simulated) Proxy() (ProxyState, error)   { return p.proxy, nil }
+func (p *simulated) SetProxy(s ProxyState) error  { p.proxyWrites++; p.proxy = s; return nil }
+func (p *simulated) PowerSaving() (string, error) { return p.power, p.powerErr }
+func (p *simulated) SetPowerSaving(v string) error {
 	p.powerWrites++
 	p.power = v
 	return nil
 }
-func (p *pretend) PowerSavingDropsLink() bool { return p.powerDrops }
-func (p *pretend) Elevate() error             { p.elevations++; return nil }
+func (p *simulated) PowerSavingDropsLink() bool { return p.powerDrops }
+func (p *simulated) Elevate() error             { p.elevations++; return nil }
 
-func newManager(t *testing.T, p *pretend, o Options) (*Manager, string) {
+func newManager(t *testing.T, p *simulated, o Options) (*Manager, string) {
 	t.Helper()
 	dir := t.TempDir()
 	return NewManager(p, dir, o), dir
@@ -44,7 +44,7 @@ func newManager(t *testing.T, p *pretend, o Options) (*Manager, string) {
 
 // ND-90: nothing changes without approval; only the approved fix changes.
 func TestNothingChangesWithoutApproval(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, _ := newManager(t, p, Options{})
 	if _, err := m.Apply("proxy", false); !errors.Is(err, ErrNotApproved) {
 		t.Fatalf("want ErrNotApproved, got %v", err)
@@ -65,7 +65,7 @@ func TestNothingChangesWithoutApproval(t *testing.T) {
 
 // ND-90 (fix 1): the name cache is cleared only on approval.
 func TestFlushNameCache(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, _ := newManager(t, p, Options{})
 	m.Apply("name-cache", false)
 	if p.flushes != 0 {
@@ -78,7 +78,7 @@ func TestFlushNameCache(t *testing.T) {
 
 // ND-91: the before and after values are shown before anything is applied.
 func TestPreviewShowsBeforeAndAfter(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, _ := newManager(t, p, Options{})
 	pl, err := m.Preview("proxy")
 	if err != nil {
@@ -103,7 +103,7 @@ func TestPreviewShowsBeforeAndAfter(t *testing.T) {
 
 // ND-92: apply, then undo with one action; the setting returns to the original value.
 func TestUndoPutsBackTheOldValue(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, _ := newManager(t, p, Options{})
 	if _, err := m.Apply("proxy", true); err != nil {
 		t.Fatal(err)
@@ -133,7 +133,7 @@ func TestUndoPutsBackTheOldValue(t *testing.T) {
 
 // ND-92: the name cache holds nothing of the user's, so undo says there is nothing to put back.
 func TestNameCacheHasNothingToUndo(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, _ := newManager(t, p, Options{})
 	m.Apply("name-cache", true)
 	if err := m.Undo("name-cache"); !errors.Is(err, ErrNothingToUndo) {
@@ -143,7 +143,7 @@ func TestNameCacheHasNothingToUndo(t *testing.T) {
 
 // ND-93: every change and every undo is logged with time, setting, old and new value.
 func TestEveryChangeAndUndoIsLogged(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, dir := newManager(t, p, Options{})
 	m.Apply("proxy", true)
 	m.Undo("proxy")
@@ -174,7 +174,7 @@ func TestEveryChangeAndUndoIsLogged(t *testing.T) {
 
 // ND-93: a refused or unapproved request writes nothing to the log.
 func TestRefusedRequestsAreNotLoggedAsChanges(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, dir := newManager(t, p, Options{})
 	m.Apply("proxy", false)
 	m.Apply("driver", true)
@@ -185,7 +185,7 @@ func TestRefusedRequestsAreNotLoggedAsChanges(t *testing.T) {
 
 // ND-94: administrator rights are asked for only at the approval, once, and never to look.
 func TestAdministratorOnlyAtApproval(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, _ := newManager(t, p, Options{})
 	m.List()
 	m.Preview("power-saving")
@@ -206,7 +206,7 @@ func TestAdministratorOnlyAtApproval(t *testing.T) {
 
 // ND-95: drivers, security protections and changes that cut the link in use are refused with a reason.
 func TestUnsafeFixesAreRefused(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, _ := newManager(t, p, Options{})
 	for _, name := range []string{"driver", "firewall", "security", "dns-servers"} {
 		_, err := m.Apply(name, true)
@@ -229,7 +229,7 @@ func TestUnsafeFixesAreRefused(t *testing.T) {
 
 // ND-96: on an unattended server, apply is off until the owner switches it on for that machine.
 func TestServerModeIsOffByDefault(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, dir := newManager(t, p, Options{Unattended: true})
 	_, err := m.Apply("proxy", true)
 	if !errors.Is(err, ErrServerOff) {
@@ -254,7 +254,7 @@ func TestServerModeIsOffByDefault(t *testing.T) {
 
 // A person at the keyboard needs no switch.
 func TestAttendedComputerNeedsNoSwitch(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, _ := newManager(t, p, Options{})
 	if _, err := m.Apply("name-cache", true); err != nil {
 		t.Errorf("%v", err)
@@ -264,7 +264,7 @@ func TestAttendedComputerNeedsNoSwitch(t *testing.T) {
 // Found on a real machine: a wired adapter has the setting, but its driver will not
 // let Windows read it. The tool must say so and give the steps, not claim there is no setting.
 func TestUnreadablePowerSettingGivesSteps(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	p.powerErr = errors.New("a device attached to the system is not functioning")
 	m, _ := newManager(t, p, Options{})
 	pl, err := m.Preview("power-saving")
@@ -297,7 +297,7 @@ func TestUnreadablePowerSettingGivesSteps(t *testing.T) {
 
 // Text shown to people is plain English (hard rule 4): no leftover codes or jargon in refusals.
 func TestRefusalsUsePlainWords(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, _ := newManager(t, p, Options{})
 	_, err := m.Apply("driver", true)
 	if err == nil || strings.Contains(strings.ToLower(err.Error()), "errno") || strings.Contains(err.Error(), "0x") {
@@ -308,7 +308,7 @@ func TestRefusalsUsePlainWords(t *testing.T) {
 // ND-220: the undo list names a fix only while the setting still is what the fix left,
 // and making the list changes nothing, not even the saved values file.
 func TestUndosListOnlyWhatTheFixLeft(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, dir := newManager(t, p, Options{})
 	if got := m.Undos(); len(got) != 0 {
 		t.Fatalf("no fix made, nothing to put back: %+v", got)
@@ -354,7 +354,7 @@ func TestUndosListOnlyWhatTheFixLeft(t *testing.T) {
 
 // ND-221: undo refuses a setting changed since the fix, and then changes, asks and logs nothing.
 func TestUndoRefusesAStaleValue(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, dir := newManager(t, p, Options{})
 	if _, err := m.Apply("proxy", true); err != nil {
 		t.Fatal(err)
@@ -381,7 +381,7 @@ func TestUndoRefusesAStaleValue(t *testing.T) {
 // ND-224: the proxy fix is refused when the proxy is already off, so a second apply never
 // replaces the only saved old value; the refusal saves, changes and logs nothing.
 func TestProxyFixIsRefusedWhenAlreadyOff(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, dir := newManager(t, p, Options{})
 	if _, err := m.Apply("proxy", true); err != nil {
 		t.Fatal(err)
@@ -409,7 +409,7 @@ func TestProxyFixIsRefusedWhenAlreadyOff(t *testing.T) {
 		t.Errorf("the first saved value still puts back: %v %+v", err, p.proxy)
 	}
 
-	q := newPretend()
+	q := newSimulated()
 	q.proxy = ProxyState{Enabled: false, Server: "old:3128"}
 	m2, dir2 := newManager(t, q, Options{})
 	if _, err := m2.Apply("proxy", true); !errors.As(err, &r) {
@@ -425,14 +425,14 @@ func TestProxyFixIsRefusedWhenAlreadyOff(t *testing.T) {
 
 // ND-225: a saved power saving value is never listed as an undo; power saving is never offered.
 func TestUndosNeverListPowerSaving(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, dir := newManager(t, p, Options{})
 	if _, err := m.Apply("power-saving", true); err != nil {
 		t.Fatal(err)
 	}
 	b, _ := os.ReadFile(filepath.Join(dir, "fix-saved.json"))
 	if !strings.Contains(string(b), `"power-saving": "on"`) || p.power != "off" {
-		t.Fatalf("the pretend computer must hold a saved power value and power off now: %s %s", b, p.power)
+		t.Fatalf("the simulated computer must hold a saved power value and power off now: %s %s", b, p.power)
 	}
 	if got := m.Undos(); len(got) != 0 {
 		t.Errorf("power saving is never listed: %+v", got)
@@ -447,7 +447,7 @@ func TestUndosNeverListPowerSaving(t *testing.T) {
 
 // ND-221: undo's refusal says what the setting is now and what the fix left, the server too.
 func TestUndoRefusalSaysNowAndWhatTheFixLeft(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, _ := newManager(t, p, Options{})
 	if _, err := m.Apply("proxy", true); err != nil {
 		t.Fatal(err)

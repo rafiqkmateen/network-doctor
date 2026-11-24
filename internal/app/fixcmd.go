@@ -12,7 +12,7 @@ import (
 	"github.com/rafiqkmateen/network-doctor/internal/install"
 )
 
-// newFixSystem makes the real computer for fixes. Tests swap it for a pretend one.
+// newFixSystem makes the real computer for fixes. Tests swap it for a simulated one.
 var newFixSystem = func() fix.System { return fix.Real() }
 
 const fixUse = `Use: fix list | apply NAME [--yes] | undo NAME | undo-all [--dir FOLDER] [--kept] [--note FILE] | enable-here   (add --json for one line a program can read)

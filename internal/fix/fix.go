@@ -31,7 +31,7 @@ func leftBy(s ProxyState) ProxyState {
 	return l
 }
 
-// System is the computer the fixes act on. Tests use a pretend one.
+// System is the computer the fixes act on. Tests use a simulated one.
 type System interface {
 	FlushDNS() error
 	Proxy() (ProxyState, error)

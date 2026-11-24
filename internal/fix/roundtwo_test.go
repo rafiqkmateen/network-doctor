@@ -1,7 +1,7 @@
 package fix
 
 // Checks for the round-two fixes (ND-235 to ND-238) and the read-back rule (ND-243), written
-// before the build. Everything runs on a pretend computer.
+// before the build. Everything runs on a simulated computer.
 
 import (
 	"errors"
@@ -12,9 +12,9 @@ import (
 	"testing"
 )
 
-// ndExtra is a pretend Windows computer that has the round-two abilities.
+// ndExtra is a simulated Windows computer that has the round-two abilities.
 type ndExtra struct {
-	*pretend
+	*simulated
 	dns      []DNSState
 	setCalls int
 	setErr   error // Windows refused the change
@@ -60,7 +60,7 @@ func (p *ndExtra) Elevate() error {
 	if p.elevErr != nil {
 		return p.elevErr
 	}
-	p.pretend.elevations++
+	p.simulated.elevations++
 	return nil
 }
 
@@ -71,7 +71,7 @@ func ndOriginalDNS() []DNSState {
 	}
 }
 
-func newNDExtra() *ndExtra { return &ndExtra{pretend: newPretend(), dns: ndOriginalDNS()} }
+func newNDExtra() *ndExtra { return &ndExtra{simulated: newSimulated(), dns: ndOriginalDNS()} }
 
 func ndByIndex(in []DNSState) map[int]DNSState {
 	m := map[int]DNSState{}
@@ -149,14 +149,14 @@ func TestND235ApplyAndUndoRestoreExactly(t *testing.T) {
 	if !ndListed(m, ndPublicDNS) {
 		t.Error("the undo must be listed, as for the proxy fix")
 	}
-	before := p.pretend.elevations
+	before := p.simulated.elevations
 	if err := m.Undo(ndPublicDNS); err != nil {
 		t.Fatalf("undo: %v", err)
 	}
 	if !reflect.DeepEqual(ndByIndex(p.dns), ndByIndex(ndOriginalDNS())) {
 		t.Errorf("undo must put back exactly the saved servers:\n got %+v\nwant %+v", p.dns, ndOriginalDNS())
 	}
-	if p.pretend.elevations <= before {
+	if p.simulated.elevations <= before {
 		t.Error("undo also needs administrator permission")
 	}
 	if ndListed(m, ndPublicDNS) {
@@ -242,17 +242,17 @@ func TestND243PublicDNSReadBack(t *testing.T) {
 
 // ND-243: the existing power saving fix also reads back: a yes from Windows with the value
 // unchanged is a failure, for apply and for undo.
-type ndStuckPower struct{ *pretend }
+type ndStuckPower struct{ *simulated }
 
 func (ndStuckPower) SetPowerSaving(string) error { return nil }
 
 func TestND243PowerSavingReadBack(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m := NewManager(ndStuckPower{p}, t.TempDir(), Options{})
 	if _, err := m.Apply("power-saving", true); err == nil {
 		t.Error("power saving still on after the change: apply must report failure")
 	}
-	p = newPretend()
+	p = newSimulated()
 	dir := t.TempDir()
 	if _, err := NewManager(p, dir, Options{}).Apply("power-saving", true); err != nil {
 		t.Fatal(err)
@@ -315,7 +315,7 @@ func TestND236And237NoUndoAndFailures(t *testing.T) {
 // ND-238: a system without the round-two abilities (Mac and Linux) refuses all three and changes nothing.
 func TestND238RefusedWithoutExtraSystem(t *testing.T) {
 	for _, name := range []string{ndPublicDNS, ndRenewAddress, ndResetAdapter} {
-		p := newPretend()
+		p := newSimulated()
 		m := NewManager(p, t.TempDir(), Options{})
 		_, err := m.Apply(name, true)
 		var ref *RefusedError

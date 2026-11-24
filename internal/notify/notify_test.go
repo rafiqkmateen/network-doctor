@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-// ND-287: a screen alert on a pretend Mac and a pretend Linux. The title and the message are each
+// ND-287: a screen alert on a simulated Mac and a simulated Linux. The title and the message are each
 // their own argument and never part of any script text, so a message cannot run as a command.
 func TestScreenAlertMacAndLinux(t *testing.T) {
 	msg := `A device "x" is on: do shell script "rm -rf ~" \ end run' $(reboot) ` + "`id`"

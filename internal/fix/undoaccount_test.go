@@ -26,7 +26,7 @@ func TestUndoAllSettlesOnlyForTheSameAccount(t *testing.T) {
 		{"old note with no account", "PC\\ann (S-1-5-21-1)", "PC\\ann (S-1-5-21-1)", true, false},
 		{"account unknown at removal", "PC\\ann (S-1-5-21-1)", "", false, false},
 	} {
-		p := newPretend()
+		p := newSimulated()
 		m, dir := newManager(t, p, Options{})
 		m.account = func() string { return tc.applyAs }
 		if _, err := m.Apply(proxy, true); err != nil {
@@ -59,7 +59,7 @@ func TestUndoAllSettlesOnlyForTheSameAccount(t *testing.T) {
 // ND-316: the account is written beside the note when a fix is applied, and goes with the note
 // when the fix is put back; a note's account is never taken for a fix of its own.
 func TestNotesRecordTheAccount(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, dir := newManager(t, p, Options{})
 	m.account = func() string { return "PC\\ann (S-1-5-21-1)" }
 	m.Apply(proxy, true)

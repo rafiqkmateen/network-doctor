@@ -12,7 +12,7 @@ import (
 
 // UnixSystem is a Mac or Linux computer for the fixes (ND-303 to ND-307). Every program it runs
 // goes through Run and every program it needs is looked up with Look, so the tests drive it with
-// pretend commands only. It has no build tag, so those tests run on any computer. Real() fills it
+// simulated commands only. It has no build tag, so those tests run on any computer. Real() fills it
 // in on a Mac or Linux computer.
 //
 // Mac: networksetup for the web proxy, the name servers and switching the network service off and

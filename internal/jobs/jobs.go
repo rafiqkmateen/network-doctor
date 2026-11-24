@@ -1,7 +1,7 @@
 // Package jobs makes and removes the weekly check and the alerts helper on Mac and Linux
 // (requirements ND-282 to ND-286, ND-292). Every function takes the system name, the person's
 // home folder and a command runner, so the file texts and the commands can be tested on any system
-// with a pretend runner and a scratch home folder. Nothing here needs administrator rights.
+// with a simulated runner and a scratch home folder. Nothing here needs administrator rights.
 //
 // Mac: two LaunchAgents in ~/Library/LaunchAgents, loaded into the person's own session with
 // `launchctl bootstrap gui/<uid>` and taken out with `launchctl bootout`. Linux: a user service and
@@ -25,7 +25,7 @@ import (
 	"time"
 )
 
-// Runner runs one command and returns its output. Tests pass a pretend one.
+// Runner runs one command and returns its output. Tests pass a simulated one.
 type Runner func(name string, args ...string) (string, error)
 
 // ExecRunner is the real Runner.
@@ -249,7 +249,7 @@ func exitCode(err error) int {
 		return ee.ExitCode()
 	}
 	if err != nil {
-		return 1 // a pretend runner's failure, or a missing program: treated as "nothing matched"
+		return 1 // a simulated runner's failure, or a missing program: treated as "nothing matched"
 	}
 	return 0
 }

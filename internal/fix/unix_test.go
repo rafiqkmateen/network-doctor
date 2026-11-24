@@ -12,7 +12,7 @@ import (
 	"github.com/rafiqkmateen/network-doctor/internal/core"
 )
 
-// pc is a pretend Mac or Linux computer. Every command the fixes run lands here; none reaches
+// pc is a simulated Mac or Linux computer. Every command the fixes run lands here; none reaches
 // the real system (ND-307). It keeps the settings the commands change, so a fix can be applied,
 // read back and undone.
 type pc struct {
@@ -248,7 +248,7 @@ func logLines(t *testing.T, dir string) int {
 	return strings.Count(string(b), "\n")
 }
 
-// ND-303: the proxy fix on a pretend Mac (networksetup) and a pretend Linux (gsettings): no change
+// ND-303: the proxy fix on a simulated Mac (networksetup) and a simulated Linux (gsettings): no change
 // without a yes, before and after shown, a second apply refused, undo puts back the saved value, a
 // hand change since makes undo refuse, and every change is logged.
 func TestProxyFixMacAndLinux(t *testing.T) {
@@ -322,7 +322,7 @@ func TestProxyFixMacAndLinux(t *testing.T) {
 	}
 }
 
-// ND-304: public-dns on a pretend Mac and Linux, as ND-235 and ND-244: only the adapter in use is
+// ND-304: public-dns on a simulated Mac and Linux, as ND-235 and ND-244: only the adapter in use is
 // saved and set, read back, names cleared, exact undo ("Empty" on a Mac means automatic), a stale
 // undo refused, and a second apply refused.
 func TestPublicDNSMacAndLinux(t *testing.T) {
@@ -388,7 +388,7 @@ func TestPublicDNSMacAndLinux(t *testing.T) {
 	}
 }
 
-// ND-305: renew-address on a pretend Mac (ipconfig set DHCP) and Linux (nmcli device reapply):
+// ND-305: renew-address on a simulated Mac (ipconfig set DHCP) and Linux (nmcli device reapply):
 // refused when a usable address is there (ND-244), the address read back, a failure reported.
 func TestRenewAddressMacAndLinux(t *testing.T) {
 	for _, p := range []*pc{newMac(), newLinux()} {
@@ -421,7 +421,7 @@ func TestRenewAddressMacAndLinux(t *testing.T) {
 	}
 }
 
-// ND-306: reset-adapter on a pretend Mac (service off then on, in one step) and Linux (nmcli
+// ND-306: reset-adapter on a simulated Mac (service off then on, in one step) and Linux (nmcli
 // disconnect then connect): refused while the line works, checked to come back, a failure reported.
 func TestResetAdapterMacAndLinux(t *testing.T) {
 	for _, p := range []*pc{newMac(), newLinux()} {
@@ -497,7 +497,7 @@ func TestResetAdapterMacAndLinux(t *testing.T) {
 	}
 }
 
-// ND-307: on a pretend Mac and Linux with each program missing in turn, the fix that needs it is
+// ND-307: on a simulated Mac and Linux with each program missing in turn, the fix that needs it is
 // refused in plain words, changes nothing and is not offered; power saving is refused everywhere.
 func TestFixesRefusedWhenTheToolIsMissing(t *testing.T) {
 	need := map[string]map[string][]string{
@@ -553,7 +553,7 @@ func TestFixesRefusedWhenTheToolIsMissing(t *testing.T) {
 
 // ND-307: no fix test reaches a real command. The test files of this package may not start a
 // program, ask for the real computer, or use a real command runner.
-func TestFixTestsRunOnlyPretendCommands(t *testing.T) {
+func TestFixTestsRunOnlySimulatedCommands(t *testing.T) {
 	files, _ := filepath.Glob("*_test.go")
 	bad := regexp.MustCompile(`exec\.Command|exec\.LookPath|\bReal\(\)|ExecRunner|execRun\b|os/exec"`)
 	for _, f := range files {

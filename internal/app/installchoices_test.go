@@ -23,7 +23,7 @@ func TestInstallWritesTheChoicesFile(t *testing.T) {
 			home := filepath.Join(root, "home")
 			exe := filepath.Join(root, "setup", "netdoctor")
 			os.MkdirAll(filepath.Dir(exe), 0o755)
-			os.WriteFile(exe, []byte("pretend"), 0o755)
+			os.WriteFile(exe, []byte("simulated"), 0o755)
 			e := install.Env{GOOS: goos, GOARCH: "amd64", Home: home, Exe: exe, ResultsDir: filepath.Join(home, "r"),
 				Getenv:     func(string) string { return "" },
 				Run:        func(string, ...string) (string, error) { return "", os.ErrNotExist },

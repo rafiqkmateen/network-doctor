@@ -12,9 +12,9 @@ import (
 	"github.com/rafiqkmateen/network-doctor/internal/core"
 )
 
-// pretend is a stand-in for the system's own tools. It records every call and answers like a
+// simulated is a stand-in for the system's own tools. It records every call and answers like a
 // Mac or a Linux computer would, so no real job is ever made by a test.
-type pretend struct {
+type simulated struct {
 	calls     [][]string
 	systemd   bool   // user systemd answers
 	crontab   string // the person's crontab now ("" means none)
@@ -26,7 +26,7 @@ type pretend struct {
 	pgrep     bool // a helper started directly runs
 }
 
-func newPretend() *pretend { return &pretend{loaded: map[string]bool{}} }
+func newSimulated() *simulated { return &simulated{loaded: map[string]bool{}} }
 
 // noWait makes the short waits between tries instant for one test, and counts them.
 func noWait(t *testing.T) *int {
@@ -37,7 +37,7 @@ func noWait(t *testing.T) *int {
 	return &n
 }
 
-func (p *pretend) run(name string, args ...string) (string, error) {
+func (p *simulated) run(name string, args ...string) (string, error) {
 	p.calls = append(p.calls, append([]string{name}, args...))
 	fail := errors.New("exit status 1")
 	switch name {
@@ -111,7 +111,7 @@ func (p *pretend) run(name string, args ...string) (string, error) {
 	return "unexpected " + name, fail
 }
 
-func (p *pretend) asked(words ...string) bool {
+func (p *simulated) asked(words ...string) bool {
 	want := strings.Join(words, " ")
 	for _, c := range p.calls {
 		if strings.Contains(strings.Join(c, " "), want) {
@@ -141,7 +141,7 @@ const exe = "/Users/tester/Applications/Network Doctor.app/Contents/MacOS/netdoc
 
 // ND-282: the Mac weekly LaunchAgent, Monday 0900, loaded at once; gone when not chosen.
 func TestMacWeeklyAgent(t *testing.T) {
-	home, p := t.TempDir(), newPretend()
+	home, p := t.TempDir(), newSimulated()
 	if err := Apply("darwin", home, Plan{Exe: exe, Weekly: true, Weekday: 1, Hour: 9}, p.run); err != nil {
 		t.Fatal(err)
 	}
@@ -181,7 +181,7 @@ func TestMacWeeklyAgent(t *testing.T) {
 
 // ND-285: the Mac alerts LaunchAgent starts at log-in and is started again if it stops.
 func TestMacAlertsAgent(t *testing.T) {
-	home, p := t.TempDir(), newPretend()
+	home, p := t.TempDir(), newSimulated()
 	if err := Apply("darwin", home, Plan{Exe: exe, Alerts: true}, p.run); err != nil {
 		t.Fatal(err)
 	}
@@ -211,7 +211,7 @@ func TestMacAlertsAgent(t *testing.T) {
 
 // ND-283: with user systemd, a service and a timer, Monday 0900, catching up after a missed run.
 func TestLinuxWeeklyTimer(t *testing.T) {
-	home, p := t.TempDir(), newPretend()
+	home, p := t.TempDir(), newSimulated()
 	p.systemd = true
 	p.crontab = "MAILTO=me\n30 2 * * * /usr/bin/backup # network-doctor-weekly-like but not ours\n0 9 * * 1 '/old/netdoctor' weekly # network-doctor-weekly"
 	if err := Apply("linux", home, Plan{Exe: "/home/tester/.local/share/NetworkDoctor/netdoctor", Weekly: true, Weekday: 1, Hour: 9}, p.run); err != nil {
@@ -253,7 +253,7 @@ func TestLinuxWeeklyTimer(t *testing.T) {
 
 // ND-283: without user systemd, one marked crontab line; every other line kept as it was.
 func TestLinuxWeeklyCronFallback(t *testing.T) {
-	home, p := t.TempDir(), newPretend()
+	home, p := t.TempDir(), newSimulated()
 	p.crontab = "# my own note\n15 * * * * /usr/bin/thing --flag"
 	if err := Apply("linux", home, Plan{Exe: "/opt/net doctor/netdoctor", Weekly: true, Weekday: 1, Hour: 9}, p.run); err != nil {
 		t.Fatal(err)
@@ -285,7 +285,7 @@ func TestLinuxWeeklyCronFallback(t *testing.T) {
 		t.Errorf("only the marked line may go:\n%s", p.crontab)
 	}
 	// A person with no crontab at all gets one line, and nothing is written when there is nothing to take out.
-	home2, p2 := t.TempDir(), newPretend()
+	home2, p2 := t.TempDir(), newSimulated()
 	if err := Apply("linux", home2, Plan{}, p2.run); err != nil {
 		t.Fatal(err)
 	}
@@ -310,7 +310,7 @@ func TestLinuxAlertsAutostart(t *testing.T) {
 		return filepath.Join(h, ".config", "systemd", "user", "network-doctor-alerts.service")
 	}
 
-	home, p := t.TempDir(), newPretend()
+	home, p := t.TempDir(), newSimulated()
 	p.systemd = true
 	if err := Apply("linux", home, Plan{Exe: lx, Alerts: true}, p.run); err != nil {
 		t.Fatal(err)
@@ -341,7 +341,7 @@ func TestLinuxAlertsAutostart(t *testing.T) {
 		t.Error("the helper must be stopped when alerts are not chosen")
 	}
 
-	home2, p2 := t.TempDir(), newPretend()
+	home2, p2 := t.TempDir(), newSimulated()
 	if err := Apply("linux", home2, Plan{Exe: lx, Alerts: true}, p2.run); err != nil {
 		t.Fatal(err)
 	}
@@ -376,12 +376,12 @@ func TestExePathsAreEscaped(t *testing.T) {
 	}
 	// A line break would end the entry and start a new one: refused everywhere.
 	for _, goos := range []string{"darwin", "linux"} {
-		if err := Apply(goos, t.TempDir(), Plan{Exe: "/a\n/b", Weekly: true}, newPretend().run); err == nil {
+		if err := Apply(goos, t.TempDir(), Plan{Exe: "/a\n/b", Weekly: true}, newSimulated().run); err == nil {
 			t.Errorf("%s: a path with a line break must be refused", goos)
 		}
 	}
 	// The odd path goes into every file whole.
-	home, p := t.TempDir(), newPretend()
+	home, p := t.TempDir(), newSimulated()
 	p.systemd = true
 	if err := Apply("linux", home, Plan{Exe: odd, Weekly: true, Alerts: true}, p.run); err != nil {
 		t.Fatal(err)
@@ -389,7 +389,7 @@ func TestExePathsAreEscaped(t *testing.T) {
 	if s := read(t, filepath.Join(home, ".config", "systemd", "user", "network-doctor-weekly.service")); !strings.Contains(s, systemdQuote(odd)) {
 		t.Errorf("service:\n%s", s)
 	}
-	p2 := newPretend()
+	p2 := newSimulated()
 	if err := Apply("linux", t.TempDir(), Plan{Exe: odd, Weekly: true}, p2.run); err != nil {
 		t.Fatal(err)
 	}
@@ -400,7 +400,7 @@ func TestExePathsAreEscaped(t *testing.T) {
 
 // Without Custom the time is the default, Monday 0900; with Custom the day and hour are used as given.
 func TestWeeklyTimeDefaultsAndChoices(t *testing.T) {
-	home, p := t.TempDir(), newPretend()
+	home, p := t.TempDir(), newSimulated()
 	if err := Apply("linux", home, Plan{Exe: "/x", Weekly: true}, p.run); err != nil {
 		t.Fatal(err)
 	}
@@ -431,7 +431,7 @@ func TestWeeklyTimeDefaultsAndChoices(t *testing.T) {
 
 // Remove takes both jobs away and stops the helper; StopHelper touches only this program's helper.
 func TestRemoveAndStopHelper(t *testing.T) {
-	home, p := t.TempDir(), newPretend()
+	home, p := t.TempDir(), newSimulated()
 	if err := Apply("darwin", home, Plan{Exe: exe, Weekly: true, Alerts: true}, p.run); err != nil {
 		t.Fatal(err)
 	}
@@ -446,7 +446,7 @@ func TestRemoveAndStopHelper(t *testing.T) {
 		t.Errorf("nothing may stay loaded: %v", p.loaded)
 	}
 
-	lp := newPretend()
+	lp := newSimulated()
 	lp.systemd = true
 	if err := StopHelper("linux", lp.run); err != nil {
 		t.Fatalf("nothing running is not a failure: %v", err)
@@ -474,7 +474,7 @@ func TestRemoveAndStopHelper(t *testing.T) {
 // Custom: an old caller that never sets it gets Monday 0900 whatever the day and hour; with it,
 // Sunday midnight can be chosen.
 func TestCustomWeeklyTime(t *testing.T) {
-	home, p := t.TempDir(), newPretend()
+	home, p := t.TempDir(), newSimulated()
 	p.systemd = true
 	timer := filepath.Join(home, ".config", "systemd", "user", "network-doctor-weekly.timer")
 	if err := Apply("linux", home, Plan{Exe: "/x", Weekly: true, Weekday: 5, Hour: 18}, p.run); err != nil {
@@ -495,7 +495,7 @@ func TestCustomWeeklyTime(t *testing.T) {
 // about five times over five seconds, before it fails.
 func TestMacBootstrapWaitsAndRetries(t *testing.T) {
 	waits := noWait(t)
-	home, p := t.TempDir(), newPretend()
+	home, p := t.TempDir(), newSimulated()
 	if err := Apply("darwin", home, Plan{Exe: exe, Weekly: true}, p.run); err != nil {
 		t.Fatal(err)
 	}
@@ -526,7 +526,7 @@ func TestMacBootstrapWaitsAndRetries(t *testing.T) {
 // HelperRunning and StartHelper: a repair can find a running helper and start it again.
 func TestHelperRunningAndStartHelper(t *testing.T) {
 	noWait(t)
-	home, p := t.TempDir(), newPretend()
+	home, p := t.TempDir(), newSimulated()
 	if HelperRunning("darwin", p.run) {
 		t.Error("nothing runs yet")
 	}
@@ -541,7 +541,7 @@ func TestHelperRunningAndStartHelper(t *testing.T) {
 	}
 
 	// Linux with user systemd: the service is started.
-	lh, lp := t.TempDir(), newPretend()
+	lh, lp := t.TempDir(), newSimulated()
 	lp.systemd = true
 	if err := Apply("linux", lh, Plan{Exe: "/x/NetworkDoctor/netdoctor", Alerts: true}, lp.run); err != nil {
 		t.Fatal(err)
@@ -555,7 +555,7 @@ func TestHelperRunningAndStartHelper(t *testing.T) {
 
 	// Linux without user systemd: the entry's own program is started on its own, the odd path whole.
 	odd := `/home/t e/a"b'c$d%e` + "`f" + `\g/NetworkDoctor/netdoctor`
-	nh, np := t.TempDir(), newPretend()
+	nh, np := t.TempDir(), newSimulated()
 	if err := Apply("linux", nh, Plan{Exe: odd, Alerts: true}, np.run); err != nil {
 		t.Fatal(err)
 	}
@@ -569,7 +569,7 @@ func TestHelperRunningAndStartHelper(t *testing.T) {
 	if !HelperRunning("linux", np.run) {
 		t.Error("linux: the started helper must be found")
 	}
-	if err := StartHelper("linux", t.TempDir(), newPretend().run); err == nil {
+	if err := StartHelper("linux", t.TempDir(), newSimulated().run); err == nil {
 		t.Error("linux: no entry means nothing to start")
 	}
 	if HelperRunning("windows", np.run) || StartHelper("windows", nh, np.run) != ErrUnsupported {
@@ -580,7 +580,7 @@ func TestHelperRunningAndStartHelper(t *testing.T) {
 // The Mac jobs write what they print into the results folder's logs area, and a removal leaves
 // that folder alone (the results, and their logs, go only when the person deletes results).
 func TestMacJobsWriteRunLogs(t *testing.T) {
-	home, p := t.TempDir(), newPretend()
+	home, p := t.TempDir(), newSimulated()
 	if err := Apply("darwin", home, Plan{Exe: exe, Weekly: true, Alerts: true}, p.run); err != nil {
 		t.Fatal(err)
 	}

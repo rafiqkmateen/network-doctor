@@ -5,7 +5,7 @@
 // file and is refused here.
 //
 // Every outside program runs through Env.Run and every job through Env.Apply and Env.Remove, so
-// tests use a pretend computer in a scratch folder and run nothing real.
+// tests use a simulated computer in a scratch folder and run nothing real.
 //
 // Owner: Rafiq. Version 0.3.0 (0.3.0, 2026-11-23: uninstall first puts back every fix still
 // applied, and keeps only the undo notes when one cannot be put back; 0.2.0, 2026-11-23: uninstall
@@ -64,7 +64,7 @@ type Env struct {
 func (e *Env) fill() {
 	if e.RunContext == nil {
 		if e.Run != nil {
-			run := e.Run // a pretend runner stays pretend
+			run := e.Run // a simulated runner stays simulated
 			e.RunContext = func(_ context.Context, name string, args ...string) (string, error) { return run(name, args...) }
 		} else {
 			e.RunContext = execRunContext

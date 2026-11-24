@@ -26,7 +26,7 @@ type jsonOut struct {
 	Error      string `json:"error"`
 }
 
-func fixJSON(t *testing.T, p *cliPretend, dir string, args ...string) (jsonOut, int) {
+func fixJSON(t *testing.T, p *cliSimulated, dir string, args ...string) (jsonOut, int) {
 	t.Helper()
 	out, code := runFix(t, p, dir, args...)
 	var j jsonOut
@@ -38,7 +38,7 @@ func fixJSON(t *testing.T, p *cliPretend, dir string, args ...string) (jsonOut, 
 
 // ND-214: with --json each fix command prints one JSON line and keeps its exit codes.
 func TestFixJSON(t *testing.T) {
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
 	dir := t.TempDir()
 	j, code := fixJSON(t, p, dir, "apply", "proxy", "--json")
 	if code != 0 || !j.OK || j.Applied || p.writes != 0 || !strings.Contains(j.Before, "10.0.0.9:8080") || j.After != "off" || j.Title == "" {
@@ -68,7 +68,7 @@ func TestFixJSON(t *testing.T) {
 
 // ND-212, ND-213: the check names the fixes that fit and gives an offer for each, and changes nothing.
 func TestCheckNamesFixesAndOffers(t *testing.T) {
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
 	f := healthy()
 	f.settings = core.Settings{DNS: []string{"192.168.1.1"}, ProxyOn: true}
 	old := newFixSystem
@@ -214,7 +214,7 @@ func TestSetupAlertsQuestion(t *testing.T) {
 }
 
 // refusingPower is a computer whose real system would refuse the power saving fix.
-type refusingPower struct{ *cliPretend }
+type refusingPower struct{ *cliSimulated }
 
 func (refusingPower) PowerSavingDropsLink() bool { return true }
 
@@ -222,7 +222,7 @@ func (refusingPower) PowerSavingDropsLink() bool { return true }
 func TestAFixTheProgramWouldRefuseIsNotOffered(t *testing.T) {
 	old := newFixSystem
 	defer func() { newFixSystem = old }()
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
 	newFixSystem = func() fix.System { return refusingPower{p} }
 	got := fixOffers([]string{"power-saving", "proxy"}, t.TempDir())
 	if len(got) != 1 || got[0].Name != "proxy" {
@@ -316,7 +316,7 @@ func TestAlertsFileSwitchStartsFromWhereAlertsGo(t *testing.T) {
 func TestCheckItselfLeavesOutAFixTheProgramWouldRefuse(t *testing.T) {
 	old := newFixSystem
 	defer func() { newFixSystem = old }()
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
 	newFixSystem = func() fix.System { return refusingPower{p} }
 	f := healthy()
 	f.settings = core.Settings{DNS: []string{"192.168.1.1"}, ProxyOn: true, PowerKnown: true, PowerSaving: true}
@@ -356,7 +356,7 @@ func checkJSON(t *testing.T, f *fake, dir string) undoOut {
 // ND-220, ND-223: the check lists the undo from its own results folder, and fix undo in the
 // same folder puts it back; after that, the next check lists none.
 func TestCheckListsUndosFromTheFolderFixUndoUses(t *testing.T) {
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
 	dir := t.TempDir()
 	if _, code := runFix(t, p, dir, "apply", "proxy", "--yes"); code != 0 {
 		t.Fatal("apply")
@@ -381,7 +381,7 @@ func TestCheckListsUndosFromTheFolderFixUndoUses(t *testing.T) {
 
 // ND-222: a fix offered to do is never also offered to undo.
 func TestAFixIsNeverOfferedToDoAndToUndo(t *testing.T) {
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
 	dir := t.TempDir()
 	runFix(t, p, dir, "apply", "proxy", "--yes")
 	old := newFixSystem
@@ -400,7 +400,7 @@ func TestAFixIsNeverOfferedToDoAndToUndo(t *testing.T) {
 }
 
 // powerOff is a computer whose adapter power saving reads off, which is what the fix leaves.
-type powerOff struct{ *cliPretend }
+type powerOff struct{ *cliSimulated }
 
 func (powerOff) PowerSaving() (string, error) { return "off", nil }
 
@@ -409,7 +409,7 @@ func (powerOff) PowerSaving() (string, error) { return "off", nil }
 func TestNoFolderNoUndosAndNeverPowerSaving(t *testing.T) {
 	old := newFixSystem
 	defer func() { newFixSystem = old }()
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: false, Server: "10.0.0.9:8080"}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: false, Server: "10.0.0.9:8080"}}
 	newFixSystem = func() fix.System { return powerOff{p} }
 	f := healthy()
 	f.settings = core.Settings{PowerKnown: true, PowerSaving: false}
@@ -435,7 +435,7 @@ func TestNoFolderNoUndosAndNeverPowerSaving(t *testing.T) {
 
 // ND-224: a second proxy apply by command is refused in plain words with a non-zero code.
 func TestProxyApplyRefusedWhenAlreadyOffByCommand(t *testing.T) {
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
 	dir := t.TempDir()
 	if _, code := runFix(t, p, dir, "apply", "proxy", "--yes"); code != 0 {
 		t.Fatal("first apply")
@@ -452,7 +452,7 @@ func TestProxyApplyRefusedWhenAlreadyOffByCommand(t *testing.T) {
 
 // ND-221: fix undo by command refuses a stale value with a plain reason and a non-zero code.
 func TestFixUndoCommandRefusesAStaleValue(t *testing.T) {
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
 	dir := t.TempDir()
 	runFix(t, p, dir, "apply", "proxy", "--yes")
 	p.proxy = fix.ProxyState{Enabled: true, Server: "new:8080"}

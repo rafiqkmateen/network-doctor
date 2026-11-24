@@ -45,7 +45,7 @@ func TestRepairRestartsRunningHelper(t *testing.T) {
 	}
 }
 
-// fakeOpen is a pretend open page server that answers the retire request.
+// fakeOpen is a simulated open page server that answers the retire request.
 func fakeOpen(t *testing.T, state, token string, quits bool) (*httptest.Server, *[]http.Header) {
 	t.Helper()
 	var mu sync.Mutex

@@ -14,18 +14,18 @@ import (
 func TestUndoAllUsesUndo(t *testing.T) {
 	// Nothing recorded: no notes file, or an empty one. Nothing is read or changed.
 	for _, notes := range []string{"", "{}"} {
-		p := newPretend()
+		p := newSimulated()
 		m, dir := newManager(t, p, Options{})
 		if notes != "" {
 			os.WriteFile(filepath.Join(dir, "fix-saved.json"), []byte(notes), 0o644)
 		}
 		if f, s := m.UndoAll(nil); len(f) != 0 || len(s) != 0 || p.proxyWrites != 0 || p.powerWrites != 0 || p.elevations != 0 {
-			t.Errorf("notes %q: failures %v, settled %v, pretend %+v", notes, f, s, p)
+			t.Errorf("notes %q: failures %v, settled %v, simulated %+v", notes, f, s, p)
 		}
 	}
 
 	// Two fixes applied, both put back.
-	p := newPretend()
+	p := newSimulated()
 	m, _ := newManager(t, p, Options{})
 	if _, err := m.Apply(proxy, true); err != nil {
 		t.Fatal(err)
@@ -41,7 +41,7 @@ func TestUndoAllUsesUndo(t *testing.T) {
 	}
 
 	// A fix the caller skips is not tried.
-	p = newPretend()
+	p = newSimulated()
 	m, _ = newManager(t, p, Options{})
 	m.Apply(proxy, true)
 	writes := p.proxyWrites
@@ -51,7 +51,7 @@ func TestUndoAllUsesUndo(t *testing.T) {
 	}
 
 	// A change the computer refuses.
-	p = newPretend()
+	p = newSimulated()
 	m = NewManager(&failingProxy{p}, t.TempDir(), Options{})
 	m.Apply(proxy, true)
 	f, _ = m.UndoAll(nil)
@@ -60,7 +60,7 @@ func TestUndoAllUsesUndo(t *testing.T) {
 	}
 
 	// Notes that cannot be read count as not put back, and are never treated as empty.
-	p = newPretend()
+	p = newSimulated()
 	m, dir := newManager(t, p, Options{})
 	os.WriteFile(filepath.Join(dir, "fix-saved.json"), []byte("not notes"), 0o644)
 	f, _ = m.UndoAll(nil)
@@ -76,7 +76,7 @@ func TestUndoAllUsesUndo(t *testing.T) {
 // set it, its note dropped, and not a failure. Mixed with a real failure only that one's note stays.
 // Undo itself still refuses such a fix.
 func TestUndoAllSettlesAChangedSetting(t *testing.T) {
-	p := newPretend()
+	p := newSimulated()
 	m, _ := newManager(t, p, Options{})
 	m.Apply(proxy, true)
 	p.proxy = ProxyState{Enabled: true, Server: "changed.example:1"}
@@ -97,7 +97,7 @@ func TestUndoAllSettlesAChangedSetting(t *testing.T) {
 	}
 
 	// Mixed: a changed proxy and power saving that will not go back.
-	p = newPretend()
+	p = newSimulated()
 	m = NewManager(&stuckPower{p}, t.TempDir(), Options{})
 	m.Apply(proxy, true)
 	m.Apply(power, true)
@@ -168,8 +168,8 @@ func TestUndoAllPublicDNSSettledOnlyWhenTheAdapterIsThere(t *testing.T) {
 
 // ND-316: a proxy that cannot be read stays a real failure, never settled.
 func TestUndoAllProxyReadErrorIsAFailure(t *testing.T) {
-	p := newPretend()
-	sys := &proxyUnreadable{pretend: p}
+	p := newSimulated()
+	sys := &proxyUnreadable{simulated: p}
 	m := NewManager(sys, t.TempDir(), Options{})
 	m.Apply(proxy, true)
 	sys.broken = true
@@ -197,7 +197,7 @@ func TestSettledIsAMarkNotWords(t *testing.T) {
 
 // ND-316: dropping one note never wipes the others when the notes cannot be read again.
 func TestDropSavedWritesNothingOnAReadFault(t *testing.T) {
-	m, dir := newManager(t, newPretend(), Options{})
+	m, dir := newManager(t, newSimulated(), Options{})
 	path := filepath.Join(dir, "fix-saved.json")
 	os.WriteFile(path, []byte("not notes"), 0o644)
 	if err := m.dropSaved(proxy); err == nil {
@@ -223,7 +223,7 @@ func (d *dnsUnreadable) DNS() ([]DNSState, error) {
 
 // proxyUnreadable is a computer whose proxy cannot be read once broken.
 type proxyUnreadable struct {
-	*pretend
+	*simulated
 	broken bool
 }
 
@@ -231,27 +231,27 @@ func (p *proxyUnreadable) Proxy() (ProxyState, error) {
 	if p.broken {
 		return ProxyState{}, errNoChange
 	}
-	return p.pretend.Proxy()
+	return p.simulated.Proxy()
 }
 
 // failingProxy is a computer that will not change the proxy back.
-type failingProxy struct{ *pretend }
+type failingProxy struct{ *simulated }
 
 var errNoChange = errors.New("the computer said no")
 
 func (f *failingProxy) SetProxy(s ProxyState) error {
 	if !s.Enabled {
-		return f.pretend.SetProxy(s) // the fix itself
+		return f.simulated.SetProxy(s) // the fix itself
 	}
 	return errNoChange
 }
 
 // stuckPower is a computer that turns power saving off but never back on.
-type stuckPower struct{ *pretend }
+type stuckPower struct{ *simulated }
 
 func (s *stuckPower) SetPowerSaving(v string) error {
 	if v == "off" {
-		return s.pretend.SetPowerSaving(v)
+		return s.simulated.SetPowerSaving(v)
 	}
 	return errNoChange
 }

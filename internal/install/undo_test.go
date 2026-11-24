@@ -274,7 +274,7 @@ func TestUninstallMissingAdapterIsAFailure(t *testing.T) {
 	for _, gone := range []bool{true, false} {
 		for _, how := range []string{"function", "silent", "page"} {
 			s := newScratch(t, "linux")
-			d := &pretendDNS{pretendFixes: s.fixes}
+			d := &simulatedDNS{simulatedFixes: s.fixes}
 			if gone {
 				d.dns = []fix.DNSState{{Adapter: "Other", IfIndex: 99, Servers: []string{"10.9.9.9"}, InUse: true}}
 			} else {

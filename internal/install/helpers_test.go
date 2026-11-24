@@ -15,8 +15,8 @@ import (
 	"github.com/rafiqkmateen/network-doctor/internal/jobs"
 )
 
-// pretend records every outside command and every job call, and answers with set replies.
-type pretend struct {
+// simulated records every outside command and every job call, and answers with set replies.
+type simulated struct {
 	mu       sync.Mutex
 	cmds     [][]string
 	replies  map[string]string // command name to its output
@@ -27,7 +27,7 @@ type pretend struct {
 	applyErr error
 }
 
-func (p *pretend) run(name string, args ...string) (string, error) {
+func (p *simulated) run(name string, args ...string) (string, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.cmds = append(p.cmds, append([]string{name}, args...))
@@ -37,7 +37,7 @@ func (p *pretend) run(name string, args ...string) (string, error) {
 	return p.replies[filepath.Base(name)], nil
 }
 
-func (p *pretend) ran(name string) [][]string {
+func (p *simulated) ran(name string) [][]string {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	var got [][]string
@@ -49,27 +49,27 @@ func (p *pretend) ran(name string) [][]string {
 	return got
 }
 
-// scratch makes a pretend computer under one temporary folder: home is the person's home
+// scratch makes a simulated computer under one temporary folder: home is the person's home
 // folder, setup holds the setup program and its guide (outside home, read only).
 type scratch struct {
 	root, home, setup string
 	env               Env
-	p                 *pretend
-	fixes             *pretendFixes
+	p                 *simulated
+	fixes             *simulatedFixes
 }
 
 func newScratch(t *testing.T, goos string) *scratch {
 	t.Helper()
 	root := t.TempDir()
 	s := &scratch{root: root, home: filepath.Join(root, "home"), setup: filepath.Join(root, "setup"),
-		p: &pretend{replies: map[string]string{}, fails: map[string]bool{}}, fixes: &pretendFixes{goos: goos}}
+		p: &simulated{replies: map[string]string{}, fails: map[string]bool{}}, fixes: &simulatedFixes{goos: goos}}
 	for _, d := range []string{s.home, s.setup} {
 		if err := os.MkdirAll(d, 0o755); err != nil {
 			t.Fatal(err)
 		}
 	}
 	exe := filepath.Join(s.setup, "netdoctor")
-	os.WriteFile(exe, []byte("pretend program"), 0o755)
+	os.WriteFile(exe, []byte("simulated program"), 0o755)
 	os.WriteFile(filepath.Join(s.setup, "GUIDE.md"), []byte("# Guide\n"), 0o644)
 	results := filepath.Join(s.home, ".config", "NetworkDoctor")
 	if goos == "darwin" {
@@ -113,9 +113,9 @@ func newScratch(t *testing.T, goos string) *scratch {
 	return s
 }
 
-// pretendFixes is a pretend computer for the fixes: it records every read and change, and says,
+// simulatedFixes is a simulated computer for the fixes: it records every read and change, and says,
 // as the real Mac and Linux ones do, which fixes may ask for administrator rights there.
-type pretendFixes struct {
+type simulatedFixes struct {
 	mu      sync.Mutex
 	goos    string
 	proxy   fix.ProxyState
@@ -126,13 +126,13 @@ type pretendFixes struct {
 	whenSet []bool // whether the program was still there at each change
 }
 
-func (f *pretendFixes) note(c string) { f.mu.Lock(); f.calls = append(f.calls, c); f.mu.Unlock() }
-func (f *pretendFixes) FlushDNS() error {
+func (f *simulatedFixes) note(c string) { f.mu.Lock(); f.calls = append(f.calls, c); f.mu.Unlock() }
+func (f *simulatedFixes) FlushDNS() error {
 	f.note("FlushDNS")
 	return nil
 }
-func (f *pretendFixes) Proxy() (fix.ProxyState, error) { f.note("Proxy"); return f.proxy, f.readErr }
-func (f *pretendFixes) SetProxy(s fix.ProxyState) error {
+func (f *simulatedFixes) Proxy() (fix.ProxyState, error) { f.note("Proxy"); return f.proxy, f.readErr }
+func (f *simulatedFixes) SetProxy(s fix.ProxyState) error {
 	f.note("SetProxy")
 	f.whenSet = append(f.whenSet, f.program != "" && exists(f.program))
 	if f.setErr != nil {
@@ -141,11 +141,11 @@ func (f *pretendFixes) SetProxy(s fix.ProxyState) error {
 	f.proxy = s
 	return nil
 }
-func (f *pretendFixes) PowerSaving() (string, error) { f.note("PowerSaving"); return "off", nil }
-func (f *pretendFixes) SetPowerSaving(string) error  { f.note("SetPowerSaving"); return nil }
-func (f *pretendFixes) PowerSavingDropsLink() bool   { return false }
-func (f *pretendFixes) Elevate() error               { f.note("Elevate"); return nil }
-func (f *pretendFixes) MayAskAdmin(name string) bool {
+func (f *simulatedFixes) PowerSaving() (string, error) { f.note("PowerSaving"); return "off", nil }
+func (f *simulatedFixes) SetPowerSaving(string) error  { f.note("SetPowerSaving"); return nil }
+func (f *simulatedFixes) PowerSavingDropsLink() bool   { return false }
+func (f *simulatedFixes) Elevate() error               { f.note("Elevate"); return nil }
+func (f *simulatedFixes) MayAskAdmin(name string) bool {
 	switch f.goos {
 	case "darwin":
 		return name == "proxy" || name == "public-dns"
@@ -155,19 +155,19 @@ func (f *pretendFixes) MayAskAdmin(name string) bool {
 	return name == "power-saving" || name == "public-dns"
 }
 
-// pretendDNS is a pretend computer that can also read and set the name servers, as Windows does,
+// simulatedDNS is a simulated computer that can also read and set the name servers, as Windows does,
 // and never asks for administrator rights, so removal runs the name-server undo itself.
-type pretendDNS struct {
-	*pretendFixes
+type simulatedDNS struct {
+	*simulatedFixes
 	dns  []fix.DNSState
 	sets int
 }
 
-func (d *pretendDNS) MayAskAdmin(string) bool        { return false }
-func (d *pretendDNS) DNS() ([]fix.DNSState, error)   { d.note("DNS"); return d.dns, nil }
-func (d *pretendDNS) SetDNS(in []fix.DNSState) error { d.sets++; d.dns = in; return nil }
-func (d *pretendDNS) Renew() error                   { return nil }
-func (d *pretendDNS) ResetAdapter() error            { return nil }
+func (d *simulatedDNS) MayAskAdmin(string) bool        { return false }
+func (d *simulatedDNS) DNS() ([]fix.DNSState, error)   { d.note("DNS"); return d.dns, nil }
+func (d *simulatedDNS) SetDNS(in []fix.DNSState) error { d.sets++; d.dns = in; return nil }
+func (d *simulatedDNS) Renew() error                   { return nil }
+func (d *simulatedDNS) ResetAdapter() error            { return nil }
 
 // notesFor builds undo notes, each fix's note with the account given beside it, as Apply writes
 // them; an empty account leaves the account out, as notes from before it was recorded.

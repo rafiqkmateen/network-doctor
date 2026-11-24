@@ -11,7 +11,7 @@ import (
 // scheduleJobs is `schedule enable | disable | status` on Mac and Linux (ND-284). It makes and
 // removes the same weekly job the install makes, through the jobs package, and keeps the choices
 // file in step (ND-208). The words name no system tool. It has no build tag, so the tests run it
-// as a pretend Mac and a pretend Linux on any computer.
+// as a simulated Mac and a simulated Linux on any computer.
 func scheduleJobs(goos, home, exe string, args []string, cfg store.Config, run jobs.Runner, out io.Writer) int {
 	if len(args) != 1 {
 		fmt.Fprintln(out, "Use: schedule enable | disable | status")

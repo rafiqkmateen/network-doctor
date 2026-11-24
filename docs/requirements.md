@@ -250,7 +250,7 @@ Whatever Windows has, Mac and Linux get, and the software looks the same on all 
 - ND-304 On a Mac (`networksetup -setdnsservers` for the service in use, where "Empty" means automatic) and on Linux (`nmcli` for the connection in use), the `public-dns` fix shall do what ND-235 and ND-244 say for Windows: the same offer conditions, the saved servers, the read-back and the exact undo.
 - ND-305 On a Mac (`ipconfig set` with DHCP for the adapter in use) and on Linux (`nmcli device reapply` for the adapter in use), the `renew-address` fix shall do what ND-236 and ND-244 say for Windows.
 - ND-306 On a Mac (`networksetup -setnetworkserviceenabled` off then on for the service in use) and on Linux (`nmcli device disconnect` then `connect` for the adapter in use), the `reset-adapter` fix shall do what ND-237, ND-244 and ND-245 say for Windows.
-- ND-307 On Mac and Linux, a fix whose system tool is missing shall be refused in plain words and change nothing, and shall be neither in `fixes` nor in `fix_offers`; power saving shall stay refused on all three systems; administrator permission shall be asked only at the moment of approval (ND-94); and the tests of these fixes shall run only pretend commands, never a real network change.
+- ND-307 On Mac and Linux, a fix whose system tool is missing shall be refused in plain words and change nothing, and shall be neither in `fixes` nor in `fix_offers`; power saving shall stay refused on all three systems; administrator permission shall be asked only at the moment of approval (ND-94); and the tests of these fixes shall run only simulated commands, never a real network change.
 
 ### Rules and proof
 

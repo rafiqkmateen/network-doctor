@@ -11,7 +11,7 @@ import (
 	"github.com/rafiqkmateen/network-doctor/internal/core"
 )
 
-// hiddenWiFi is a pretend machine where Windows hides the Wi-Fi details.
+// hiddenWiFi is a simulated machine where Windows hides the Wi-Fi details.
 type hiddenWiFi struct{ *fake }
 
 func (hiddenWiFi) WiFi(context.Context) (collect.WiFiInfo, error) {
@@ -95,7 +95,7 @@ func TestHiddenWiFiReachesTheDiagnosis(t *testing.T) {
 	}
 }
 
-// readWiFi is a pretend machine where the Wi-Fi read works.
+// readWiFi is a simulated machine where the Wi-Fi read works.
 type readWiFi struct{ *fake }
 
 func (readWiFi) WiFi(context.Context) (collect.WiFiInfo, error) {

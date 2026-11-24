@@ -251,7 +251,7 @@ func TestInstallPageServesTheGuideOnlyAfterInstall(t *testing.T) {
 	}
 	// A failed install offers no guide, and the removal page has none.
 	s := newScratch(t, "linux")
-	s.p.applyErr = errors.New("pretend failure")
+	s.p.applyErr = errors.New("simulated failure")
 	base, _, _ := started(t, s, ModeInstall)
 	u, _ := url.Parse(base)
 	send(t, base, req{method: "POST", path: u.Path + "api/install", body: `{"weekly":true}`, header: true})

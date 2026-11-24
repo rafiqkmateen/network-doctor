@@ -13,25 +13,25 @@ import (
 	"github.com/rafiqkmateen/network-doctor/internal/fix"
 )
 
-type cliPretend struct {
+type cliSimulated struct {
 	proxy   fix.ProxyState
 	writes  int
 	readErr error // the proxy cannot be read
 }
 
-func (p *cliPretend) FlushDNS() error                { return nil }
-func (p *cliPretend) Proxy() (fix.ProxyState, error) { return p.proxy, p.readErr }
-func (p *cliPretend) SetProxy(s fix.ProxyState) error {
+func (p *cliSimulated) FlushDNS() error                { return nil }
+func (p *cliSimulated) Proxy() (fix.ProxyState, error) { return p.proxy, p.readErr }
+func (p *cliSimulated) SetProxy(s fix.ProxyState) error {
 	p.writes++
 	p.proxy = s
 	return nil
 }
-func (p *cliPretend) PowerSaving() (string, error) { return "on", nil }
-func (p *cliPretend) SetPowerSaving(string) error  { return nil }
-func (p *cliPretend) PowerSavingDropsLink() bool   { return false }
-func (p *cliPretend) Elevate() error               { return nil }
+func (p *cliSimulated) PowerSaving() (string, error) { return "on", nil }
+func (p *cliSimulated) SetPowerSaving(string) error  { return nil }
+func (p *cliSimulated) PowerSavingDropsLink() bool   { return false }
+func (p *cliSimulated) Elevate() error               { return nil }
 
-func runFix(t *testing.T, p *cliPretend, dir string, args ...string) (string, int) {
+func runFix(t *testing.T, p *cliSimulated, dir string, args ...string) (string, int) {
 	t.Helper()
 	old := newFixSystem
 	newFixSystem = func() fix.System { return p }
@@ -43,7 +43,7 @@ func runFix(t *testing.T, p *cliPretend, dir string, args ...string) (string, in
 
 // ND-90, ND-91: apply without --yes shows before and after and changes nothing; with --yes it changes that one fix.
 func TestFixApplyShowsThenNeedsYes(t *testing.T) {
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
 	dir := t.TempDir()
 	out, code := runFix(t, p, dir, "apply", "proxy")
 	if code != 0 || p.writes != 0 {
@@ -67,7 +67,7 @@ func TestFixApplyShowsThenNeedsYes(t *testing.T) {
 
 // ND-95: a refused fix exits with a plain reason and a non-zero code.
 func TestFixRefusalExitsWithReason(t *testing.T) {
-	out, code := runFix(t, &cliPretend{}, t.TempDir(), "apply", "driver", "--yes")
+	out, code := runFix(t, &cliSimulated{}, t.TempDir(), "apply", "driver", "--yes")
 	if code == 0 || !strings.Contains(out, "never changes drivers") {
 		t.Errorf("code %d\n%s", code, out)
 	}
@@ -76,7 +76,7 @@ func TestFixRefusalExitsWithReason(t *testing.T) {
 // ND-96: with NETDOCTOR_UNATTENDED set, fixes stay off until enable-here.
 func TestFixServerSwitch(t *testing.T) {
 	t.Setenv("NETDOCTOR_UNATTENDED", "1")
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "x:1"}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "x:1"}}
 	dir := t.TempDir()
 	if _, code := runFix(t, p, dir, "apply", "proxy", "--yes"); code == 0 || p.writes != 0 {
 		t.Fatalf("server must refuse by default: code %d writes %d", code, p.writes)
@@ -90,7 +90,7 @@ func TestFixServerSwitch(t *testing.T) {
 // ND-316: `fix undo-all`, what the Windows uninstaller runs, puts back every fix still applied and
 // exits 0; with one it cannot put back it exits 1 with the plain lines, also written to --note.
 func TestFixUndoAll(t *testing.T) {
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
 	dir := t.TempDir()
 	if out, code := runFix(t, p, dir, "undo-all"); code != 0 || p.writes != 0 {
 		t.Fatalf("nothing applied: code %d writes %d\n%s", code, p.writes, out)
@@ -114,7 +114,7 @@ func TestFixUndoAll(t *testing.T) {
 // its note, exits 0 and says it was left as set (also in --note); mixed with a fix that fails it
 // exits 1 and keeps only that one's note. `fix undo` itself still refuses a changed setting.
 func TestFixUndoAllSettlesAChangedSetting(t *testing.T) {
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
 	dir := t.TempDir()
 	runFix(t, p, dir, "apply", "proxy", "--yes")
 	p.proxy = fix.ProxyState{Enabled: true, Server: "changed.example:1"}
@@ -153,7 +153,7 @@ func TestFixUndoAllSettlesAChangedSetting(t *testing.T) {
 // elsewhere never makes undo-all read other notes and report success; and with --kept the note
 // says the results are kept, not deleted.
 func TestFixUndoAllFolderAndKept(t *testing.T) {
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}
 	real, other := t.TempDir(), t.TempDir()
 	os.WriteFile(filepath.Join(real, "fix-saved.json"), []byte("not notes"), 0o644) // a genuine failure
 	note := filepath.Join(t.TempDir(), "fix-not-undone.txt")
@@ -210,7 +210,7 @@ func TestFixUndoAllReadErrorOrOtherAccountIsAFailure(t *testing.T) {
 		{"another account", "PC\\someone-else (S-1-5-21-9)", nil},
 		{"no account", "", nil},
 	} {
-		p := &cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "changed.example:1"}, readErr: c.readErr}
+		p := &cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "changed.example:1"}, readErr: c.readErr}
 		dir := t.TempDir()
 		os.WriteFile(filepath.Join(dir, "fix-saved.json"),
 			[]byte(cliNotes(t, c.account, map[string]string{"proxy": `{"enabled":true,"server":"10.0.0.9:8080"}`})), 0o644)
@@ -222,9 +222,9 @@ func TestFixUndoAllReadErrorOrOtherAccountIsAFailure(t *testing.T) {
 	}
 }
 
-// cliDNS is a pretend Windows computer that can read and set the name servers.
+// cliDNS is a simulated Windows computer that can read and set the name servers.
 type cliDNS struct {
-	cliPretend
+	cliSimulated
 	dns  []fix.DNSState
 	sets int
 }
@@ -269,7 +269,7 @@ func TestFixUndoAllMissingAdapterIsAFailure(t *testing.T) {
 
 // The plain list names each fix and its setting now, and changes nothing.
 func TestFixList(t *testing.T) {
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "x:1"}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "x:1"}}
 	out, code := runFix(t, p, t.TempDir(), "list")
 	if code != 0 || p.writes != 0 {
 		t.Fatalf("code %d writes %d", code, p.writes)

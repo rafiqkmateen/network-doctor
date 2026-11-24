@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Runner runs one program with its arguments. Tests pass a pretend one.
+// Runner runs one program with its arguments. Tests pass a simulated one.
 type Runner func(name string, args ...string) (string, error)
 
 // ErrNoHelper means the system has no program to show a screen alert with.
@@ -32,7 +32,7 @@ func Command(goos, title, msg string) (string, []string) {
 
 // ScreenWith shows one alert on goos, finding the program with look and running it with run. A
 // missing program gives ErrNoHelper; a program that fails gives its error. It has no build tag,
-// so the tests run it as a pretend Mac and a pretend Linux on any computer.
+// so the tests run it as a simulated Mac and a simulated Linux on any computer.
 func ScreenWith(goos string, look func(string) (string, error), run Runner, title, msg string) error {
 	name, args := Command(goos, title, msg)
 	if _, err := look(name); err != nil {

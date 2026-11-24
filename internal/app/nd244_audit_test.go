@@ -12,27 +12,27 @@ import (
 	"github.com/rafiqkmateen/network-doctor/internal/fix"
 )
 
-// condPretend is a pretend Windows computer with the round-two abilities and the situation read.
-type condPretend struct {
-	cliPretend
+// condSimulated is a simulated Windows computer with the round-two abilities and the situation read.
+type condSimulated struct {
+	cliSimulated
 	cond           fix.Conditions
 	renews, resets int
 }
 
-func (p *condPretend) DNS() ([]fix.DNSState, error) {
+func (p *condSimulated) DNS() ([]fix.DNSState, error) {
 	return []fix.DNSState{{Adapter: "Wi-Fi", IfIndex: 12, Automatic: true, InUse: true}}, nil
 }
-func (p *condPretend) SetDNS([]fix.DNSState) error         { return nil }
-func (p *condPretend) Renew() error                        { p.renews++; return nil }
-func (p *condPretend) ResetAdapter() error                 { p.resets++; return nil }
-func (p *condPretend) Conditions() (fix.Conditions, error) { return p.cond, nil }
+func (p *condSimulated) SetDNS([]fix.DNSState) error         { return nil }
+func (p *condSimulated) Renew() error                        { p.renews++; return nil }
+func (p *condSimulated) ResetAdapter() error                 { p.resets++; return nil }
+func (p *condSimulated) Conditions() (fix.Conditions, error) { return p.cond, nil }
 
 var (
-	_ fix.ExtraSystem     = (*condPretend)(nil)
-	_ fix.ConditionSystem = (*condPretend)(nil)
+	_ fix.ExtraSystem     = (*condSimulated)(nil)
+	_ fix.ConditionSystem = (*condSimulated)(nil)
 )
 
-func runCondFix(t *testing.T, p *condPretend, args ...string) (fixReply, string) {
+func runCondFix(t *testing.T, p *condSimulated, args ...string) (fixReply, string) {
 	t.Helper()
 	old := newFixSystem
 	newFixSystem = func() fix.System { return p }
@@ -51,7 +51,7 @@ type writerFunc func([]byte) (int, error)
 func (f writerFunc) Write(b []byte) (int, error) { return f(b) }
 
 func TestND244CommandRefusesWhenTheTroubleIsGone(t *testing.T) {
-	p := &condPretend{cond: fix.Conditions{AdapterUp: true, HasAddress: true, RouterAnswers: true, InternetAnswers: true}}
+	p := &condSimulated{cond: fix.Conditions{AdapterUp: true, HasAddress: true, RouterAnswers: true, InternetAnswers: true}}
 	for _, name := range []string{"reset-adapter", "renew-address"} {
 		j, raw := runCondFix(t, p, "apply", name, "--yes", "--json")
 		if j.Applied || j.OK || strings.TrimSpace(j.Error) == "" {
@@ -61,7 +61,7 @@ func TestND244CommandRefusesWhenTheTroubleIsGone(t *testing.T) {
 	if p.renews != 0 || p.resets != 0 {
 		t.Errorf("nothing may run on a working line: renews %d, resets %d", p.renews, p.resets)
 	}
-	p = &condPretend{cond: fix.Conditions{AdapterUp: true}}
+	p = &condSimulated{cond: fix.Conditions{AdapterUp: true}}
 	for _, name := range []string{"reset-adapter", "renew-address"} {
 		if j, raw := runCondFix(t, p, "apply", name, "--yes", "--json"); !j.Applied {
 			t.Errorf("%s on a dead line with no address: must run:\n%s", name, raw)

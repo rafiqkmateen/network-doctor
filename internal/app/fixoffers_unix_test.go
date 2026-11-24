@@ -16,7 +16,7 @@ import (
 func TestProxyFixNotOfferedWhenItsSettingIsOff(t *testing.T) {
 	old := newFixSystem
 	t.Cleanup(func() { newFixSystem = old })
-	p := &cliPretend{proxy: fix.ProxyState{Enabled: false}}
+	p := &cliSimulated{proxy: fix.ProxyState{Enabled: false}}
 	newFixSystem = func() fix.System { return p }
 	if got := fixOffers([]string{core.FixProxy}, ""); len(got) != 0 {
 		t.Errorf("a proxy that is already off must not be offered: %+v", got)
@@ -27,18 +27,18 @@ func TestProxyFixNotOfferedWhenItsSettingIsOff(t *testing.T) {
 	}
 }
 
-// adminPretend is a pretend computer that says itself which fixes may ask for administrator
+// adminSimulated is a simulated computer that says itself which fixes may ask for administrator
 // rights, as a Mac does for the proxy fix.
-type adminPretend struct{ *cliPretend }
+type adminSimulated struct{ *cliSimulated }
 
-func (adminPretend) MayAskAdmin(name string) bool { return name == core.FixProxy }
+func (adminSimulated) MayAskAdmin(name string) bool { return name == core.FixProxy }
 
 // The proxy fix on a computer whose tool may ask for administrator rights says so everywhere: in
 // the check's offer, in `fix list` (words and JSON) and in `fix apply`.
 func TestNeedsAdminFollowsTheComputer(t *testing.T) {
 	old := newFixSystem
 	t.Cleanup(func() { newFixSystem = old })
-	p := adminPretend{&cliPretend{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}}
+	p := adminSimulated{&cliSimulated{proxy: fix.ProxyState{Enabled: true, Server: "10.0.0.9:8080"}}}
 	newFixSystem = func() fix.System { return p }
 	if got := fixOffers([]string{core.FixProxy}, ""); len(got) != 1 || !got[0].NeedsAdmin {
 		t.Errorf("offer: %+v", got)

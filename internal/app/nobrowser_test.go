@@ -9,7 +9,7 @@ import (
 	"github.com/rafiqkmateen/network-doctor/internal/core"
 )
 
-// ND-300: with no browser, a pretend Mac shows an osascript dialog, a pretend Linux shows zenity,
+// ND-300: with no browser, a simulated Mac shows an osascript dialog, a simulated Linux shows zenity,
 // else kdialog, else only prints. The address is its own argument (never script text), and the
 // program ends when the person presses OK.
 func TestNoBrowserDialogPerSystem(t *testing.T) {

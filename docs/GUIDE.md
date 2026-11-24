@@ -11,7 +11,7 @@ Network Doctor looks at your internet connection, wired or Wi-Fi. It tells you i
 
 This guide describes the newest code. No ready-made download is offered: build it yourself from the source (see "Build it yourself" on the front page). A build from source says 0.4.0. Versions 0.1.0 to 0.3.0 were released earlier and are no longer offered.
 
-**Not yet tried on a real machine.** The Mac and Linux setups were tried on clean test machines that have no screen and no person at them. So four things are not yet proven: the weekly check on Linux when the computer's own timer or your crontab runs it; the "Allow Launching" step on a real Linux desktop; whether a Mac asks once for permission to control Finder (setup uses Finder to put the icon on your Desktop, so press OK if it asks); and whether a Mac runs a missed weekly check when it wakes. The fixes on Mac and Linux, the box that shows the address when no browser opens, and the 12- or 24-hour clock setting were tested with pretend commands and sample answers, not on a real Mac or Linux computer.
+**Not yet tried on a real machine.** The Mac and Linux setups were tried on clean test machines that have no screen and no person at them. So four things are not yet proven: the weekly check on Linux when the computer's own timer or your crontab runs it; the "Allow Launching" step on a real Linux desktop; whether a Mac asks once for permission to control Finder (setup uses Finder to put the icon on your Desktop, so press OK if it asks); and whether a Mac runs a missed weekly check when it wakes. The fixes on Mac and Linux, the box that shows the address when no browser opens, and the 12- or 24-hour clock setting were tested with simulated commands and sample answers, not on a real Mac or Linux computer.
 
 ## Windows, Mac and Linux
 
@@ -223,7 +223,7 @@ If you were given the Mac setup file (`NetworkDoctor-Setup-`, a version number a
 3. Near the bottom, press "Open Anyway" next to Network Doctor Setup.
 4. Enter your Mac password. Then press Open.
 
-Newer Macs have no right-click way round this. A file copied from a USB stick or a shared network folder is not blocked; a file sent by AirDrop is checked too.
+macOS 15 (Sequoia) and newer have no right-click way round this. A file copied from a USB stick or a shared network folder is not blocked; a file sent by AirDrop is checked too.
 
 Setup opens a page in your web browser. It never asks for an administrator password, and it changes only your own folders. Pick the parts you want:
 

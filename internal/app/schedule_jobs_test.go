@@ -49,7 +49,7 @@ func (r *jobRunner) run(name string, args ...string) (string, error) {
 	return "", fail
 }
 
-// ND-284: schedule enable, status, disable and status on a pretend Mac and a pretend Linux, with
+// ND-284: schedule enable, status, disable and status on a simulated Mac and a simulated Linux, with
 // and without a choices file. The job is made and removed, the words are plain, and the choices
 // file follows only when it exists.
 func TestScheduleWorksOnMacAndLinux(t *testing.T) {

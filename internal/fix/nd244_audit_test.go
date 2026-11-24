@@ -2,7 +2,7 @@ package fix
 
 // Checks for ND-244, written before the build: the situation is read
 // again at the press, public-dns touches only the adapter in use, and the "now" words are read
-// from the computer. Everything runs on a pretend computer.
+// from the computer. Everything runs on a simulated computer.
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-// ndCond is a pretend Windows computer that also reads the situation at the press (ConditionSystem).
+// ndCond is a simulated Windows computer that also reads the situation at the press (ConditionSystem).
 type ndCond struct {
 	*ndExtra
 	cond    Conditions

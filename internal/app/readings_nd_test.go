@@ -2,7 +2,7 @@ package app
 
 // Checks for the round-two readings (ND-231, ND-232, ND-233, ND-239, ND-240, the VPN sentence of
 // ND-241), written before the build. They go through Check and Run
-// with a pretend machine that also has the newer reads (collect.Extras).
+// with a simulated machine that also has the newer reads (collect.Extras).
 // The helpers here (nd...) are shared by speedrecheck_nd_test.go and fixoffers_nd_test.go.
 
 import (
@@ -18,7 +18,7 @@ import (
 	"github.com/rafiqkmateen/network-doctor/internal/core"
 )
 
-// ndSource is a pretend machine with the newer reads. It counts every sign-in request and
+// ndSource is a simulated machine with the newer reads. It counts every sign-in request and
 // every second speed test, so a test can prove each is made once at most.
 type ndSource struct {
 	*fake

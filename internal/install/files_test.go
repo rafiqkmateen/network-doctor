@@ -37,10 +37,10 @@ func TestMacAppBundleLayout(t *testing.T) {
 	if strings.Contains(strings.ToLower(launcher), "terminal") || !runnable(t, start) {
 		t.Errorf("start file must run by itself with no terminal:\n%s", launcher)
 	}
-	if read(t, filepath.Join(app, "Contents", "MacOS", "netdoctor")) != "pretend program" {
+	if read(t, filepath.Join(app, "Contents", "MacOS", "netdoctor")) != "simulated program" {
 		t.Error("the program was not copied into the app")
 	}
-	// The Finder alias failed (pretend), so the Desktop has a link to the app.
+	// The Finder alias failed (simulated), so the Desktop has a link to the app.
 	desk := filepath.Join(s.home, "Desktop", "Network Doctor")
 	if got := read(t, desk); got != "link to "+app {
 		t.Errorf("Desktop link: %q", got)
@@ -88,7 +88,7 @@ func TestLinuxLauncherFiles(t *testing.T) {
 		t.Fatalf("install problems: %v", r.Problems)
 	}
 	prog := filepath.Join(s.home, ".local", "share", "NetworkDoctor", "netdoctor")
-	if read(t, prog) != "pretend program" || !runnable(t, prog) {
+	if read(t, prog) != "simulated program" || !runnable(t, prog) {
 		t.Error("the program is not in ~/.local/share/NetworkDoctor")
 	}
 	apps := filepath.Join(s.home, ".local", "share", "applications")

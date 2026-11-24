@@ -15,7 +15,7 @@ import (
 	"github.com/rafiqkmateen/network-doctor/internal/core"
 )
 
-// fake is a pretend machine.
+// fake is a simulated machine.
 type fake struct {
 	adapter  collect.AdapterInfo
 	routerP  collect.PingResult

@@ -24,7 +24,7 @@ type SpeedPair struct {
 }
 
 // Extras are the newer reads. A source that does not have them is simply not asked, so older
-// pretend sources keep working.
+// simulated sources keep working.
 type Extras interface {
 	// Probe sends the system's own sign-in test request.
 	Probe(ctx context.Context) (ProbeResult, error)
